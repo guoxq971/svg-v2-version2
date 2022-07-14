@@ -1,0 +1,184 @@
+.action {
+  border: 1px solid #0099ff !important;
+  box-shadow: 0px 1px 7px #0099ff8a;
+  transition: all 0.3s;
+}
+// tabs
+::v-deep .el-tabs__nav-scroll {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.bm-design-group {
+  display: flex;
+  height: 710px;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  // 左侧-流程操作区域
+  .flow-container {
+    height: 100%;
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    .btn-group {
+      margin-bottom: 10px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+    }
+    .show-btn {
+      border: 1px solid #ccc;
+      flex: 1;
+    }
+  }
+  .operator-wrap {
+    flex: 7.5;
+    display: flex;
+    // border: 1px dashed #ccc;
+    margin-left: 20px;
+    padding: 10px;
+
+    // 中间-设计区域
+    .design-container {
+      flex: 5;
+      //   border: 1px solid #ccc;
+      margin-right: 10px;
+      padding: 10px;
+
+      // 标题
+      .title-wrap {
+        display: flex;
+        justify-content: center;
+        .title {
+          margin-right: 10px;
+          font-weight: bold;
+          font-size: 20px;
+          letter-spacing: 1px;
+        }
+      }
+
+      // 设计区域
+      .design-wrap {
+        display: flex;
+        .left-wrap {
+          .item-list {
+            width: 65px;
+            height: 65px;
+            border: 1px solid #878787;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            cursor: pointer;
+          }
+        }
+        .design-wrap {
+          margin-left: 20px;
+          border: 1px dotted #ccc;
+          width: 100%;
+          height: 100%;
+          background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAlSURBVChTY7hw/ux/Bii4eOEcnI0sjsymA0B2xiABo04iCBgYAA+nF/odsgq3AAAAAElFTkSuQmCC);
+          display: table-cell;
+          vertical-align: middle;
+          text-align: center;
+        }
+      }
+    }
+    // 右侧-操作区域
+    .operator-container {
+      max-width: 430px;
+      flex: 2;
+      // 操作按钮
+      .btn-group {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        .btn-1 {
+          display: flex;
+          justify-content: space-between;
+          padding: 10px;
+          border-bottom: 1px solid #ccc;
+        }
+        .btn-2 {
+          display: flex;
+          justify-content: space-between;
+          padding: 10px;
+        }
+      }
+      // 图层
+      .layer-group {
+        width: 100%;
+        margin-top: 10px;
+        .item-layer {
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          padding: 8px;
+          display: flex;
+          .img {
+            width: 40px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+          }
+          .name {
+            width: 90px;
+            padding: 0 5px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            // 超出隐藏 省略号
+            word-wrap: break-word; /*强制换行*/
+            overflow: hidden; /*超出隐藏*/
+            text-overflow: ellipsis; /*隐藏后添加省略号*/
+            white-space: nowrap; /*强制不换行*/
+          }
+          .btn-layer {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            .el-button--mini,
+            .el-button--mini.is-round {
+              padding: 4px;
+            }
+          }
+          .item-btn {
+            max-width: 50px;
+          }
+        }
+      }
+      // 图层-按钮
+      .layer-btn-group {
+        margin-top: 10px;
+        padding: 7px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        .btn-1 {
+          padding: 0 0 7px 0;
+          border-bottom: 1px solid #ccc;
+          display: flex;
+          justify-content: space-between;
+        }
+        .btn-2 {
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          .item-btn {
+            min-width: 80px;
+            margin: 7px 7px 0 7px;
+          }
+          .item-btn-space {
+            min-width: 80px;
+            margin: 7px 7px 0 7px;
+          }
+        }
+      }
+      // 多角度
+      .multi-angle {
+        margin-top: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+    }
+  }
+}

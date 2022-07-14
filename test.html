@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <style type="text/css">
+    .matrix_box {
+      width: 50px;
+      height: 50px;
+      background: url("./src/components//bmDesigner//banner1.jpg") no-repeat;
+      background-size: 100% 100%;
+    }
+  </style>
+
+  <body>
+    <p id="matrixDetail">目前属性值为：matrix(1,0,0,1,0,0)</p>
+    <div id="matrixBox" class="matrix_box"></div>
+  </body>
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script type="text/javascript">
+    var x = 0,
+      v = 0,
+      k = 0;
+
+    var rotate = function () {
+      if (k == 0) {
+        //（由于多次调用此函数）只需获取一次，不然栈溢出！
+        $ = function (selector) {
+          return document.querySelector(selector);
+        };
+      }
+      k++;
+      var eleDetail = $("#matrixDetail"),
+        eleBox = $("#matrixBox");
+
+      if (eleBox) {
+        v = (v + 12) % 361;
+        var maxVal = 360,
+          minVal = 0,
+          value = parseFloat(v);
+        if (value < parseFloat(minVal)) {
+          value = parseFloat(minVal);
+        }
+        if (value > parseFloat(maxVal)) {
+          value = parseFloat(maxVal);
+        }
+        var cosVal = Math.cos((value * Math.PI) / 180.0),
+          sinVal = Math.sin((value * Math.PI) / 180.0);
+        x += 3;
+        var valTransform =
+          "matrix(" +
+          cosVal.toFixed(6) +
+          "," +
+          sinVal.toFixed(6) +
+          "," +
+          (-1 * sinVal).toFixed(6) +
+          "," +
+          cosVal.toFixed(6) +
+          "," +
+          x +
+          "," +
+          y +
+          ")";
+        eleDetail.innerHTML = "目前属性值为：" + valTransform;
+        $css3Transform(eleBox, valTransform);
+      }
+    };
+    setInterval(rotate, 500);
+    var $css3Transform = function (element, value) {
+      var arrPriex = ["O", "Ms", "Moz", "Webkit", ""],
+        length = arrPriex.length;
+      for (var i = 0; i < length; i += 1) {
+        element.style[arrPriex[i] + "Transform"] = value;
+      }
+    };
+  </script>
+</html>
