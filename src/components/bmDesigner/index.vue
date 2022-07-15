@@ -218,14 +218,14 @@ import { mock } from "./mock";
 import { DesignProxy } from "./app/index";
 import { Prod } from "./app/entity/Prod";
 import {
-  addImage4TypeByBg,
-  addImage4TypeByImg,
   deleteImageById,
   getActiveImage,
   getImageActionId,
+  getProd,
   setImageActionId,
 } from "./app/designUse/index";
 import {
+  imageAdapterV2,
   predefineColors,
   vueApplyBgColor,
   vueDeleteImage,
@@ -292,7 +292,15 @@ export default {
       data.sNode.layerTrigger();
     },
     // 图层-复制
-    handlerCopy() {},
+    handlerCopy() {
+      if (!getProd().hasImageAction) {
+        this.$message.warning("请先选择设计图");
+        return;
+      }
+      let image = getActiveImage();
+      let newImage = this.picClick(imageAdapterV2(image.data));
+      image.copy(newImage);
+    },
     // 图库-选中
     picClick(data) {
       return vueSelectImage(data, this.layerList);
@@ -313,7 +321,10 @@ export default {
       this.activeName = "1";
     },
     // 左/右旋
-    handlerRotate(type) {},
+    handlerRotate(type) {
+      let angle = { left: 360 - 45, right: 45 }[type];
+      getActiveImage().imageRotate(angle);
+    },
     // 居中
     handlerAlign(type) {
       getActiveImage().align(type);

@@ -41,6 +41,13 @@ export class Prod {
   }
 
   /*
+   * 判断当前是否有激活的设计图
+   * @return {Boolean} true:有激活的设计图 false:没有激活的设计图
+   * */
+  hasImageAction() {
+    return this.getImageActionId() !== "";
+  }
+  /*
    * 巡查设计图激活状态
    * 只将激活的设计图边框设为显示
    * */

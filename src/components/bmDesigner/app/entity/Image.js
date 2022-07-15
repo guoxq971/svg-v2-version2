@@ -20,10 +20,6 @@ export class DesignImage {
   x = 0;
   // 设计图移动y
   y = 0;
-  // 设计图矩阵(对应scale)
-  imageMatrix;
-  // 设计图边框矩阵(对应真实的x,y 和 angle)
-  imageBdMatrix;
   // 设计图的所有dom
   dom;
   // 背景图才有的颜色
@@ -54,13 +50,6 @@ export class DesignImage {
     if (scale) {
       this.setScale(Number(scale));
     }
-    this.setLogMatrix();
-  }
-
-  // 设置日志矩阵
-  setLogMatrix() {
-    this.setImageMatrix();
-    this.setImageBdMatrix();
   }
 
   /*
@@ -183,6 +172,16 @@ export class DesignImage {
     }
   }
 
+  /*
+   * 复制设计图
+   * */
+  copy(newImage) {
+    newImage.imageMove(this.getX(), this.getY(), "real");
+    newImage.imageScale(this.getScale());
+    newImage.imageRotate(this.getAngle());
+    newImage.imageMove(50, 50);
+  }
+
   // 图层显示\隐藏
   layerTrigger() {
     // 操作元素
@@ -287,27 +286,5 @@ export class DesignImage {
   // 获取设计图的产品id
   getProdId() {
     return this.prodId;
-  }
-  // 设置设计图矩阵
-  setImageMatrix(matrix) {
-    this.imageMatrix = matrix;
-  }
-  // 获取设计图矩阵
-  getImageMatrix() {
-    return this.imageMatrix;
-  }
-  // 设置设计图边框矩阵
-  setImageBdMatrix(matrix = this.getDom().imgBd.attr("transform").localMatrix) {
-    this.imageBdMatrix = matrix;
-  }
-  // 获取设计图边框矩阵
-  getImageBdMatrix() {
-    return this.imageBdMatrix;
-  }
-  // 设置设计图矩阵
-  setImageGroupMatrix(
-    matrix = this.getDom().img.attr("transform").localMatrix
-  ) {
-    this.imageGroupMatrix = matrix;
   }
 }

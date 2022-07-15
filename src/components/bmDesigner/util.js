@@ -7,6 +7,17 @@ import {
 } from "./app/designUse/index";
 import { layer } from "./app/utils/layer";
 
+// 设计图入参适配器(复制的时候用到)
+export function imageAdapterV2(data) {
+  return {
+    id: data.id,
+    name: data.name,
+    sid: data.sid,
+    url: data.url,
+  };
+}
+
+// 设计图入参适配器
 export function imageAdaptor(image, data) {
   data.sid = image.getId();
   return {
