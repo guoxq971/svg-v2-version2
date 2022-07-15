@@ -226,15 +226,13 @@ import {
   setImageActionId,
 } from "./app/designUse/index";
 import {
-  bgImageAdaptor,
-  imageAdaptor,
-  layerIndex,
-  vueGetActiveImage,
-  vueGetImage,
+  predefineColors,
+  vueApplyBgColor,
+  vueDeleteImage,
+  vueLayerUpDown,
+  vueSelectImage,
   vueSetTop,
 } from "./util";
-import { layer } from "./app/utils/layer";
-import { swapArrData } from "./app/utils/util";
 
 export default {
   components: { bmSwiper, bmInfo, bmSearchList },
@@ -255,34 +253,13 @@ export default {
       // 背景色
       color: "rgba(255, 69, 0, 0.68)",
       // 背景预设值
-      predefineColors: [
-        "#ff4500",
-        "#ff8c00",
-        "#ffd700",
-        "#90ee90",
-        "#00ced1",
-        "#1e90ff",
-        "#c71585",
-        "rgba(255, 69, 0, 0.68)",
-        "rgb(255, 120, 0)",
-        "hsv(51, 100, 98)",
-        "hsva(120, 40, 94, 0.5)",
-        "hsl(181, 100%, 37%)",
-        "hsla(209, 100%, 56%, 0.73)",
-        "#c7158577",
-      ],
+      predefineColors: predefineColors,
     };
   },
   methods: {
     // 背景色-应用
     handlerApplyColor() {
-      const { image, hasBg } = addImage4TypeByBg(this.color);
-      if (hasBg) {
-        let layer = vueGetImage(this.layerList, image.id);
-        layer.name = `${this.color}`;
-      } else {
-        this.layerList.push(bgImageAdaptor(image));
-      }
+      vueApplyBgColor(this.color, this.layerList);
     },
     // 下载图片
     handlerDown() {},
@@ -291,12 +268,14 @@ export default {
      * @param {String} type up上/down下
      */
     handlerLayer(type, data, msgFlag = true) {
-      // 图层dom操作 + 提示信息
-      data = data ? data : vueGetImage(this.layerList, this.activeImgId);
-      let result = layer(type, data.sNode, msgFlag);
-      // vue数据操作
-      this.layerList = layerIndex(result, this.layerList, data, type);
-      // return这个是置顶、置底的时候用的
+      let { result, layerList } = vueLayerUpDown(
+        type,
+        this.layerList,
+        this.activeImgId,
+        msgFlag,
+        data
+      );
+      this.layerList = layerList;
       return result;
     },
     // 图层-删除
@@ -316,21 +295,11 @@ export default {
     handlerCopy() {},
     // 图库-选中
     picClick(data) {
-      // 设计器添加设计图操作
-      let image = addImage4TypeByImg(data);
-      // vue数据操作
-      let d = imageAdaptor(image, data);
-      this.layerList.unshift(d);
-      image.setData(d);
-      return image;
+      return vueSelectImage(data, this.layerList);
     },
     // 图库-删除(提供给design类使用)
     handlerImgDel(id) {
-      this.layerList.findIndex((item) => {
-        if (item?.sid === id) {
-          this.layerList.splice(this.layerList.indexOf(item), 1);
-        }
-      });
+      vueDeleteImage(this.layerList, id);
     },
     // 设置VUE中的当前激活图片id(提供给design类使用)
     setVueActiveImgId(id = getImageActionId()) {
