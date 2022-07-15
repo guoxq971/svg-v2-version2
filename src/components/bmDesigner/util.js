@@ -7,44 +7,11 @@ import {
 } from "./app/designUse/index";
 import { layer } from "./app/utils/layer";
 import saveSvgAsPng from "save-svg-as-png";
-
-// 设计图入参适配器(复制的时候用到)
-export function imageAdapterV2(data) {
-  return {
-    id: data.id,
-    name: data.name,
-    sid: data.sid,
-    url: data.url,
-  };
-}
-
-// 设计图入参适配器
-export function imageAdaptor(image, data) {
-  data.sid = image.getId();
-  return {
-    sid: data.sid,
-    type: "img",
-    sNode: image,
-    id: data.id,
-    url: data.url,
-    name: data.name,
-    isShow: true,
-  };
-}
-
-// (背景图)设计图入参适配器
-export function bgImageAdaptor(image) {
-  return {
-    sid: image.getId(),
-    type: "bg",
-    sNode: image,
-    id: "",
-    url: "",
-    name: `${image.getColor()}`,
-    color: image.getColor(),
-    isShow: true,
-  };
-}
+import {
+  bgImageAdaptor,
+  imageAdapterV2,
+  imageAdaptor,
+} from "./app/utils/adaptor";
 
 // 图层数据下标调动
 export function layerIndex(result, layerList, data, type) {
