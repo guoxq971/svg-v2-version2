@@ -4,7 +4,7 @@ import {
   addImage4TypeByImg,
   getActiveImage,
   getProd,
-} from "./app/designUse/index";
+} from "./app/designUse/design";
 import { layer } from "./app/utils/layer";
 import saveSvgAsPng from "save-svg-as-png";
 import {

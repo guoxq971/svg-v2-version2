@@ -1,6 +1,6 @@
 import { utils } from "../plugin/layerUtils";
 import { Message } from "element-ui";
-import { getBgImage, getProd } from "../designUse/index";
+import { getBgImage, getProd } from "../designUse/design";
 
 /*
  * 图层操作

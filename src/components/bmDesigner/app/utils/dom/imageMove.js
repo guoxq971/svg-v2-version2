@@ -1,5 +1,6 @@
 import { QueueProxy } from "@/components/bmDesigner/app";
 import { CurrentQueue } from "@/components/bmDesigner/app/queueManager/CurrentQueue";
+import { addQueueByMove } from "@/components/bmDesigner/app/designUse/queue";
 
 export class ImageMove {
   x;
@@ -30,14 +31,6 @@ export class ImageMove {
   }
 
   end(imgSNode, event, image) {
-    QueueProxy().addQueue(
-      new CurrentQueue({
-        type: "move",
-        image,
-        id: image.id,
-        x: image.getX(),
-        y: image.getY(),
-      })
-    );
+    addQueueByMove(image);
   }
 }

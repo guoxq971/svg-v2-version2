@@ -3,6 +3,7 @@ import { Dom4Prod } from "./Dom4Prod";
 import { prodAdaptor } from "../utils/adaptor";
 import { DesignProxy, QueueProxy } from "@/components/bmDesigner/app";
 import { CurrentQueue } from "@/components/bmDesigner/app/queueManager/CurrentQueue";
+import { addQueueByMove } from "@/components/bmDesigner/app/designUse/queue";
 
 // 产品类
 export class Prod {
@@ -99,15 +100,7 @@ export class Prod {
    * */
   addImage(image) {
     this.designSNodeGroup.push(image);
-    QueueProxy().addQueue(
-      new CurrentQueue({
-        type: "move",
-        id: image.id,
-        image,
-        x: image.getX(),
-        y: image.getY(),
-      })
-    );
+    addQueueByMove(image);
     return image;
   }
   /*

@@ -5,7 +5,7 @@ import {
   uuid,
 } from "../utils/util";
 import { Dom4Image } from "./Dom4Image";
-import { getProd } from "../designUse/index";
+import { getProd } from "../designUse/design";
 import { Message } from "element-ui";
 import { Filter } from "../plugin/filter";
 

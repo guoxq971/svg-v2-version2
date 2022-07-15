@@ -222,7 +222,7 @@ import {
   getActiveImage,
   getImageActionId,
   setImageActionId,
-} from "./app/designUse/index";
+} from "./app/designUse/design";
 import {
   downloadSvg,
   predefineColors,

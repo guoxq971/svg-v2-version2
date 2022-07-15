@@ -1,6 +1,6 @@
 // 队列
 import { Message } from "element-ui";
-import { setImageActionId } from "../designUse/index";
+import { setImageActionId } from "../designUse/design";
 
 export class QueueManager {
   // 当前项

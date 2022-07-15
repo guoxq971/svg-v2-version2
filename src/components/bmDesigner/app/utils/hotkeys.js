@@ -1,5 +1,8 @@
 import hotkeys from "hotkeys-js";
-import { getActiveImage, getProd } from "@/components/bmDesigner/app/designUse";
+import {
+  getActiveImage,
+  getProd,
+} from "@/components/bmDesigner/app/designUse/design";
 
 export function hotkeyInit(param) {
   // 缩放-方向键
