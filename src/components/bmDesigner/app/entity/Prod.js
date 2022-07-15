@@ -49,10 +49,12 @@ export class Prod {
   }
   /*
    * 巡查设计图激活状态
-   * 只将激活的设计图边框设为显示
+   * - 只将激活的设计图边框设为显示
    * */
   patrolImgMode() {
+    // 如果当前没有激活的设计图，就不执行
     if (this.imageActionId === "") return;
+    // 找到激活的设计图
     this.designSNodeGroup.forEach((item) => {
       if (item.id !== this.imageActionId) {
         if (item.dom?.editBd) item.dom.editBd.node.style.display = "none";
@@ -74,7 +76,11 @@ export class Prod {
       this.api.imgDelete(id);
     }
   }
-  // 获取设计图
+  /*
+   * 获取设计图
+   * @param {String} id 设计图的id
+   * @return {class} 设计图class
+   * */
   getImage(id = this.getImageActionId()) {
     return this.designSNodeGroup.find((item) => item.getId() === id);
   }
@@ -82,16 +88,26 @@ export class Prod {
   getDesignSNodeGroup() {
     return this.designSNodeGroup;
   }
-  // 添加设计图
+  /*
+   * 添加设计图
+   * @param {class} image 设计图class
+   * @return {class} 设计图class
+   * */
   addImage(image) {
     this.designSNodeGroup.push(image);
     return image;
   }
-  // 设计图中是否存在背景图
+  /*
+   * 设计图中是否存在背景图
+   * @return {Boolean} true:存在背景图 false:不存在背景图
+   * */
   hasBgImage() {
     return this.getDesignSNodeGroup().some((item) => item.getType() === "bg");
   }
-  // 获取背景图
+  /*
+   * 获取背景图
+   * @return {Object} 背景图对象
+   * */
   getBgImage() {
     return this.getDesignSNodeGroup().find((item) => item.getType() === "bg");
   }
@@ -123,14 +139,19 @@ export class Prod {
   getImageActionId() {
     return this.imageActionId;
   }
-  // 设置当前产品激活的设计图Id
-  setImageActionId(imageActionId) {
-    this.imageActionId = imageActionId;
+  /*
+   * 设置当前产品激活的设计图Id
+   * - 同步执行巡查设计图状态
+   * - 同步执行vue的图片点击事件
+   * @param {String} id 设计图id
+   * */
+  setImageActionId(id) {
+    this.imageActionId = id;
     // 设计图id变动就执行巡查设计图
     this.patrolImgMode();
     // 如果有绑定的事件，就执行绑定的事件
     if (this.api.imgClick && typeof this.api.imgClick === "function") {
-      this.api.imgClick(imageActionId);
+      this.api.imgClick(id);
     }
   }
 }
