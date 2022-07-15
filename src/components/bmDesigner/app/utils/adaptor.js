@@ -12,7 +12,11 @@ export function prodAdaptor(param) {
   };
 }
 
-// 设计图入参适配器(复制的时候用到)
+/*
+ * 设计图入参适配器
+ * - 复制的时候用到
+ * - 设计器切换产品的时候用到
+ * */
 export function imageAdapterV2(data) {
   return {
     id: data.id,

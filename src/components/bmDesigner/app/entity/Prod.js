@@ -32,6 +32,16 @@ export class Prod {
     this.setDom(new Dom4Prod(container, d1, d2, d3, bgUrl, prodUrl));
   }
 
+  // 隐藏产品
+  hide() {
+    this.getDom().svg.attr("display", "none");
+  }
+
+  // 删除自身
+  remove() {
+    this.getDom().svg.remove();
+  }
+
   /*
    * 判断当前是否有激活的设计图
    * @return {Boolean} true:有激活的设计图 false:没有激活的设计图

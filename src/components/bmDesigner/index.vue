@@ -51,7 +51,7 @@
                 :predefine="predefineColors"
               />
               <div style="margin: 0 10px">{{ color }}</div>
-              <el-button type="primary" @click="handlerApplyColor"
+              <el-button type="primary" @click="handlerApplyColor()"
                 >应用
               </el-button>
             </div>
@@ -231,7 +231,7 @@ import {
   vueDeleteImage,
   vueLayerUpDown,
   vueSelectImage,
-  vueSetTop
+  vueSetTop,
 } from "./util";
 
 export default {
@@ -258,8 +258,9 @@ export default {
   },
   methods: {
     // 背景色-应用
-    handlerApplyColor() {
-      vueApplyBgColor(this.color, this.layerList);
+    handlerApplyColor(color) {
+      color = color || this.color;
+      vueApplyBgColor(color, this.layerList);
     },
     // 下载图片
     handlerDown() {
@@ -297,7 +298,7 @@ export default {
     handlerCopy() {
       vueCopyImage(this.picClick);
     },
-    // 图库-选中
+    // 设计图-选中
     picClick(data) {
       return vueSelectImage(data, this.layerList);
     },
@@ -310,7 +311,10 @@ export default {
       this.activeImgId = id;
     },
     // 产品-选中
-    prodClick(data) {},
+    prodClick(data) {
+      DesignProxy().addProdBefore();
+      DesignProxy().addProd(new Prod({ data: data }));
+    },
     // 左侧-类型切换
     handlerActive(type) {
       this.typeActiveName = type;
@@ -341,7 +345,11 @@ export default {
       imgClick: (id) => this.setVueActiveImgId(id),
       imgDelete: (id) => this.handlerImgDel(id),
       imgCopy: () => this.handlerCopy(),
-    }).addProd(new Prod({ data: this.productList[0] }));
+      selImage: (id) => this.picClick(id),
+      selBgImage: (color) => this.handlerApplyColor(color),
+      getLayerList: () => this.layerList,
+      updateLayerList: (list) => (this.layerList = list),
+    }).addProd(new Prod({ data: this.productList[1] }));
   },
 };
 </script>
