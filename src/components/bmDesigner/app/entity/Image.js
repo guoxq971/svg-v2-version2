@@ -28,10 +28,15 @@ export class DesignImage {
   // 构造函数
   constructor(param) {
     let { type, data, prodId } = param;
+    // 设置设计图自定义id
     this.setId(uuid());
+    // 设置当前设计图对应的产品id
     this.setProdId(prodId);
+    // 设置设计图类型
     this.setType(type);
+    // 如果类型是背景图,则设置颜色
     if (type === "bg") this.setColor(data.color);
+    // 设置设计图的dom
     this.setDom(new Dom4Image(type, data, this.getId(), this));
   }
 
@@ -111,7 +116,11 @@ export class DesignImage {
     }
   }
 
-  // 缩放设计图
+  /*
+   * 缩放设计图
+   * @param {number} scale 缩放比例
+   * @param {boolean} isLog 是否记录
+   * */
   imageScale(scale, isLog = true) {
     let dom = this.getDom();
     let imgBBox = dom.img.getBBox();
@@ -143,6 +152,7 @@ export class DesignImage {
   /*
    * 特殊移动设计图
    * @param {string} type 居中类型 x垂直, y水平
+   * @param {boolean} isLog 是否记录
    * */
   align(type, isLog = true) {
     let angle = this.getAngle();
@@ -174,6 +184,7 @@ export class DesignImage {
 
   /*
    * 复制设计图
+   * @param {class} newImage 新的设计图类
    * */
   copy(newImage) {
     newImage.imageMove(this.getX(), this.getY(), "real");
@@ -182,7 +193,11 @@ export class DesignImage {
     newImage.imageMove(50, 50);
   }
 
-  // 图层显示\隐藏
+  /*
+   * 图层显示\隐藏
+   * - 操作dom元素的显示隐藏
+   * - 操作vue数据的显示隐藏
+   * */
   layerTrigger() {
     // 操作元素
     let dom = this.getDom().imgG;
@@ -193,19 +208,32 @@ export class DesignImage {
     data.isShow = !data.isShow;
     this.setData(data);
   }
-  // 当前 image 的 type 是 img
+
+  /*
+   * 当前 image 的 type 是 img
+   * @return {boolean} true 是 img, false 不是
+   * */
   isImg() {
     return this.getType() === "img";
   }
-  // 当前 image 的 type 是 bg
+  /*
+   * 当前 image 的 type 是 bg
+   * @return {boolean} true 是 bg, false 不是
+   * */
   isBg() {
     return this.getType() === "bg";
   }
-  // 获取当前设计图对应的产品
+  /*
+   * 获取当前设计图对应的产品
+   * @return {class} 产品类
+   * */
   getProd() {
     return getProd(this.getProdId());
   }
-  // 获取数据
+  /*
+   * 获取数据
+   * @return {object} vue数据
+   * */
   getData() {
     return this.data;
   }
@@ -273,7 +301,12 @@ export class DesignImage {
   getColor() {
     return this.color;
   }
-  // 设置背景图才有的颜色
+  /*
+   * 设置背景图才有的颜色
+   * @param {string} color 颜色
+   * - 设置背景图才有的颜色
+   * - 通过修改设计图的dom的fill属性
+   * */
   setColor(color) {
     this.color = color;
     // 背景图的元素同步修改填充色

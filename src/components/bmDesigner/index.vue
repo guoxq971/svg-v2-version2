@@ -228,6 +228,7 @@ import {
   imageAdapterV2,
   predefineColors,
   vueApplyBgColor,
+  vueCopyImage,
   vueDeleteImage,
   vueLayerUpDown,
   vueSelectImage,
@@ -293,13 +294,7 @@ export default {
     },
     // 图层-复制
     handlerCopy() {
-      if (!getProd().hasImageAction) {
-        this.$message.warning("请先选择设计图");
-        return;
-      }
-      let image = getActiveImage();
-      let newImage = this.picClick(imageAdapterV2(image.data));
-      image.copy(newImage);
+      vueCopyImage(this.picClick);
     },
     // 图库-选中
     picClick(data) {

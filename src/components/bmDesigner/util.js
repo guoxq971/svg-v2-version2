@@ -4,6 +4,7 @@ import {
   addImage4TypeByBg,
   addImage4TypeByImg,
   getActiveImage,
+  getProd,
 } from "./app/designUse/index";
 import { layer } from "./app/utils/layer";
 
@@ -126,6 +127,20 @@ export function vueDeleteImage(layerList, id) {
       layerList.splice(layerList.indexOf(item), 1);
     }
   });
+}
+
+/*
+ * 图层-复制
+ * @param {function} picClick 图片点击事件
+ * */
+export function vueCopyImage(picClick) {
+  if (!getProd().hasImageAction) {
+    this.$message.warning("请先选择设计图");
+    return;
+  }
+  let image = getActiveImage();
+  let newImage = picClick(imageAdapterV2(image.data));
+  image.copy(newImage);
 }
 
 // 背景预设值
