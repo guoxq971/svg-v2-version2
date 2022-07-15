@@ -100,8 +100,8 @@
             <el-button>保存产品</el-button>
           </div>
           <div class="btn-2">
-            <el-button>撤回</el-button>
-            <el-button>前进</el-button>
+            <el-button @click="handlerQueue('undo')">撤回</el-button>
+            <el-button @click="handlerQueue('redo')">前进</el-button>
             <el-button>清空</el-button>
             <el-button>关闭图层</el-button>
             <el-button>开启收藏</el-button>
@@ -215,7 +215,7 @@ import bmSwiper from "./components/bmSwiper.vue";
 import bmInfo from "./components/bmInfo.vue";
 import bmSearchList from "./components/bmSearchList.vue";
 import { mock } from "./mock";
-import { DesignProxy } from "./app/index";
+import { DesignProxy, QueueProxy } from "./app/index";
 import { Prod } from "./app/entity/Prod";
 import {
   deleteImageById,
@@ -257,6 +257,20 @@ export default {
     };
   },
   methods: {
+    // 撤回、回退
+    handlerQueue(type) {
+      let queue;
+      if (type === "undo") {
+        queue = QueueProxy().undo();
+      } else {
+        queue = QueueProxy().redo();
+      }
+      if (queue) {
+        if (queue.type === "move") {
+          queue.image.imageMove(queue.x, queue.y, "real");
+        }
+      }
+    },
     // 背景色-应用
     handlerApplyColor(color) {
       color = color || this.color;
@@ -341,6 +355,7 @@ export default {
     handlerScale() {},
   },
   mounted() {
+    QueueProxy();
     DesignProxy({
       imgClick: (id) => this.setVueActiveImgId(id),
       imgDelete: (id) => this.handlerImgDel(id),
