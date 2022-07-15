@@ -34,8 +34,8 @@ export class ImageMove {
       new CurrentQueue({
         type: "move",
         image,
-        x: this.org_x,
-        y: this.org_y,
+        x: image.getX(),
+        y: image.getY(),
       })
     );
   }

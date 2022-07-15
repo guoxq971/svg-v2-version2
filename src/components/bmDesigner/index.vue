@@ -259,16 +259,10 @@ export default {
   methods: {
     // 撤回、回退
     handlerQueue(type) {
-      let queue;
       if (type === "undo") {
-        queue = QueueProxy().undo();
+        QueueProxy().undo();
       } else {
-        queue = QueueProxy().redo();
-      }
-      if (queue) {
-        if (queue.type === "move") {
-          queue.image.imageMove(queue.x, queue.y, "real");
-        }
+        QueueProxy().redo();
       }
     },
     // 背景色-应用

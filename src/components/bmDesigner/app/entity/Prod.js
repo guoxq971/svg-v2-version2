@@ -1,7 +1,8 @@
 import { uuid } from "../utils/util";
 import { Dom4Prod } from "./Dom4Prod";
 import { prodAdaptor } from "../utils/adaptor";
-import { DesignProxy } from "@/components/bmDesigner/app";
+import { DesignProxy, QueueProxy } from "@/components/bmDesigner/app";
+import { CurrentQueue } from "@/components/bmDesigner/app/queueManager/CurrentQueue";
 
 // 产品类
 export class Prod {
@@ -98,6 +99,14 @@ export class Prod {
    * */
   addImage(image) {
     this.designSNodeGroup.push(image);
+    QueueProxy().addQueue(
+      new CurrentQueue({
+        type: "move",
+        image,
+        x: image.getX(),
+        y: image.getY(),
+      })
+    );
     return image;
   }
   /*

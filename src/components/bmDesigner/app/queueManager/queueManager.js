@@ -3,7 +3,7 @@ import { Message } from "element-ui";
 
 export class QueueManager {
   // 当前项
-  currentQueue = {};
+  currentQueue;
   // 撤销栈
   undoQueue = [];
   // 回退栈
@@ -16,38 +16,76 @@ export class QueueManager {
     console.log("当前项", this.currentQueue);
   }
 
-  // 撤销
+  // 执行
+  execute(queue) {
+    if (queue) {
+      if (queue.type === "move") {
+        queue.image.imageMove(queue.x, queue.y, "real");
+      }
+    }
+  }
+
+  /*
+   * 撤销
+   * 1. 如果撤销栈为空，则提示撤销栈为空
+   * 2. 将当前项添加到回退栈
+   * 3. 获取撤销栈的最后一项
+   * 4. 将当前项设置为撤销栈的最后一项
+   * 5. 执行命令 execute(getCurrentQueue())
+   * */
   undo() {
     if (this.getUndoQueue().length === 0) {
       Message.warning("撤销栈为空");
       return;
     }
-    this.redoQueue.push(this.getCurrentQueue());
-    this.setCurrentQueue(this.undoQueue.pop());
+    this.addRedoQueue(this.getCurrentQueue());
+    this.setCurrentQueue(this.getUndoQueue().pop());
     this.log();
-    return this.getCurrentQueue();
+    this.execute(this.getCurrentQueue());
   }
 
-  // 回退
+  /*
+   * 回退
+   * 1. 如果回退栈为空，则提示回退栈为空
+   * 2. 将当前项添加到撤销栈
+   * 3. 获取回退栈的最后一项
+   * 4. 将当前项设置为回退栈的最后一项
+   * 5. 执行命令 execute(getCurrentQueue())
+   * */
   redo() {
     if (this.getRedoQueue().length === 0) {
       Message.warning("回退栈为空");
       return;
     }
-    this.undoQueue.push(this.getCurrentQueue());
-    this.setCurrentQueue(this.redoQueue.pop());
+    this.addUndoQueue(this.getCurrentQueue());
+    this.setCurrentQueue(this.getRedoQueue().pop());
     this.log();
-    return this.getCurrentQueue();
+    this.execute(this.getCurrentQueue());
   }
 
-  // 添加队列
+  /*
+   *  添加队列
+   * 1. 获取当前项
+   * 2. 当前项不为空，则将当前项添加到撤销栈
+   * 3. 设置接受的queue为当前项
+   * 4. 如果回退栈不为空，则清空回退栈
+   * */
   addQueue(queue) {
+    let currentQueue = this.getCurrentQueue();
+    if (currentQueue) this.addUndoQueue(currentQueue);
     this.setCurrentQueue(queue);
-    this.undoQueue.push(queue);
-    if (this.getRedoQueue().length > 0) {
-      this.clearRedoQueue();
-    }
+    if (this.getRedoQueue().length !== 0) this.clearRedoQueue();
     this.log();
+  }
+
+  // 添加撤销栈
+  addUndoQueue(queue) {
+    this.undoQueue.push(queue);
+  }
+
+  // 添加回退栈
+  addRedoQueue(queue) {
+    this.redoQueue.push(queue);
   }
 
   // 获取撤销栈
@@ -80,6 +118,7 @@ export class QueueManager {
   setCurrentQueue(queue) {
     this.currentQueue = queue;
   }
+
   // 获取当前项
   getCurrentQueue() {
     return this.currentQueue;
