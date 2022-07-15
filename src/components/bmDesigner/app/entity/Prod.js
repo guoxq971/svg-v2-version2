@@ -1,6 +1,7 @@
 import { uuid } from "../utils/util";
 import { Dom4Prod } from "./Dom4Prod";
 import { prodAdaptor } from "../utils/adaptor";
+import { DesignProxy } from "@/components/bmDesigner/app";
 
 // 产品类
 export class Prod {
@@ -14,18 +15,9 @@ export class Prod {
   dom;
   // 当前产品的所有设计图的 SNode
   designSNodeGroup = [];
-  // 对外暴露的接口
-  api = {
-    imgClick: null,
-    imgDelete: null,
-  };
 
   // 构造函数
   constructor(param) {
-    // 绑定事件
-    this.api.imgClick = param.imgClick;
-    this.api.imgDelete = param.imgDelete;
-
     // 参数转换
     const paramAd = prodAdaptor(param.data);
     // 产品数据(后端返回的数据)
@@ -72,8 +64,9 @@ export class Prod {
     // 删除数组中的设计图
     this.designSNodeGroup.splice(index, 1);
     // 如果有绑定的事件，就执行绑定的事件
-    if (this.api.imgDelete && typeof this.api.imgDelete === "function") {
-      this.api.imgDelete(id);
+    let api = DesignProxy().api;
+    if (api.imgDelete && typeof api.imgDelete === "function") {
+      api.imgDelete(id);
     }
   }
   /*
@@ -150,8 +143,9 @@ export class Prod {
     // 设计图id变动就执行巡查设计图
     this.patrolImgMode();
     // 如果有绑定的事件，就执行绑定的事件
-    if (this.api.imgClick && typeof this.api.imgClick === "function") {
-      this.api.imgClick(id);
+    let api = DesignProxy().api;
+    if (api.imgClick && typeof api.imgClick === "function") {
+      api.imgClick(id);
     }
   }
 }

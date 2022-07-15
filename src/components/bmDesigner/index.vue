@@ -336,7 +336,11 @@ export default {
     handlerScale() {},
   },
   mounted() {
-    DesignProxy().addProd(
+    DesignProxy({
+      imgClick: (id) => this.setVueActiveImgId(id),
+      imgDelete: (id) => this.handlerImgDel(id),
+      imgCopy: () => this.handlerCopy(),
+    }).addProd(
       new Prod({
         data: this.productList[0],
         imgClick: (id) => this.setVueActiveImgId(id),
