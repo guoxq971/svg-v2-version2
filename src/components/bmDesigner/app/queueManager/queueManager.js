@@ -28,7 +28,7 @@ export class QueueManager {
       }
     }
     if (oldQueue.id !== newQueue.id) {
-      setImageActionId(newQueue.id);
+      setImageActionId(newQueue.image);
     }
   }
 

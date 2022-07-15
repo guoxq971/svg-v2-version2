@@ -34,7 +34,10 @@ export function layer(type, sNode, msgFlag = true) {
   }
   if (type === "down") {
     if (sNode.isBg()) {
-      if (Snap(utils.prev(sNodeDom.imgG.node)) === getBgImage().getDom().imgG) {
+      if (
+        Snap(utils.prev(sNodeDom.imgG.node)) ===
+        getBgImage(sNode.getProdId()).getDom().imgG
+      ) {
         msgFlag && Message.warning("已经在最下层，不能超过背景图");
         return;
       }

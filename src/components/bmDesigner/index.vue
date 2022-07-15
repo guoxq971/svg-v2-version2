@@ -293,12 +293,11 @@ export default {
     },
     // 图层-删除
     handlerLayerDelClick(data) {
-      deleteImageById(data.sid);
+      data.sNode.getProd().deleteImage(data.sid);
     },
     // 图层点击
     handlerLayerNameClick(data) {
-      // 设置当前激活的设计图
-      setImageActionId(data.sid);
+      setImageActionId(data.sNode);
     },
     // 图层-显示、隐藏
     handlerLayerShowClick(data) {
