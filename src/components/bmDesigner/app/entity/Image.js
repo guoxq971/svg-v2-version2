@@ -133,6 +133,7 @@ export class DesignImage {
    * @param {boolean} isLog 是否记录
    * */
   imageRotate(angle, isLog = true) {
+    if (this.isBg()) return;
     let dom = this.getDom();
     let imgBBox = dom.img.getBBox();
     // 图片矩阵
@@ -166,6 +167,7 @@ export class DesignImage {
    * @param {boolean} isLog 是否记录
    * */
   imageScale(scale, isLog = true) {
+    if (this.isBg()) return;
     let dom = this.getDom();
     let imgBBox = dom.img.getBBox();
     // 图片矩阵
