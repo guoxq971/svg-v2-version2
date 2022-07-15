@@ -36,7 +36,9 @@ export function setImageActionId(id) {
 export function addImage4TypeByImg(data) {
   let prod = DesignProxy().getProd();
   // 初始化图片添加到产品中，并返回图片sNode
-  let image = prod.addImage(new DesignImage({ type: "img", data: data }));
+  let image = prod.addImage(
+    new DesignImage({ type: "img", data: data, prodId: prod.id })
+  );
   // 将图片设置为激活状态
   prod.setImageActionId(image.getId());
   // 进入编辑模式

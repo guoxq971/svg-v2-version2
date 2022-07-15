@@ -34,7 +34,7 @@ export function moveToCenter(SNode, x, y) {
 }
 
 // 创建设计图
-export function createImg(that, param, id) {
+export function createImg(that, param, id, parent) {
   let { svg, defsClipD2, designGroup } = DesignProxy().getProd().getDom();
   let { url } = param;
   let SNode = that;
@@ -70,23 +70,23 @@ export function createImg(that, param, id) {
   // 设计图的移动事件
   let M = new ImageMove();
   SNode.imgBd.drag(
-    (...arg) => M.move(SNode, ...arg),
-    (...arg) => M.start(SNode, ...arg),
-    (...arg) => M.end(SNode, ...arg)
+    (...arg) => M.move(SNode, ...arg, parent),
+    (...arg) => M.start(SNode, ...arg, parent),
+    (...arg) => M.end(SNode, ...arg, parent)
   );
   // 设计图的旋转事件
   let R = new imageRotate();
   SNode.editRotate.drag(
-    (...arg) => R.move(SNode, ...arg),
-    (...arg) => R.start(SNode, ...arg),
-    (...arg) => R.end(SNode, ...arg)
+    (...arg) => R.move(SNode, ...arg, parent),
+    (...arg) => R.start(SNode, ...arg, parent),
+    (...arg) => R.end(SNode, ...arg, parent)
   );
   // 设计图的缩放事件
   let S = new imageScale();
   SNode.editScale.drag(
-    (...arg) => S.move(SNode, ...arg),
-    (...arg) => S.start(SNode, ...arg),
-    (...arg) => S.end(SNode, ...arg)
+    (...arg) => S.move(SNode, ...arg, parent),
+    (...arg) => S.start(SNode, ...arg, parent),
+    (...arg) => S.end(SNode, ...arg, parent)
   );
   // 设计图的删除事件
   SNode.editDelete.click(() => {

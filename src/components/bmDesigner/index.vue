@@ -346,7 +346,9 @@ export default {
     // 左/右旋
     handlerRotate(type) {},
     // 居中
-    handlerAlign(type) {},
+    handlerAlign(type) {
+      getActiveImage().align(type);
+    },
     // 翻转
     async handlerRevere(type) {},
     // 置顶、置底
