@@ -102,7 +102,7 @@
           <div class="btn-2">
             <el-button @click="handlerQueue('undo')">撤回</el-button>
             <el-button @click="handlerQueue('redo')">前进</el-button>
-            <el-button>清空</el-button>
+            <el-button @click="handlerQueue('clear')">清空</el-button>
             <el-button>关闭图层</el-button>
             <el-button>开启收藏</el-button>
           </div>
@@ -261,8 +261,10 @@ export default {
     handlerQueue(type) {
       if (type === "undo") {
         QueueProxy().undo();
-      } else {
+      } else if (type === "redo") {
         QueueProxy().redo();
+      } else {
+        QueueProxy().clear();
       }
     },
     // 背景色-应用

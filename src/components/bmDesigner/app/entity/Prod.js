@@ -102,6 +102,7 @@ export class Prod {
     QueueProxy().addQueue(
       new CurrentQueue({
         type: "move",
+        id: image.id,
         image,
         x: image.getX(),
         y: image.getY(),

@@ -9,9 +9,11 @@ export class CurrentQueue {
   y;
   angle;
   scale;
+  id;
 
   constructor(param) {
-    const { type, image, x, y, angle, scale } = param;
+    const { id, type, image, x, y, angle, scale } = param;
+    this.id = id;
     this.setType(type);
     this.setX(x);
     this.setY(y);

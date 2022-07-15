@@ -209,7 +209,7 @@ export class DesignImage {
     this.imageScale(1 / scale);
     let imgBd = this.getDom().imgBd;
     let imgBdBox = getOffset(imgBd.node);
-    let groupRectBBox = getProd().getDom().designGroupRect.getBBox();
+    let groupRectBBox = this.getProd().getDom().designGroupRect.getBBox();
     let matrix = imgBd.attr("transform").localMatrix;
     // 垂直居中
     if (type === "x") {

@@ -1,5 +1,6 @@
 // 队列
 import { Message } from "element-ui";
+import { setImageActionId } from "../designUse/index";
 
 export class QueueManager {
   // 当前项
@@ -16,12 +17,18 @@ export class QueueManager {
     console.log("当前项", this.currentQueue);
   }
 
-  // 执行
-  execute(queue) {
-    if (queue) {
-      if (queue.type === "move") {
-        queue.image.imageMove(queue.x, queue.y, "real");
+  /*
+   *  执行
+   * 1. 如果old和new的id不同，则从新设置设计图激活id
+   * */
+  execute(newQueue, oldQueue) {
+    if (newQueue) {
+      if (newQueue.type === "move") {
+        newQueue.image.imageMove(newQueue.x, newQueue.y, "real");
       }
+    }
+    if (oldQueue.id !== newQueue.id) {
+      setImageActionId(newQueue.id);
     }
   }
 
@@ -38,10 +45,12 @@ export class QueueManager {
       Message.warning("撤销栈为空");
       return;
     }
-    this.addRedoQueue(this.getCurrentQueue());
-    this.setCurrentQueue(this.getUndoQueue().pop());
+    let oldQueue = this.getCurrentQueue();
+    let newQueue = this.getUndoQueue().pop();
+    this.addRedoQueue(oldQueue);
+    this.setCurrentQueue(newQueue);
     this.log();
-    this.execute(this.getCurrentQueue());
+    this.execute(newQueue, oldQueue);
   }
 
   /*
@@ -57,10 +66,12 @@ export class QueueManager {
       Message.warning("回退栈为空");
       return;
     }
-    this.addUndoQueue(this.getCurrentQueue());
-    this.setCurrentQueue(this.getRedoQueue().pop());
+    let oldQueue = this.getCurrentQueue();
+    let newQueue = this.getRedoQueue().pop();
+    this.addUndoQueue(oldQueue);
+    this.setCurrentQueue(newQueue);
     this.log();
-    this.execute(this.getCurrentQueue());
+    this.execute(newQueue, oldQueue);
   }
 
   /*
@@ -112,6 +123,7 @@ export class QueueManager {
   clear() {
     this.clearUndoQueue();
     this.clearRedoQueue();
+    this.log();
   }
 
   // 设置当前项

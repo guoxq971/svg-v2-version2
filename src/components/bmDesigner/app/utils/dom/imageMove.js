@@ -34,6 +34,7 @@ export class ImageMove {
       new CurrentQueue({
         type: "move",
         image,
+        id: image.id,
         x: image.getX(),
         y: image.getY(),
       })
