@@ -1,5 +1,4 @@
-// 设计图入参适配器
-import { swapArrData } from "./app/utils/util";
+import { SvgImgToBase64, swapArrData } from "./app/utils/util";
 import {
   addImage4TypeByBg,
   addImage4TypeByImg,
@@ -7,6 +6,7 @@ import {
   getProd,
 } from "./app/designUse/index";
 import { layer } from "./app/utils/layer";
+import saveSvgAsPng from "save-svg-as-png";
 
 // 设计图入参适配器(复制的时候用到)
 export function imageAdapterV2(data) {
@@ -141,6 +141,11 @@ export function vueCopyImage(picClick) {
   let image = getActiveImage();
   let newImage = picClick(imageAdapterV2(image.data));
   image.copy(newImage);
+}
+
+// 下载 svg 图片
+export function downloadSvg(name = "test.jpg", svg = getProd().getDom().svg) {
+  SvgImgToBase64(name, svg, () => saveSvgAsPng.saveSvgAsPng(svg.node, name));
 }
 
 // 背景预设值

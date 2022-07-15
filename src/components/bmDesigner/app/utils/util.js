@@ -1,4 +1,6 @@
 // uuid函数
+import { getProd } from "@/components/bmDesigner/app/designUse";
+
 export function uuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     var r = (Math.random() * 16) | 0,
@@ -150,4 +152,41 @@ export function convertCanvasToImage(canvas, x, y, w, h) {
   let image = new Image();
   image.src = canvas.toDataURL("image/png");
   return image;
+}
+
+// 将 svg 内，所有 image 节点的 href 转为 base64
+export function SvgImgToBase64(
+  name = "test.jpg",
+  svg = getProd().getDom().svg,
+  fn = null
+) {
+  let domList = svg.selectAll("image");
+  let len = domList.length;
+  domList.forEach((item) => {
+    let node = item.node;
+    let img = node.getAttribute("href");
+    let image = new Image();
+    image.crossOrigin = "";
+    image.src = img;
+    image.onload = () => {
+      let base64 = getBase64Image(image);
+      node.setAttribute("href", base64); //更改href属性
+      len--;
+      if (len === 0) {
+        fn();
+      }
+    };
+  });
+}
+
+// 将指定图片转 base64, 并返回 base64
+export function getBase64Image(img) {
+  let canvas = document.createElement("canvas");
+  canvas.width = img.width;
+  canvas.height = img.height;
+  let ctx = canvas.getContext("2d");
+  ctx.drawImage(img, 0, 0, img.width, img.height);
+  let ext = img.src.substring(img.src.lastIndexOf(".") + 1).toLowerCase();
+  let dataURL = canvas.toDataURL("image/" + ext);
+  return dataURL;
 }

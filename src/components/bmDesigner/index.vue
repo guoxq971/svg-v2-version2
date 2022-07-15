@@ -221,18 +221,17 @@ import {
   deleteImageById,
   getActiveImage,
   getImageActionId,
-  getProd,
   setImageActionId,
 } from "./app/designUse/index";
 import {
-  imageAdapterV2,
+  downloadSvg,
   predefineColors,
   vueApplyBgColor,
   vueCopyImage,
   vueDeleteImage,
   vueLayerUpDown,
   vueSelectImage,
-  vueSetTop,
+  vueSetTop
 } from "./util";
 
 export default {
@@ -263,7 +262,9 @@ export default {
       vueApplyBgColor(this.color, this.layerList);
     },
     // 下载图片
-    handlerDown() {},
+    handlerDown() {
+      downloadSvg();
+    },
     /*
      * 图层-上/下移
      * @param {String} type up上/down下
@@ -340,13 +341,7 @@ export default {
       imgClick: (id) => this.setVueActiveImgId(id),
       imgDelete: (id) => this.handlerImgDel(id),
       imgCopy: () => this.handlerCopy(),
-    }).addProd(
-      new Prod({
-        data: this.productList[0],
-        imgClick: (id) => this.setVueActiveImgId(id),
-        imgDelete: (id) => this.handlerImgDel(id),
-      })
-    );
+    }).addProd(new Prod({ data: this.productList[0] }));
   },
 };
 </script>
