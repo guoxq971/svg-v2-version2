@@ -1,6 +1,13 @@
-import { getOffset, uuid } from "../utils/util";
+import {
+  convertCanvasToImage,
+  convertImageToCanvas,
+  getOffset,
+  uuid,
+} from "../utils/util";
 import { Dom4Image } from "./Dom4Image";
 import { getProd } from "../designUse/index";
+import { Message } from "element-ui";
+import { Filter } from "../plugin/filter";
 
 // 设计图类
 export class DesignImage {
@@ -20,6 +27,8 @@ export class DesignImage {
   x = 0;
   // 设计图移动y
   y = 0;
+  // 是否翻转
+  reverse = false;
   // 设计图的所有dom
   dom;
   // 背景图才有的颜色
@@ -55,6 +64,39 @@ export class DesignImage {
     if (scale) {
       this.setScale(Number(scale));
     }
+  }
+
+  /*
+   * 翻转
+   * @param {string} type 翻转类型 x垂直, y水平
+   * */
+  imageReverse(type) {
+    if (!["x", "y"].includes(type)) {
+      Message.warning(`暂不支持${type}类型翻转`);
+      return;
+    }
+    this.setReverse(!this.getReverse());
+    let dom = this.getDom();
+    let imgAttr = dom.img.attr();
+    let image = new Image();
+    image.src = imgAttr.href;
+    image.onload = () => {
+      let cvs = convertImageToCanvas(image);
+      if (cvs.getContext && cvs.getContext("2d")) {
+        let ctx = cvs.getContext("2d");
+        const filter = new Filter(ctx); // 实例滤镜
+        // 水平翻转
+        if (type === "y") {
+          filter.flipHorizontal(0, 0, image.width, image.height);
+        }
+        // 垂直翻转
+        if (type === "x") {
+          filter.flipVertical(0, 0, image.width, image.height);
+        }
+        let img = convertCanvasToImage(cvs);
+        dom.img.attr("href", img.src);
+      }
+    };
   }
 
   /*
@@ -154,7 +196,7 @@ export class DesignImage {
    * @param {string} type 居中类型 x垂直, y水平
    * @param {boolean} isLog 是否记录
    * */
-  align(type, isLog = true) {
+  imageAlign(type, isLog = true) {
     let angle = this.getAngle();
     let scale = this.getScale();
     // 回正
@@ -319,5 +361,13 @@ export class DesignImage {
   // 获取设计图的产品id
   getProdId() {
     return this.prodId;
+  }
+  // 设置翻转状态
+  setReverse(reverse) {
+    this.reverse = reverse;
+  }
+  // 获取翻转状态
+  getReverse() {
+    return this.reverse;
   }
 }

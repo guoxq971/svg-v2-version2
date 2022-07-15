@@ -134,3 +134,20 @@ export const swapArrData = (index1, index2, arr) => {
   arr[index1] = temp[0];
   return arr;
 };
+
+// 图转canvas
+export function convertImageToCanvas(image) {
+  let canvas = document.createElement("canvas");
+  canvas.width = image.width;
+  canvas.height = image.height;
+  canvas.getContext("2d").drawImage(image, 0, 0);
+
+  return canvas;
+}
+
+// canvas转图
+export function convertCanvasToImage(canvas, x, y, w, h) {
+  let image = new Image();
+  image.src = canvas.toDataURL("image/png");
+  return image;
+}

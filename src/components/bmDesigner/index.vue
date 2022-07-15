@@ -322,10 +322,12 @@ export default {
     },
     // 居中
     handlerAlign(type) {
-      getActiveImage().align(type);
+      getActiveImage().imageAlign(type);
     },
     // 翻转
-    async handlerRevere(type) {},
+    async handlerRevere(type) {
+      getActiveImage().imageReverse(type);
+    },
     // 置顶、置底
     handlerStick(type) {
       vueSetTop(type, this.handlerLayer);
