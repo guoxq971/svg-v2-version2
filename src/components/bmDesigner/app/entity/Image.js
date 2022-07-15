@@ -71,6 +71,7 @@ export class DesignImage {
    * @param {string} type 翻转类型 x垂直, y水平
    * */
   imageReverse(type) {
+    if (this.isBg()) return;
     if (!["x", "y"].includes(type)) {
       Message.warning(`暂不支持${type}类型翻转`);
       return;
@@ -107,6 +108,7 @@ export class DesignImage {
    * @param {boolean} isLog 是否记录
    * */
   imageMove(x, y, type = "move", isLog = true) {
+    if (this.isBg()) return;
     let dom = this.getDom();
     let matrix = dom.imgBd.attr("transform").localMatrix;
     if (type === "move") {
@@ -197,6 +199,7 @@ export class DesignImage {
    * @param {boolean} isLog 是否记录
    * */
   imageAlign(type, isLog = true) {
+    if (this.isBg()) return;
     let angle = this.getAngle();
     let scale = this.getScale();
     // 回正
@@ -229,6 +232,7 @@ export class DesignImage {
    * @param {class} newImage 新的设计图类
    * */
   copy(newImage) {
+    if (this.isBg()) return;
     newImage.imageMove(this.getX(), this.getY(), "real");
     newImage.imageScale(this.getScale());
     newImage.imageRotate(this.getAngle());
@@ -257,6 +261,13 @@ export class DesignImage {
    * */
   isImg() {
     return this.getType() === "img";
+  }
+  /*
+   * 当前 image 的 type 不是 img
+   * @return {boolean} true 不是 img, false 是
+   * */
+  isNotImg() {
+    return this.getType() !== "img";
   }
   /*
    * 当前 image 的 type 是 bg
