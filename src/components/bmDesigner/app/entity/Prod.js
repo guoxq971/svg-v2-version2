@@ -14,17 +14,61 @@ export class Prod {
   dom;
   // 当前产品的所有设计图的 SNode
   designSNodeGroup = [];
+  // 对外暴露的接口
+  api = {
+    imgClick: null,
+    imgDelete: null,
+  };
+
   // 构造函数
   constructor(param) {
-    const paramAd = prodAdaptor(param);
-    let { data } = param;
+    // 绑定事件
+    this.api.imgClick = param.imgClick;
+    this.api.imgDelete = param.imgDelete;
+
+    // 参数转换
+    const paramAd = prodAdaptor(param.data);
+    // 产品数据(后端返回的数据)
+    let { data } = param.data;
+    // 需要用到的字段数据
     let { tag, id, container, d1, d2, d3, bgUrl, prodUrl } = paramAd;
+    // 设置自定义产品id(与后端参数的id无关)
     this.setId(uuid());
+    // 设置产品的数据(后端返回的数据)
     this.setData(data);
+    // 设置产品的dom
     this.setDom(new Dom4Prod(container, d1, d2, d3, bgUrl, prodUrl));
   }
+
+  /*
+   * 巡查设计图激活状态
+   * 只将激活的设计图边框设为显示
+   * */
+  patrolImgMode() {
+    if (this.imageActionId === "") return;
+    this.designSNodeGroup.forEach((item) => {
+      if (item.id !== this.imageActionId) {
+        if (item.dom?.editBd) item.dom.editBd.node.style.display = "none";
+      } else {
+        if (item.dom?.editBd) item.dom.editBd.node.style.display = "inline";
+      }
+    });
+  }
+  // 删除设计图
+  deleteImage(id) {
+    // 找到要删除的设计图
+    let index = this.designSNodeGroup.findIndex((item) => item.getId() === id);
+    // 页面上的删除
+    this.designSNodeGroup[index].dom.imgG.remove();
+    // 删除数组中的设计图
+    this.designSNodeGroup.splice(index, 1);
+    // 如果有绑定的事件，就执行绑定的事件
+    if (this.api.imgDelete && typeof this.api.imgDelete === "function") {
+      this.api.imgDelete(id);
+    }
+  }
   // 获取设计图
-  getDesignImage(id = this.getImageActionId()) {
+  getImage(id = this.getImageActionId()) {
     return this.designSNodeGroup.find((item) => item.getId() === id);
   }
   // 获取设计图组
@@ -32,9 +76,17 @@ export class Prod {
     return this.designSNodeGroup;
   }
   // 添加设计图
-  addDesignSNode(image) {
+  addImage(image) {
     this.designSNodeGroup.push(image);
-    this.setImageActionId(image.getId());
+    return image;
+  }
+  // 设计图中是否存在背景图
+  hasBgImage() {
+    return this.getDesignSNodeGroup().some((item) => item.getType() === "bg");
+  }
+  // 获取背景图
+  getBgImage() {
+    return this.getDesignSNodeGroup().find((item) => item.getType() === "bg");
   }
   // 获取产品的自定义id(与后端参数的id无关)
   getId() {
@@ -66,7 +118,12 @@ export class Prod {
   }
   // 设置当前产品激活的设计图Id
   setImageActionId(imageActionId) {
-    console.log("setImageActionId", imageActionId);
     this.imageActionId = imageActionId;
+    // 设计图id变动就执行巡查设计图
+    this.patrolImgMode();
+    // 如果有绑定的事件，就执行绑定的事件
+    if (this.api.imgClick && typeof this.api.imgClick === "function") {
+      this.api.imgClick(imageActionId);
+    }
   }
 }

@@ -8,7 +8,7 @@ export class DesignImage {
   // 自定义设计图id
   id;
   // 类型 [bg, img]
-  type = "img";
+  type = "";
   // 设计图旋转角度
   angle = 0;
   // 设计图缩放比例
@@ -19,12 +19,25 @@ export class DesignImage {
   y = 0;
   // 设计图的所有dom
   dom;
+  // 背景图才有的颜色
+  color;
   // 构造函数
   constructor(param) {
     let { type, data } = param;
     this.setId(uuid());
+    this.setType(type);
     this.setData(data);
+    if (type === "bg") this.setColor(data.color);
     this.setDom(new Dom4Image(type, data, this.getId()));
+  }
+
+  // 当前 image 的 type 是 img
+  isImg() {
+    return this.getType() === "img";
+  }
+  // 当前 image 的 type 是 bg
+  isBg() {
+    return this.getType() === "bg";
   }
 
   // 获取数据
@@ -90,5 +103,14 @@ export class DesignImage {
   // 设置设计图的所有dom
   setDom(dom) {
     this.dom = dom;
+  }
+  // 获取背景图才有的颜色
+  getColor() {
+    return this.color;
+  }
+  // 设置背景图才有的颜色
+  setColor(color) {
+    this.color = color;
+    this.dom?.bgRect && this.dom.bgRect.attr("fill", color);
   }
 }

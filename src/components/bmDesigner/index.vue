@@ -134,14 +134,10 @@
             <div class="btn-layer">
               <el-button class="item-btn">编辑</el-button>
               <el-button class="item-btn">收藏</el-button>
-              <el-button
-                class="item-btn"
-                @click="handlerLayer('up', item.sNode, item)"
+              <el-button class="item-btn" @click="handlerLayer('up', item)"
                 >上移
               </el-button>
-              <el-button
-                class="item-btn"
-                @click="handlerLayer('down', item.sNode, item)"
+              <el-button class="item-btn" @click="handlerLayer('down', item)"
                 >下移
               </el-button>
               <el-button class="item-btn" @click="handlerLayerNameClick(item)"
@@ -218,10 +214,26 @@
 import bmSwiper from "./components/bmSwiper.vue";
 import bmInfo from "./components/bmInfo.vue";
 import bmSearchList from "./components/bmSearchList.vue";
-import { mock } from "@/components/bmDesigner/mock";
-import { DesignProxy } from "@/components/bmDesigner/app";
-import { Prod } from "@/components/bmDesigner/app/entity/Prod";
-import { DesignImage } from "@/components/bmDesigner/app/entity/Image";
+import { mock } from "./mock";
+import { DesignProxy } from "./app/index";
+import { Prod } from "./app/entity/Prod";
+import {
+  addImage4TypeByBg,
+  addImage4TypeByImg,
+  deleteImageById,
+  getActiveImage,
+  getImageActionId,
+  setImageActionId,
+} from "./app/designUse/index";
+import {
+  bgImageAdaptor,
+  imageAdaptor,
+  layerIndex,
+  vueGetActiveImage,
+  vueGetImage,
+} from "./util";
+import { layer } from "./app/utils/layer";
+import { swapArrData } from "./app/utils/util";
 
 export default {
   components: { bmSwiper, bmInfo, bmSearchList },
@@ -262,23 +274,63 @@ export default {
   },
   methods: {
     // 背景色-应用
-    handlerApplyColor() {},
+    handlerApplyColor() {
+      const { image, hasBg } = addImage4TypeByBg(this.color);
+      if (hasBg) {
+        let layer = vueGetImage(this.layerList, image.id);
+        layer.name = `${this.color}`;
+      } else {
+        this.layerList.push(bgImageAdaptor(image));
+      }
+    },
     // 下载图片
     handlerDown() {},
+    /*
+     * 图层-上/下移
+     * @param {String} type up上/down下
+     */
+    handlerLayer(type, data, msgFlag = true) {
+      // 图层dom操作 + 提示信息
+      data = data ? data : vueGetImage(this.layerList, this.activeImgId);
+      let result = layer(type, data.sNode, msgFlag);
+      // vue数据操作
+      this.layerList = layerIndex(result, this.layerList, data, type);
+      // return这个是置顶、置底的时候用的
+      return result;
+    },
+    // 图层-删除
+    handlerLayerDelClick(data) {
+      deleteImageById(data.sid);
+    },
+    // 图层点击
+    handlerLayerNameClick(data) {
+      // 设置当前激活的设计图
+      setImageActionId(data.sid);
+    },
     // 图层-显示、隐藏
     handlerLayerShowClick(data) {},
     // 图层-复制
     handlerCopy() {},
     // 图库-选中
     picClick(data) {
-      DesignProxy()
-        .getProd()
-        .addDesignSNode(new DesignImage({ type: "img", data: data }));
+      // 设计器添加设计图操作
+      let image = addImage4TypeByImg(data);
+      // vue数据操作
+      this.layerList.unshift(imageAdaptor(image, data));
+      return image;
     },
-    // 图库-删除
-    handlerImgDel(id) {},
-    // 设置VUE中的当前激活图片id
-    setVueActiveImgId() {},
+    // 图库-删除(提供给design类使用)
+    handlerImgDel(id) {
+      this.layerList.findIndex((item) => {
+        if (item?.sid === id) {
+          this.layerList.splice(this.layerList.indexOf(item), 1);
+        }
+      });
+    },
+    // 设置VUE中的当前激活图片id(提供给design类使用)
+    setVueActiveImgId(id = getImageActionId()) {
+      this.activeImgId = id;
+    },
     // 产品-选中
     prodClick(data) {},
     // 左侧-类型切换
@@ -296,17 +348,15 @@ export default {
     handlerStick(type) {},
     // 缩放
     handlerScale() {},
-    /*
-     * 图层-上/下移
-     * @param {String} type up上/down下
-     */
-    handlerLayer(type, sNode, data, msgFlag = true) {},
-    // 图层-删除
-    handlerLayerDelClick(data) {},
   },
   mounted() {
-    DesignProxy().addProd(new Prod(this.productList[0]));
-    console.log(DesignProxy());
+    DesignProxy().addProd(
+      new Prod({
+        data: this.productList[0],
+        imgClick: (id) => this.setVueActiveImgId(id),
+        imgDelete: (id) => this.handlerImgDel(id),
+      })
+    );
   },
 };
 </script>

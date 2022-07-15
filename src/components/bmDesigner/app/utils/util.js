@@ -127,3 +127,10 @@ export function getQuadrant(ox, oy, x2, y2) {
 export function getDistance(x1, y1, x2, y2) {
   return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 }
+
+// 数组位置交换
+export const swapArrData = (index1, index2, arr) => {
+  const temp = arr.splice(index2, 1, arr[index1]);
+  arr[index1] = temp[0];
+  return arr;
+};

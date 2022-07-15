@@ -29,7 +29,7 @@ export class imageRotate {
       .text(
         imgBdBBox.cx,
         imgBdBBox.cy - imgBdBBox.h / 2 - 30,
-        prod.getDesignImage().getAngle().toFixed(2)
+        prod.getImage().getAngle().toFixed(2)
       )
       .attr({ stroke: "green" });
     imgSNode.imgBd.add(this.circle);
@@ -61,7 +61,7 @@ export class imageRotate {
     // 设置旋转 --end
     // 记录 --start
     // 记录设计图旋转角度
-    let _angle = prod.getDesignImage().getAngle() + angle;
+    let _angle = prod.getImage().getAngle() + angle;
     if (_angle > 360) {
       _angle -= 360;
     }
@@ -72,13 +72,12 @@ export class imageRotate {
       _angle = 360 - _angle;
     }
 
-    prod.getDesignImage().setAngle(Number(_angle));
+    prod.getImage().setAngle(Number(_angle));
     // 记录 --end
     // 重置鼠标坐标(第一次记录是在start中), 使得下次拖拽的时候可以计算出移动形成的角度
     this.x = x;
     this.y = y;
-    this.text.node.innerHTML =
-      prod.getDesignImage().getAngle().toFixed(2) + "°";
+    this.text.node.innerHTML = prod.getImage().getAngle().toFixed(2) + "°";
   }
 
   // 拖拽结束

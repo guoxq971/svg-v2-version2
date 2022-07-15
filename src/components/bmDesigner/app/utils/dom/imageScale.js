@@ -49,9 +49,9 @@ export class imageScale {
     imgSNode.editDelete.attr({ x: -18 + bbox.x, y: bbox.y2 });
     // 缩放--end
     // 记录--start
-    let _scale = prod.getDesignImage().getScale();
+    let _scale = prod.getImage().getScale();
     _scale *= scale;
-    prod.getDesignImage().setScale(_scale);
+    prod.getImage().setScale(_scale);
     // 记录--end
 
     // 重置鼠标坐标(第一次记录是在start中), 使得下次拖拽的时候可以计算出移动形成的缩放比例

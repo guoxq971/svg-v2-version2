@@ -1,4 +1,5 @@
 import { cutMode } from "@/components/bmDesigner/app/utils/dom/designUtil";
+import { addEventOverall } from "@/components/bmDesigner/app/utils/overall";
 
 export class Design {
   // 当前激活的产品id
@@ -7,7 +8,12 @@ export class Design {
   prodList = [];
   // 模式 预览(preview)/编辑(edit)
   mode = "";
-  constructor() {}
+
+  // 构造函数
+  constructor() {
+    // 监听鼠标按下，进入预览模式
+    addEventOverall();
+  }
   // 添加产品
   addProd(prod) {
     // 添加产品
@@ -39,10 +45,15 @@ export class Design {
     if (this.isPreviewMode()) {
       this.setMode("edit");
       cutMode(this.getMode());
-      // designApp.patrolImgMode();
+      this.getProd().patrolImgMode();
     }
   }
-  // 设为编辑模式
+  // 设为预览模式
+  setPreviewMode() {
+    this.setMode("preview");
+    cutMode(this.getMode());
+  }
+  // 设为模式
   setMode(mode) {
     this.mode = mode;
   }
@@ -53,10 +64,5 @@ export class Design {
   // 获取当前激活的产品id
   getProdActiveId() {
     return this.prodActiveId;
-  }
-  // 设为预览模式
-  setPreviewMode() {
-    this.setMode("preview");
-    cutMode(this.getMode());
   }
 }

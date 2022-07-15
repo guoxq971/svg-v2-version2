@@ -1,4 +1,5 @@
 import {
+  cratePicBgRect,
   cratePicEditBd,
   cratePicEditDelete,
   cratePicEditMove,
@@ -35,7 +36,7 @@ export function moveToCenter(SNode, x, y) {
 // 创建设计图
 export function createImg(that, param, id) {
   let { svg, defsClipD2, designGroup } = DesignProxy().getProd().getDom();
-  let { url, imgClick, imgDel } = param;
+  let { url } = param;
   let SNode = that;
   // 最外层
   SNode.imgG = createPicImgG(svg);
@@ -89,15 +90,29 @@ export function createImg(that, param, id) {
   );
   // 设计图的删除事件
   SNode.editDelete.click(() => {
-    useDesign.remove(designSNode, SNode);
-    // vue绑定的的点击事件
-    imgDel && imgDel(SNode.id);
+    DesignProxy().getProd().deleteImage(id);
   });
   // 设计图的点击事件：如果当前是预览模式，就进入编辑模式
   SNode.img.mousedown(() => {
     DesignProxy().getProd().setImageActionId(id);
     DesignProxy().setEditMode();
-    // vue绑定的的点击事件
-    imgClick && imgClick();
   });
+}
+
+// 创建背景
+export function createBg(that, param) {
+  const prod = DesignProxy().getProd();
+  let { svg, designGroup } = DesignProxy().getProd().getDom();
+  let { color } = param;
+  let SNode = that;
+  // 最外层
+  SNode.imgG = createPicImgG(svg);
+  // 如果存在其他设计图，就把背景放在最上层
+  if (prod.getDesignSNodeGroup().length) {
+    designGroup.prepend(SNode.imgG);
+  } else {
+    designGroup.add(SNode.imgG);
+  }
+  SNode.bgRect = cratePicBgRect(svg, { color });
+  SNode.imgG.add(SNode.bgRect);
 }

@@ -27,8 +27,8 @@ export class ImageMove {
     // 移动--end
     // 记录--start
     let bbox = imgSNode.imgBd.getBBox();
-    DesignProxy().getProd().getDesignImage().setX(bbox.x);
-    DesignProxy().getProd().getDesignImage().setY(bbox.y);
+    DesignProxy().getProd().getImage().setX(bbox.x);
+    DesignProxy().getProd().getImage().setY(bbox.y);
     // 记录--end
     this.x = x;
     this.y = y;
