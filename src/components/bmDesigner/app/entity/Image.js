@@ -26,11 +26,20 @@ export class DesignImage {
     let { type, data } = param;
     this.setId(uuid());
     this.setType(type);
-    this.setData(data);
     if (type === "bg") this.setColor(data.color);
     this.setDom(new Dom4Image(type, data, this.getId()));
   }
-
+  // 图层显示\隐藏
+  layerTrigger() {
+    // 操作元素
+    let dom = this.getDom().imgG;
+    dom.node.style.display =
+      dom.node.style.display === "none" ? "inline" : "none";
+    // 操作vue数据
+    let data = this.getData();
+    data.isShow = !data.isShow;
+    this.setData(data);
+  }
   // 当前 image 的 type 是 img
   isImg() {
     return this.getType() === "img";
@@ -39,7 +48,6 @@ export class DesignImage {
   isBg() {
     return this.getType() === "bg";
   }
-
   // 获取数据
   getData() {
     return this.data;

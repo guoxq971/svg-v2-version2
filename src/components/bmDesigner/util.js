@@ -1,5 +1,6 @@
 // 设计图入参适配器
 import { swapArrData } from "@/components/bmDesigner/app/utils/util";
+import { getActiveImage } from "@/components/bmDesigner/app/designUse";
 
 export function imageAdaptor(image, data) {
   data.sid = image.getId();
@@ -46,4 +47,22 @@ export function layerIndex(result, layerList, data, type) {
 // 获取当前激活的图层设计图
 export function vueGetImage(layerList, id) {
   return layerList.find((item) => item.sid === id);
+}
+
+/*
+ * 置顶\置底
+ * @param {string} type 置顶\置底
+ * @param {function} handlerLayer vue函数、图层上下移动
+ * */
+export function vueSetTop(type, handlerLayer) {
+  if (getActiveImage().isBg()) {
+    this.$message.warning("背景图不能置顶、置底");
+    return;
+  }
+  const fn = () => {
+    let result = handlerLayer(type, null, false);
+    if (result) fn();
+  };
+  // 递归 fn 函数，直到没有图层可以置顶或置底
+  fn();
 }

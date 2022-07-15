@@ -231,6 +231,7 @@ import {
   layerIndex,
   vueGetActiveImage,
   vueGetImage,
+  vueSetTop,
 } from "./util";
 import { layer } from "./app/utils/layer";
 import { swapArrData } from "./app/utils/util";
@@ -308,7 +309,9 @@ export default {
       setImageActionId(data.sid);
     },
     // 图层-显示、隐藏
-    handlerLayerShowClick(data) {},
+    handlerLayerShowClick(data) {
+      data.sNode.layerTrigger();
+    },
     // 图层-复制
     handlerCopy() {},
     // 图库-选中
@@ -316,7 +319,9 @@ export default {
       // 设计器添加设计图操作
       let image = addImage4TypeByImg(data);
       // vue数据操作
-      this.layerList.unshift(imageAdaptor(image, data));
+      let d = imageAdaptor(image, data);
+      this.layerList.unshift(d);
+      image.setData(d);
       return image;
     },
     // 图库-删除(提供给design类使用)
@@ -345,7 +350,9 @@ export default {
     // 翻转
     async handlerRevere(type) {},
     // 置顶、置底
-    handlerStick(type) {},
+    handlerStick(type) {
+      vueSetTop(type, this.handlerLayer);
+    },
     // 缩放
     handlerScale() {},
   },
