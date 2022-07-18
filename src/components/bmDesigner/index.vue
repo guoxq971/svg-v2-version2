@@ -215,14 +215,9 @@ import bmSwiper from "./components/bmSwiper.vue";
 import bmInfo from "./components/bmInfo.vue";
 import bmSearchList from "./components/bmSearchList.vue";
 import { mock } from "./mock";
-import { DesignProxy, QueueProxy } from "./app/index";
+import { DesignProxy, QueueProxy, useQueue } from "./app/index";
 import { Prod } from "./app/entity/Prod";
-import {
-  deleteImageById,
-  getActiveImage,
-  getImageActionId,
-  setImageActionId,
-} from "./app/designUse/design";
+import { getActiveImage, setImageActionId } from "./app/designUse/design";
 import {
   downloadSvg,
   predefineColors,
@@ -233,6 +228,7 @@ import {
   vueSelectImage,
   vueSetTop,
 } from "./util";
+import { UseQueue } from "@/components/bmDesigner/app/designUse/queue";
 
 export default {
   components: { bmSwiper, bmInfo, bmSearchList },
@@ -260,11 +256,11 @@ export default {
     // 撤回、回退
     handlerQueue(type) {
       if (type === "undo") {
-        QueueProxy().undo();
+        useQueue().undo();
       } else if (type === "redo") {
-        QueueProxy().redo();
-      } else {
-        QueueProxy().clear();
+        useQueue().redo();
+      } else if (type === "clear") {
+        useQueue().clear();
       }
     },
     // 背景色-应用
@@ -316,7 +312,7 @@ export default {
       vueDeleteImage(this.layerList, id);
     },
     // 设置VUE中的当前激活图片id(提供给design类使用)
-    setVueActiveImgId(id = getImageActionId()) {
+    setVueActiveImgId(id) {
       this.activeImgId = id;
     },
     // 产品-选中

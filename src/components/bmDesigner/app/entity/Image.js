@@ -126,6 +126,10 @@ export class DesignImage {
       this.carryLog();
     }
   }
+  // 设计图移动到指定位置
+  imageMoveReal(x, y) {
+    this.imageMove(x, y, "real");
+  }
 
   /*
    * 旋转设计图

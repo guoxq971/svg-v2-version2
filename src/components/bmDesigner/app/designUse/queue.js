@@ -1,14 +1,51 @@
-import { QueueProxy } from "../index";
-import { CurrentQueue } from "../queueManager/CurrentQueue";
+import { QueueProxy, useQueue } from "../index";
+import { CurrentQueue, OS_TYPE } from "../queueManager/CurrentQueue";
 
 export class UseQueue {
+  getOsTypeMove() {
+    return OS_TYPE.MOVE;
+  }
+  getOsTypeRotate() {
+    return OS_TYPE.ROTATE;
+  }
+  getOsTypeScale() {
+    return OS_TYPE.SCALE;
+  }
+
+  // 获取队列
+  getQueue() {
+    return QueueProxy();
+  }
+
+  /*
+   * 撤销
+   * */
+  undo() {
+    this.getQueue().undo();
+  }
+
+  /*
+   * 回退
+   * */
+  redo() {
+    this.getQueue().redo();
+  }
+
+  /*
+   * 清空
+   * */
+  clear() {
+    this.getQueue().clear();
+  }
+
   /*
    * 移动
    * */
   move(image) {
-    QueueProxy().addQueue(
+    // 添加队列
+    this.getQueue().addQueue(
       new CurrentQueue({
-        type: "move",
+        type: this.getOsTypeMove(),
         id: image.id,
         image,
         x: image.getX(),

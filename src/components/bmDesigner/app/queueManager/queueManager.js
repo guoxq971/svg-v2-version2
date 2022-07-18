@@ -1,6 +1,7 @@
 // 队列
 import { Message } from "element-ui";
 import { setImageActionId } from "../designUse/design";
+import { useQueue } from "@/components/bmDesigner/app";
 
 export class QueueManager {
   // 当前项
@@ -18,17 +19,19 @@ export class QueueManager {
   }
 
   /*
-   *  执行
+   * 执行
+   * @param {Object} newQueue 新的当前项
+   * @param {Object} oldQueue 旧的当前项
    * 1. 如果old和new的id不同，则从新设置设计图激活id
    * */
   execute(newQueue, oldQueue) {
     if (newQueue) {
-      if (newQueue.type === "move") {
-        newQueue.image.imageMove(newQueue.x, newQueue.y, "real");
+      if (newQueue.isMove()) {
+        newQueue.getImage().imageMoveReal(newQueue.getX(), newQueue.getY());
       }
     }
-    if (oldQueue.id !== newQueue.id) {
-      setImageActionId(newQueue.image);
+    if (oldQueue.getId() !== newQueue.getId()) {
+      setImageActionId(newQueue.getImage());
     }
   }
 
@@ -38,10 +41,10 @@ export class QueueManager {
    * 2. 将当前项添加到回退栈
    * 3. 获取撤销栈的最后一项
    * 4. 将当前项设置为撤销栈的最后一项
-   * 5. 执行命令 execute(getCurrentQueue())
+   * 5. 执行命令 execute()
    * */
   undo() {
-    if (this.getUndoQueue().length === 0) {
+    if (this.isUndoQueueEmpty()) {
       Message.warning("撤销栈为空");
       return;
     }
@@ -59,10 +62,10 @@ export class QueueManager {
    * 2. 将当前项添加到撤销栈
    * 3. 获取回退栈的最后一项
    * 4. 将当前项设置为回退栈的最后一项
-   * 5. 执行命令 execute(getCurrentQueue())
+   * 5. 执行命令 execute()
    * */
   redo() {
-    if (this.getRedoQueue().length === 0) {
+    if (this.isRedoQueueEmpty()) {
       Message.warning("回退栈为空");
       return;
     }
@@ -85,7 +88,7 @@ export class QueueManager {
     let currentQueue = this.getCurrentQueue();
     if (currentQueue) this.addUndoQueue(currentQueue);
     this.setCurrentQueue(queue);
-    if (this.getRedoQueue().length !== 0) this.clearRedoQueue();
+    if (!this.isRedoQueueEmpty()) this.clearRedoQueue();
     this.log();
   }
 
@@ -107,6 +110,32 @@ export class QueueManager {
   // 获取回退栈
   getRedoQueue() {
     return this.redoQueue;
+  }
+
+  // 获取撤销栈长度
+  getUndoQueueLength() {
+    return this.getUndoQueue().length;
+  }
+
+  // 获取回退栈长度
+  getRedoQueueLength() {
+    return this.getRedoQueue().length;
+  }
+
+  /*
+   * 回退栈是否为空
+   * @return {Boolean} true为空，false不为空
+   * */
+  isRedoQueueEmpty() {
+    return this.getRedoQueueLength() === 0;
+  }
+
+  /*
+   * 撤销栈是否为空
+   * @return {Boolean} true为空，false不为空
+   * */
+  isUndoQueueEmpty() {
+    return this.getUndoQueueLength() === 0;
   }
 
   // 清空撤销栈
