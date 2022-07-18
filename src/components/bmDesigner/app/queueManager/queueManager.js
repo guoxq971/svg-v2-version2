@@ -1,8 +1,7 @@
-// 队列
 import { Message } from "element-ui";
 import { setImageActionId } from "../designUse/design";
-import { useQueue } from "@/components/bmDesigner/app";
 
+// 队列
 export class QueueManager {
   // 当前项
   currentQueue;

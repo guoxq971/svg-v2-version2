@@ -5,9 +5,11 @@ export class UseQueue {
   getOsTypeMove() {
     return OS_TYPE.MOVE;
   }
+
   getOsTypeRotate() {
     return OS_TYPE.ROTATE;
   }
+
   getOsTypeScale() {
     return OS_TYPE.SCALE;
   }

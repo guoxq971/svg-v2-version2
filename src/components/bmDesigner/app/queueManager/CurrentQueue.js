@@ -1,3 +1,5 @@
+import { useQueue } from "../index";
+
 // 操作类型枚举
 export const OS_TYPE = {
   // 移动
@@ -39,15 +41,15 @@ export class CurrentQueue {
   }
   // 类型是否是移动
   isMove() {
-    return this.getType() === OS_TYPE.MOVE;
+    return this.getType() === useQueue().getOsTypeMove();
   }
   // 类型是否是旋转
   isRotate() {
-    return this.getType() === OS_TYPE.ROTATE;
+    return this.getType() === useQueue().getOsTypeRotate();
   }
   // 类型是否是缩放
   isScale() {
-    return this.getType() === OS_TYPE.SCALE;
+    return this.getType() === useQueue().getOsTypeScale();
   }
   setType(type) {
     this.type = type;
