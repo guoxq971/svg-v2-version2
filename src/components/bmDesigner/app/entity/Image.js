@@ -198,9 +198,10 @@ export class DesignImage {
   /*
    * 缩放设计图
    * @param {number} scale 缩放比例
+   * @param {string} type 类型 plus=累加,real=操作到真实数值
    * @param {boolean} isLog 是否记录
    * */
-  imageScale(scale, isLog = true) {
+  imageScale(scale, type = "plus", isLog = true) {
     if (this.isBg()) return;
     let dom = this.getDom();
     let imgBBox = dom.img.getBBox();
@@ -239,8 +240,8 @@ export class DesignImage {
     let angle = this.getAngle();
     let scale = this.getScale();
     // 回正
-    this.imageRotate(360 - angle);
-    this.imageScale(1 / scale);
+    this.imageRotate(360 - angle, "plus", false);
+    this.imageScale(1 / scale, "plus", false);
     let imgBd = this.getDom().imgBd;
     let imgBdBox = getOffset(imgBd.node);
     let groupRectBBox = this.getProd().getDom().designGroupRect.getBBox();
@@ -255,8 +256,8 @@ export class DesignImage {
     }
     this.imageMove(matrix.e, matrix.f, "real");
     // 转回已有
-    this.imageRotate(angle);
-    this.imageScale(scale);
+    this.imageRotate(angle, "plus", false);
+    this.imageScale(scale, "plus", false);
     // 记录值
     if (isLog) {
       this.carryLog();

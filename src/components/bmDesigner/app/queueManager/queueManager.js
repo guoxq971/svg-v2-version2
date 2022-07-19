@@ -43,17 +43,17 @@ export class QueueManager {
         let angle = image.getAngle();
         let scale = image.getScale();
         image.imageRotate(-angle, "plus", false);
-        image.imageScale(1 / scale, "plus", false);
+        // image.imageScale(1 / scale, "plus", false);
         image.imageMoveReal(newQueue.getX(), newQueue.getY());
         image.imageRotate(angle, "plus", false);
-        image.imageScale(scale, "plus", false);
+        // image.imageScale(scale, "plus", false);
       }
       // 切换设计图操作
       if (newQueue.isCut(oldQueue)) {
         useDesign().setImageActionId(newQueue.getImage());
       }
     }
-    this.log(logMsg);
+    this.log(logMsg, newQueue, oldQueue);
   }
 
   /*
