@@ -16,8 +16,6 @@ export class ImageMove {
   }
 
   move(imgSNode, dx, dy, x, y, event, image) {
-    let prod = image.getProd();
-    let dom = image.getDom();
     let _x = x - this.x;
     let _y = y - this.y;
     this.dx = dx;

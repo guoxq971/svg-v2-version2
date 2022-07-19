@@ -4,10 +4,10 @@ import {
   getOffset,
   uuid,
 } from "../utils/util";
-import { Dom4Image } from "./Dom4Image";
-import { getProd } from "../designUse/design";
+import { Dom4Image } from "../utils/dom/Dom4Image";
 import { Message } from "element-ui";
 import { Filter } from "../plugin/filter";
+import { useDesign } from "../index";
 
 // 设计图类
 export class DesignImage {
@@ -287,7 +287,7 @@ export class DesignImage {
    * @return {class} 产品类
    * */
   getProd() {
-    return getProd(this.getProdId());
+    return useDesign().getProd(this.getProdId());
   }
   /*
    * 获取数据

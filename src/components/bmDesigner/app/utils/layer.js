@@ -1,6 +1,6 @@
 import { utils } from "../plugin/layerUtils";
 import { Message } from "element-ui";
-import { getBgImage, getProd } from "../designUse/design";
+import { useDesign } from "../index";
 
 /*
  * 图层操作
@@ -9,7 +9,7 @@ import { getBgImage, getProd } from "../designUse/design";
  * @param {boolean} msgFlag 是否显示消息
  * */
 export function layer(type, sNode, msgFlag = true) {
-  let prod = getProd();
+  let prod = useDesign().getProd();
   let sNodeDom = sNode.getDom();
   if (sNode.isBg(sNode)) {
     msgFlag && Message.warning("背景图不能进行移动的图层操作");
@@ -28,20 +28,24 @@ export function layer(type, sNode, msgFlag = true) {
       msgFlag && Message.warning("已经在最上层");
       return;
     }
+    // dom操作，更换位置
     let curSNode = sNodeDom.imgG;
     let nextSNode = Snap(utils.next(curSNode.node));
     curSNode.insertAfter(nextSNode);
   }
   if (type === "down") {
+    // 如果当前设计图是背景图
     if (sNode.isBg()) {
+      // 比较的元素是否是背景图, 如果是就不能继续往下
       if (
         Snap(utils.prev(sNodeDom.imgG.node)) ===
-        getBgImage(sNode.getProdId()).getDom().imgG
+        useDesign().getBgImage(sNode.getProdId()).getDom().imgG
       ) {
         msgFlag && Message.warning("已经在最下层，不能超过背景图");
         return;
       }
     }
+    // 边界判断
     if (
       utils.prev(sNodeDom.imgG.node) === null ||
       utils.prev(sNodeDom.imgG.node)?.nodeName === "rect"
@@ -49,6 +53,7 @@ export function layer(type, sNode, msgFlag = true) {
       msgFlag && Message.warning("已经在最下层");
       return;
     }
+    // dom操作，更换位置
     let curSNode = sNodeDom.imgG;
     let nextSNode = Snap(utils.prev(curSNode.node));
     curSNode.insertBefore(nextSNode);

@@ -1,5 +1,5 @@
 import { Dom4ImageEntity } from "./Dom4ImageEntity";
-import { createBg, createImg } from "../utils/dom/dom4Util";
+import { createBg, createImg } from "./dom4Util";
 
 // 设计图的 dom 对象
 export class Dom4Image extends Dom4ImageEntity {

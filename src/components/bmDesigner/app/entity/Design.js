@@ -2,7 +2,6 @@ import { cutMode } from "../utils/dom/designUtil";
 import { addEventOverall } from "../utils/overall";
 import { hotkeyInit } from "../utils/hotkeys";
 import { imageAdapterV2 } from "../utils/adaptor";
-import { getProd } from "@/components/bmDesigner/app/designUse/design";
 
 export class Design {
   // 当前激活的产品id

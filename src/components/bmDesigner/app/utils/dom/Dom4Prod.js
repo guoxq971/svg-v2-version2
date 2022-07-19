@@ -10,8 +10,8 @@ import {
   createProdDashedPath,
   createProductImg,
   createSvg,
-} from "../utils/dom/dom4CreateProd";
-import { moveToCenter } from "../utils/dom/dom4Util";
+} from "./dom4CreateProd";
+import { moveToCenter } from "./dom4Util";
 import { Dom4ProdEntity } from "./Dom4ProdEntity";
 
 // 产品的 dom 对象

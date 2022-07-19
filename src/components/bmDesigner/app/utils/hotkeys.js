@@ -1,8 +1,5 @@
 import hotkeys from "hotkeys-js";
-import {
-  getActiveImage,
-  getProd,
-} from "@/components/bmDesigner/app/designUse/design";
+import { useDesign } from "../index";
 
 export function hotkeyInit(param) {
   // 缩放-方向键
@@ -20,7 +17,7 @@ function commonKeys(param) {
   const keys = ["ctrl+c"];
   hotkeys(keys.toString(), function (event, handler) {
     event.preventDefault();
-    if (!getProd().hasImageAction()) return;
+    if (!useDesign().getProd().hasImageAction()) return;
     switch (handler.key) {
       case "ctrl+c":
         param.copy && param.copy();
@@ -45,8 +42,8 @@ function moveDirectionKeys() {
   ];
   hotkeys(keys.toString(), function (event, handler) {
     event.preventDefault();
-    if (!getProd().hasImageAction()) return;
-    let image = getActiveImage();
+    if (!useDesign().getProd().hasImageAction()) return;
+    let image = useDesign().getActiveImage();
     switch (handler.key) {
       case "down":
         image.imageMove(0, 1);
@@ -83,8 +80,8 @@ function rotateDirectionKeys() {
   const keys = ["ctrl+down", "ctrl+up", "ctrl+left", "ctrl+right"];
   hotkeys(keys.toString(), function (event, handler) {
     event.preventDefault();
-    if (!getProd().hasImageAction()) return;
-    let image = getActiveImage();
+    if (!useDesign().getProd().hasImageAction()) return;
+    let image = useDesign().getActiveImage();
     switch (handler.key) {
       case "ctrl+down":
         image.imageRotate(1);
@@ -109,8 +106,8 @@ function scaleDirectionKeys() {
   const keys = ["alt+down", "alt+up", "alt+left", "alt+right"];
   hotkeys(keys.toString(), function (event, handler) {
     event.preventDefault();
-    if (!getProd().hasImageAction()) return;
-    let image = getActiveImage();
+    if (!useDesign().getProd().hasImageAction()) return;
+    let image = useDesign().getActiveImage();
     switch (handler.key) {
       case "alt+down":
         image.imageScale(0.99);

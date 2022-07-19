@@ -1,5 +1,5 @@
 import { Message } from "element-ui";
-import { setImageActionId } from "../designUse/design";
+import { useDesign } from "../index";
 
 // 队列
 export class QueueManager {
@@ -30,7 +30,7 @@ export class QueueManager {
       }
     }
     if (oldQueue.getId() !== newQueue.getId()) {
-      setImageActionId(newQueue.getImage());
+      useDesign().setImageActionId(newQueue.getImage());
     }
   }
 

@@ -1,6 +1,6 @@
-// uuid函数
-import { getProd } from "@/components/bmDesigner/app/designUse/design";
+import { useDesign } from "../index";
 
+// uuid函数
 export function uuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     var r = (Math.random() * 16) | 0,
@@ -157,7 +157,7 @@ export function convertCanvasToImage(canvas, x, y, w, h) {
 // 将 svg 内，所有 image 节点的 href 转为 base64
 export function SvgImgToBase64(
   name = "test.jpg",
-  svg = getProd().getDom().svg,
+  svg = useDesign().getProd().getDom().svg,
   fn = null
 ) {
   let domList = svg.selectAll("image");

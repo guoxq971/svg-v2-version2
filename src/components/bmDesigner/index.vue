@@ -215,9 +215,8 @@ import bmSwiper from "./components/bmSwiper.vue";
 import bmInfo from "./components/bmInfo.vue";
 import bmSearchList from "./components/bmSearchList.vue";
 import { mock } from "./mock";
-import { DesignProxy, QueueProxy, useQueue } from "./app/index";
+import { DesignProxy, QueueProxy, useDesign, useQueue } from "./app/index";
 import { Prod } from "./app/entity/Prod";
-import { getActiveImage, setImageActionId } from "./app/designUse/design";
 import {
   downloadSvg,
   predefineColors,
@@ -228,7 +227,6 @@ import {
   vueSelectImage,
   vueSetTop,
 } from "./util";
-import { UseQueue } from "@/components/bmDesigner/app/designUse/queue";
 
 export default {
   components: { bmSwiper, bmInfo, bmSearchList },
@@ -293,7 +291,7 @@ export default {
     },
     // 图层点击
     handlerLayerNameClick(data) {
-      setImageActionId(data.sNode);
+      useDesign().setImageActionId(data.sNode);
     },
     // 图层-显示、隐藏
     handlerLayerShowClick(data) {
@@ -328,15 +326,15 @@ export default {
     // 左/右旋
     handlerRotate(type) {
       let angle = { left: 360 - 45, right: 45 }[type];
-      getActiveImage().imageRotate(angle);
+      useDesign().getActiveImage().imageRotate(angle);
     },
     // 居中
     handlerAlign(type) {
-      getActiveImage().imageAlign(type);
+      useDesign().getActiveImage().imageAlign(type);
     },
     // 翻转
     async handlerRevere(type) {
-      getActiveImage().imageReverse(type);
+      useDesign().getActiveImage().imageReverse(type);
     },
     // 置顶、置底
     handlerStick(type) {
