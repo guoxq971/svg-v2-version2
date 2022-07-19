@@ -261,9 +261,9 @@ export class DesignImage {
     // 记录值
     if (isLog) {
       this.carryLog();
-      console.log(1);
-      console.log(2);
-      console.log(3);
+      console.log(11);
+      console.log(22);
+      console.log(33);
     }
     // 操作栈的记录
     useQueue().addQueueByMove();
