@@ -261,7 +261,7 @@ export class DesignImage {
     // 记录值
     if (isLog) {
       this.carryLog();
-      console.log(11);
+      console.log(111);
       console.log(22);
       console.log(33);
     }
