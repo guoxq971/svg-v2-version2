@@ -49,7 +49,7 @@ export class UseDesign {
    * @param {class} image 设计图class
    * */
   setImageActionId(image) {
-    image.getProd().setImageActionId(data.sid);
+    image.getProd().setImageActionId(image.getData().sid);
     this.setEditMode();
   }
 

@@ -39,15 +39,32 @@ export class CurrentQueue {
     this.setScale(scale);
     this.setImage(image);
   }
-  // 类型是否是移动
+  /*
+   * 是否是切换操作
+   * @param {string} imageId 设计图class的id
+   * @return {boolean} true-是切换操作 false-不是切换操作
+   * */
+  isCut(imageId) {
+    return imageId !== this.getId();
+  }
+  /*
+   * 是否是移动操作
+   * @return {boolean} true-是移动操作 false-不是移动操作
+   * */
   isMove() {
     return this.getType() === useQueue().getOsTypeMove();
   }
-  // 类型是否是旋转
+  /*
+   * 是否是旋转操作
+   * @return {boolean} true-是旋转操作 false-不是旋转操作
+   * */
   isRotate() {
     return this.getType() === useQueue().getOsTypeRotate();
   }
-  // 类型是否是缩放
+  /*
+   * 是否是旋转操作
+   * @return {boolean} true-是旋转操作 false-不是旋转操作
+   * */
   isScale() {
     return this.getType() === useQueue().getOsTypeScale();
   }

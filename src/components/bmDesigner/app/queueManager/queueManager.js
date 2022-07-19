@@ -24,13 +24,16 @@ export class QueueManager {
    * 1. 如果old和new的id不同，则从新设置设计图激活id
    * */
   execute(newQueue, oldQueue) {
+    // 如果当前项存在，才进行操作
     if (newQueue) {
+      // 移动操作
       if (newQueue.isMove()) {
         newQueue.getImage().imageMoveReal(newQueue.getX(), newQueue.getY());
       }
-    }
-    if (oldQueue.getId() !== newQueue.getId()) {
-      useDesign().setImageActionId(newQueue.getImage());
+      // 切换设计图操作
+      if (newQueue.isCut(oldQueue.getId())) {
+        useDesign().setImageActionId(newQueue.getImage());
+      }
     }
   }
 
