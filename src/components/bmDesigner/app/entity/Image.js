@@ -262,7 +262,7 @@ export class DesignImage {
     if (isLog) {
       this.carryLog();
       console.log(111);
-      console.log(22);
+      console.log(222);
       console.log(33);
     }
     // 操作栈的记录
