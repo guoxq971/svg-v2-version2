@@ -49,10 +49,23 @@ export class UseQueue {
     this.getQueue().addQueue(
       new CurrentQueue({
         type: this.getOsTypeMove(),
+        image,
+      })
+    );
+  }
+
+  /*
+   * 旋转
+   * */
+  addQueueByRotate(image) {
+    if (!image) image = useDesign().getActiveImage();
+    // 添加队列
+    this.getQueue().addQueue(
+      new CurrentQueue({
+        type: this.getOsTypeRotate(),
         id: image.id,
         image,
-        x: image.getX(),
-        y: image.getY(),
+        angle: image.getAngle(),
       })
     );
   }

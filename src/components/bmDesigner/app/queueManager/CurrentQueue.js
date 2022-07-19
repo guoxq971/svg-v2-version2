@@ -16,57 +16,75 @@ export class CurrentQueue {
   type;
   // 设计图class
   image;
-  // 这个id是 image.id
   id;
-  // 操作的值 --start
-  // 移动-x
   x;
-  // 移动-y
   y;
-  // 旋转角度
   angle;
-  // 缩放比例
   scale;
-  // 操作的值 --end
 
   constructor(param) {
-    const { id, type, image, x, y, angle, scale } = param;
-    this.setId(id);
+    const { type, image } = param;
     this.setType(type);
-    this.setX(x);
-    this.setY(y);
-    this.setAngle(angle);
-    this.setScale(scale);
     this.setImage(image);
+    this.setId(image.getId());
+    this.setX(image.getX());
+    this.setY(image.getY());
+    this.setAngle(image.getAngle());
+    this.setScale(image.getScale());
   }
   /*
    * 是否是切换操作
-   * @param {string} imageId 设计图class的id
+   * @param {currentQueue} queue 对比的当前队列
    * @return {boolean} true-是切换操作 false-不是切换操作
    * */
-  isCut(imageId) {
-    return imageId !== this.getId();
+  isCut(queue) {
+    return queue.getImageId() !== this.getImageId();
   }
   /*
    * 是否是移动操作
+   * @param {currentQueue} queue 对比的当前队列
    * @return {boolean} true-是移动操作 false-不是移动操作
    * */
-  isMove() {
-    return this.getType() === useQueue().getOsTypeMove();
+  isMove(queue) {
+    return this.getX() !== queue.getX() || this.getY() !== queue.getY();
   }
   /*
    * 是否是旋转操作
+   * @param {currentQueue} queue 对比的当前队列
    * @return {boolean} true-是旋转操作 false-不是旋转操作
    * */
-  isRotate() {
-    return this.getType() === useQueue().getOsTypeRotate();
+  isRotate(queue) {
+    return this.getAngle() !== queue.getAngle();
   }
   /*
-   * 是否是旋转操作
-   * @return {boolean} true-是旋转操作 false-不是旋转操作
+   * queue对比的type是否一致
+   * @param {currentQueue} queue 对比的当前队列
+   * @return {boolean} true-一致 false-不一致
    * */
-  isScale() {
-    return this.getType() === useQueue().getOsTypeScale();
+  isSameType(queue) {
+    return this.getType() === queue.getType();
+  }
+  /*
+   * 根据类型取值
+   * @param {string} type 类型
+   * */
+  getValueByType() {
+    switch (this.getType()) {
+      case OS_TYPE.MOVE:
+        return `${this.getX()},${this.getY()}`;
+      case OS_TYPE.ROTATE:
+        return this.getAngle();
+      case OS_TYPE.SCALE:
+        return this.getScale();
+      default:
+        return null;
+    }
+  }
+  /*
+   * type是缩放
+   * */
+  isScaleType() {
+    return this.getType() === OS_TYPE.SCALE;
   }
   setType(type) {
     this.type = type;
@@ -80,29 +98,32 @@ export class CurrentQueue {
   getImage() {
     return this.image;
   }
-  setX(x) {
-    this.x = x;
+  getImageId() {
+    return this.getImage().getId();
   }
   getX() {
     return this.x;
   }
-  setY(y) {
-    this.y = y;
+  setX(x) {
+    this.x = x;
   }
   getY() {
     return this.y;
   }
-  setAngle(angle) {
-    this.angle = angle;
+  setY(y) {
+    this.y = y;
   }
   getAngle() {
     return this.angle;
   }
-  setScale(scale) {
-    this.scale = scale;
+  setAngle(angle) {
+    this.angle = angle;
   }
   getScale() {
     return this.scale;
+  }
+  setScale(scale) {
+    this.scale = scale;
   }
   getId() {
     return this.id;

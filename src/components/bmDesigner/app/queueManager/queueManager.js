@@ -10,13 +10,14 @@ export class QueueManager {
   // 回退栈
   redoQueue = [];
 
-  log() {
+  log(log) {
     let btn = true;
     if (btn) {
-      console.log("===============================");
       console.log("撤销栈", this.undoQueue);
       console.log("回退栈", this.redoQueue);
       console.log("当前项", this.currentQueue);
+      console.log(log);
+      console.log("===============================");
     }
   }
 
@@ -27,17 +28,32 @@ export class QueueManager {
    * 1. 如果old和new的id不同，则从新设置设计图激活id
    * */
   execute(newQueue, oldQueue) {
+    let logMsg = "";
     // 如果当前项存在，才进行操作
     if (newQueue) {
+      let image = newQueue.getImage();
+      // 旋转
+      if (newQueue.isRotate(oldQueue)) {
+        logMsg = `执行了旋转, 值：${newQueue.getAngle()}`;
+        image.imageRotateReal(newQueue.getAngle());
+      }
       // 移动操作
-      if (newQueue.isMove()) {
-        newQueue.getImage().imageMoveReal(newQueue.getX(), newQueue.getY());
+      else if (newQueue.isMove(oldQueue)) {
+        logMsg = `执行了移动, 值：${newQueue.getX()}、${newQueue.getY()}`;
+        let angle = image.getAngle();
+        let scale = image.getScale();
+        image.imageRotate(-angle, "plus", false);
+        image.imageScale(1 / scale, "plus", false);
+        image.imageMoveReal(newQueue.getX(), newQueue.getY());
+        image.imageRotate(angle, "plus", false);
+        image.imageScale(scale, "plus", false);
       }
       // 切换设计图操作
-      if (newQueue.isCut(oldQueue.getId())) {
+      if (newQueue.isCut(oldQueue)) {
         useDesign().setImageActionId(newQueue.getImage());
       }
     }
+    this.log(logMsg);
   }
 
   /*
@@ -57,8 +73,7 @@ export class QueueManager {
     let newQueue = this.getUndoQueue().pop();
     this.addRedoQueue(oldQueue);
     this.setCurrentQueue(newQueue);
-    this.log();
-    this.execute(newQueue, oldQueue);
+    this.execute(newQueue, oldQueue, "undo");
   }
 
   /*
@@ -78,8 +93,7 @@ export class QueueManager {
     let newQueue = this.getRedoQueue().pop();
     this.addUndoQueue(oldQueue);
     this.setCurrentQueue(newQueue);
-    this.log();
-    this.execute(newQueue, oldQueue);
+    this.execute(newQueue, oldQueue, "redo");
   }
 
   /*
@@ -94,7 +108,9 @@ export class QueueManager {
     if (currentQueue) this.addUndoQueue(currentQueue);
     this.setCurrentQueue(queue);
     if (!this.isRedoQueueEmpty()) this.clearRedoQueue();
-    this.log();
+    this.log(
+      `添加队列；当前操作:${queue.getType()}, 操作值:${queue.getValueByType()}`
+    );
   }
 
   // 添加撤销栈

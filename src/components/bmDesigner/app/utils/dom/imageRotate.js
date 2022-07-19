@@ -1,4 +1,5 @@
 import { getQuadrant, getAngle, getMouseDirection, getOffset } from "../util";
+import { useQueue } from "../../index";
 
 // 旋转
 export class imageRotate {
@@ -60,6 +61,7 @@ export class imageRotate {
     // 移除圆
     this.circle.remove();
     this.text.remove();
+    useQueue().addQueueByRotate(image);
   }
 }
 

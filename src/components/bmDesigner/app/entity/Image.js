@@ -57,11 +57,11 @@ export class DesignImage {
     this.setX(bbox.x);
     this.setY(bbox.y);
     // angle
-    if (angle) {
+    if (!["", null, undefined].includes(angle)) {
       this.setAngle(Number(angle));
     }
     // scale
-    if (scale) {
+    if (!["", null, undefined].includes(scale)) {
       this.setScale(Number(scale));
     }
   }
@@ -104,10 +104,10 @@ export class DesignImage {
    * 移动设计图
    * @param {number} x 移动距离x
    * @param {number} y 移动距离y
-   * @param {string} type 移动类型 move=移动距离,real=移动到真实位置
+   * @param {string} type 类型 plus=累加,real=操作到真实数值
    * @param {boolean} isLog 是否记录
    * */
-  imageMove(x, y, type = "move", isLog = true) {
+  imageMove(x, y, type = "plus", isLog = true) {
     if (this.isBg()) return;
     let dom = this.getDom();
     let matrix = dom.imgBd.attr("transform").localMatrix;
@@ -126,7 +126,11 @@ export class DesignImage {
       this.carryLog();
     }
   }
-  // 设计图移动到指定位置
+  /*
+   * 设计图移动到指定位置
+   * @param {number} x 移动距离x
+   * @param {number} y 移动距离y
+   * */
   imageMoveReal(x, y) {
     this.imageMove(x, y, "real");
   }
@@ -134,9 +138,10 @@ export class DesignImage {
   /*
    * 旋转设计图
    * @param {number} angle 旋转角度
+   * @param {string} type 类型 plus=累加,real=操作到真实数值
    * @param {boolean} isLog 是否记录
    * */
-  imageRotate(angle, isLog = true) {
+  imageRotate(angle, type = "plus", isLog = true) {
     if (this.isBg()) return;
     let dom = this.getDom();
     let imgBBox = dom.img.getBBox();
@@ -144,25 +149,50 @@ export class DesignImage {
     let IM = dom.imgBd.attr("transform").localMatrix;
     let EM = dom.editBd.attr("transform").localMatrix;
     // 矩阵以angle为角度, cx,cy 为transform-origin 进行一次旋转变化
-    IM.rotate(angle, imgBBox.cx, imgBBox.cy);
-    EM.rotate(angle, imgBBox.cx, imgBBox.cy);
+    if (type === "plus") {
+      IM.rotate(angle, imgBBox.cx, imgBBox.cy);
+      EM.rotate(angle, imgBBox.cx, imgBBox.cy);
+    }
+    if (type === "real") {
+      let nowAngle = this.getAngle();
+      IM.rotate(-nowAngle, imgBBox.cx, imgBBox.cy);
+      EM.rotate(-nowAngle, imgBBox.cx, imgBBox.cy);
+      IM.rotate(angle, imgBBox.cx, imgBBox.cy);
+      EM.rotate(angle, imgBBox.cx, imgBBox.cy);
+      console.log("real rotate", nowAngle, angle);
+    }
     // 设置变化后的矩阵
     dom.imgBd.attr("transform", IM);
     dom.editBd.attr("transform", EM);
     // 记录值
     if (isLog) {
-      let _angle = this.getAngle() + angle;
-      if (_angle > 360) {
-        _angle -= 360;
+      let _angle;
+      if (type === "plus") {
+        _angle = this.getAngle() + angle;
+        if (_angle > 360) {
+          _angle -= 360;
+        }
+        if (_angle < -360) {
+          _angle += 360;
+        }
+        if (_angle < 0) {
+          _angle = 360 - _angle;
+        }
       }
-      if (_angle < -360) {
-        _angle += 360;
+      if (type === "real") {
+        _angle = angle;
+        console.log("记录值", _angle);
       }
-      if (_angle < 0) {
-        _angle = 360 - _angle;
-      }
+      if (_angle === 360) _angle = 0;
       this.carryLog({ angle: _angle });
     }
+  }
+
+  /*
+   * 设计图旋转到指定角度
+   * */
+  imageRotateReal(angle) {
+    this.imageRotate(angle, "real");
   }
 
   /*
