@@ -1,4 +1,4 @@
-import { QueueProxy, useQueue } from "../index";
+import { QueueProxy, useDesign, useQueue } from "../index";
 import { CurrentQueue, OS_TYPE } from "../queueManager/CurrentQueue";
 
 export class UseQueue {
@@ -43,7 +43,8 @@ export class UseQueue {
   /*
    * 移动
    * */
-  move(image) {
+  addQueueByMove(image) {
+    if (!image) image = useDesign().getActiveImage();
     // 添加队列
     this.getQueue().addQueue(
       new CurrentQueue({

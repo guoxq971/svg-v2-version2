@@ -11,10 +11,13 @@ export class QueueManager {
   redoQueue = [];
 
   log() {
-    console.log("===============================");
-    console.log("撤销栈", this.undoQueue);
-    console.log("回退栈", this.redoQueue);
-    console.log("当前项", this.currentQueue);
+    let btn = true;
+    if (btn) {
+      console.log("===============================");
+      console.log("撤销栈", this.undoQueue);
+      console.log("回退栈", this.redoQueue);
+      console.log("当前项", this.currentQueue);
+    }
   }
 
   /*

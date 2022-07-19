@@ -7,7 +7,7 @@ import {
 import { Dom4Image } from "../utils/dom/Dom4Image";
 import { Message } from "element-ui";
 import { Filter } from "../plugin/filter";
-import { useDesign } from "../index";
+import { useDesign, useQueue } from "../index";
 
 // 设计图类
 export class DesignImage {
@@ -231,6 +231,8 @@ export class DesignImage {
     if (isLog) {
       this.carryLog();
     }
+    // 操作栈的记录
+    useQueue().addQueueByMove();
   }
 
   /*

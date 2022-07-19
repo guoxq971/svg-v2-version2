@@ -27,6 +27,6 @@ export class ImageMove {
   }
 
   end(imgSNode, event, image) {
-    useQueue().move(image);
+    useQueue().addQueueByMove(image);
   }
 }
