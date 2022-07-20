@@ -17,10 +17,16 @@ export class CurrentQueue {
   // 设计图class
   image;
   id;
+  // 移动距离
   x;
   y;
+  // 旋转角度
   angle;
+  // 缩放比例
   scale;
+  // 中心点坐标
+  cx;
+  cy;
 
   constructor(param) {
     const { type, image } = param;
@@ -31,7 +37,10 @@ export class CurrentQueue {
     this.setY(image.getY());
     this.setAngle(image.getAngle());
     this.setScale(image.getScale());
+    this.setCx(Number(image.geBBox().cx.toFixed(0)));
+    this.setCy(Number(image.geBBox().cy.toFixed(0)));
   }
+
   /*
    * 是否是切换操作
    * @param {currentQueue} queue 对比的当前队列
@@ -40,6 +49,7 @@ export class CurrentQueue {
   isCut(queue) {
     return queue.getImageId() !== this.getImageId();
   }
+
   /*
    * 是否是移动操作
    * @param {currentQueue} queue 对比的当前队列
@@ -48,6 +58,7 @@ export class CurrentQueue {
   isMove(queue) {
     return this.getX() !== queue.getX() || this.getY() !== queue.getY();
   }
+
   /*
    * 是否是旋转操作
    * @param {currentQueue} queue 对比的当前队列
@@ -56,6 +67,7 @@ export class CurrentQueue {
   isRotate(queue) {
     return this.getAngle() !== queue.getAngle();
   }
+
   /*
    * queue对比的type是否一致
    * @param {currentQueue} queue 对比的当前队列
@@ -64,6 +76,7 @@ export class CurrentQueue {
   isSameType(queue) {
     return this.getType() === queue.getType();
   }
+
   /*
    * 根据类型取值
    * @param {string} type 类型
@@ -80,55 +93,101 @@ export class CurrentQueue {
         return null;
     }
   }
+
   /*
    * type是缩放
    * */
   isScaleType() {
     return this.getType() === OS_TYPE.SCALE;
   }
+
+  /*
+   * type是移动
+   * */
+  isMoveType() {
+    return this.getType() === OS_TYPE.MOVE;
+  }
+
+  /*
+   * type是旋转
+   * */
+  isRotateType() {
+    return this.getType() === OS_TYPE.ROTATE;
+  }
+
   setType(type) {
     this.type = type;
   }
+
   getType() {
     return this.type;
   }
+
   setImage(image) {
     this.image = image;
   }
+
   getImage() {
     return this.image;
   }
+
   getImageId() {
     return this.getImage().getId();
   }
+
   getX() {
     return this.x;
   }
+
   setX(x) {
     this.x = x;
   }
+
   getY() {
     return this.y;
   }
+
   setY(y) {
     this.y = y;
   }
+
   getAngle() {
     return this.angle;
   }
+
   setAngle(angle) {
     this.angle = angle;
   }
+
   getScale() {
     return this.scale;
   }
+
   setScale(scale) {
     this.scale = scale;
   }
+
   getId() {
     return this.id;
   }
+
   setId(id) {
     this.id = id;
+  }
+
+  getCx() {
+    return this.cx;
+  }
+
+  setCx(cx) {
+    this.cx = cx;
+  }
+
+  setCy(cy) {
+    this.cy = cy;
+  }
+
+  getCy() {
+    return this.cy;
   }
 }

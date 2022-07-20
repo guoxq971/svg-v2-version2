@@ -9,14 +9,21 @@ export class QueueManager {
   undoQueue = [];
   // 回退栈
   redoQueue = [];
+  // 操作类型
+  osType = {
+    // 撤销
+    undo: "undo",
+    // 回退
+    redo: "redo",
+  };
 
-  log(log) {
+  log() {
     let btn = true;
     if (btn) {
       console.log("撤销栈", this.undoQueue);
       console.log("回退栈", this.redoQueue);
       console.log("当前项", this.currentQueue);
-      console.log(log);
+      console.log(arguments);
       console.log("===============================");
     }
   }
@@ -25,29 +32,20 @@ export class QueueManager {
    * 执行
    * @param {Object} newQueue 新的当前项
    * @param {Object} oldQueue 旧的当前项
+   * @param {String} osType 操作类型
    * 1. 如果old和new的id不同，则从新设置设计图激活id
    * */
-  execute(newQueue, oldQueue) {
+  execute(newQueue, oldQueue, osType) {
     let logMsg = "";
     // 如果当前项存在，才进行操作
     if (newQueue) {
       let image = newQueue.getImage();
-      // 旋转
-      if (newQueue.isRotate(oldQueue)) {
-        logMsg = `执行了旋转, 值：${newQueue.getAngle()}`;
-        image.imageRotateReal(newQueue.getAngle());
-      }
-      // 移动操作
-      else if (newQueue.isMove(oldQueue)) {
-        logMsg = `执行了移动, 值：${newQueue.getX()}、${newQueue.getY()}`;
-        let angle = image.getAngle();
-        let scale = image.getScale();
-        image.imageRotate(-angle, "plus", false);
-        // image.imageScale(1 / scale, "plus", false);
-        image.imageMoveReal(newQueue.getX(), newQueue.getY());
-        image.imageRotate(angle, "plus", false);
-        // image.imageScale(scale, "plus", false);
-      }
+      // 设置移动
+      let dx = newQueue.getCx() - oldQueue.getCx();
+      let dy = newQueue.getCy() - oldQueue.getCy();
+      image.imageMove(dx, dy);
+      // 设置旋转
+      image.imageRotateReal(newQueue.getAngle());
       // 切换设计图操作
       if (newQueue.isCut(oldQueue)) {
         useDesign().setImageActionId(newQueue.getImage());
@@ -73,7 +71,7 @@ export class QueueManager {
     let newQueue = this.getUndoQueue().pop();
     this.addRedoQueue(oldQueue);
     this.setCurrentQueue(newQueue);
-    this.execute(newQueue, oldQueue, "undo");
+    this.execute(newQueue, oldQueue, this.getUndoType());
   }
 
   /*
@@ -93,7 +91,7 @@ export class QueueManager {
     let newQueue = this.getRedoQueue().pop();
     this.addUndoQueue(oldQueue);
     this.setCurrentQueue(newQueue);
-    this.execute(newQueue, oldQueue, "redo");
+    this.execute(newQueue, oldQueue, this.getRedoType());
   }
 
   /*
@@ -105,7 +103,9 @@ export class QueueManager {
    * */
   addQueue(queue) {
     let currentQueue = this.getCurrentQueue();
-    if (currentQueue) this.addUndoQueue(currentQueue);
+    if (currentQueue) {
+      this.addUndoQueue(currentQueue);
+    }
     this.setCurrentQueue(queue);
     if (!this.isRedoQueueEmpty()) this.clearRedoQueue();
     this.log(
@@ -184,5 +184,25 @@ export class QueueManager {
   // 获取当前项
   getCurrentQueue() {
     return this.currentQueue;
+  }
+
+  // 获取撤销操作类型
+  getUndoType() {
+    return this.osType.undo;
+  }
+
+  // 获取回退操作类型
+  getRedoType() {
+    return this.osType.redo;
+  }
+
+  // 操作类型是否为撤销操作
+  isUndoType(type) {
+    return type === this.getUndoType();
+  }
+
+  // 操作类型是否为回退操作
+  isRedoType(type) {
+    return type === this.getRedoType();
   }
 }

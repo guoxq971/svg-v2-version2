@@ -21,12 +21,14 @@ export class ImageMove {
     this.dx = dx;
     this.dy = dy;
     // 移动
-    image.imageMove(_x, _y);
+    image.imageMove(_x, _y, image.getOsTypePlus(), false);
     this.x = x;
     this.y = y;
   }
 
   end(imgSNode, event, image) {
+    let bbox = image.getDom().imgBd.getBBox();
+    image.carryLog({ x: bbox.x, y: bbox.y });
     useQueue().addQueueByMove(image);
   }
 }

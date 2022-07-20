@@ -34,6 +34,12 @@ export class DesignImage {
   // 背景图才有的颜色
   color;
 
+  // 操作类型
+  osType = {
+    plus: "plus",
+    real: "real",
+  };
+
   // 构造函数
   constructor(param) {
     let { type, data, prodId } = param;
@@ -49,13 +55,36 @@ export class DesignImage {
     this.setDom(new Dom4Image(type, data, this.getId(), this));
   }
 
+  // 获取操作类型-plus
+  getOsTypePlus() {
+    return this.osType.plus;
+  }
+
+  // 获取操作类型-real
+  getOsTypeReal() {
+    return this.osType.real;
+  }
+
+  /*
+   * 获取设计图当前在svg中的数据
+   * */
+  geBBox() {
+    let bbox = this.getDom().imgBd.getBBox();
+    return bbox;
+  }
+
   // 执行一次记录
   carryLog(param = {}) {
-    let { angle, scale } = param;
+    let { angle, scale, x, y } = param;
+    console.log("carryLog", angle, scale, x, y);
     // x,y
-    let bbox = this.getDom().imgBd.getBBox();
-    this.setX(bbox.x);
-    this.setY(bbox.y);
+    if (
+      !["", null, undefined].includes(x) &&
+      !["", null, undefined].includes(y)
+    ) {
+      this.setX(Number(x));
+      this.setY(Number(y));
+    }
     // angle
     if (!["", null, undefined].includes(angle)) {
       this.setAngle(Number(angle));
@@ -111,9 +140,10 @@ export class DesignImage {
     if (this.isBg()) return;
     let dom = this.getDom();
     let matrix = dom.imgBd.attr("transform").localMatrix;
-    if (type === "move") {
+    if (type === "plus") {
       matrix.e += x;
       matrix.f += y;
+      // matrix.translate(x, y);
     }
     if (type === "real") {
       matrix.e = x;
@@ -123,16 +153,20 @@ export class DesignImage {
     dom.editBd.attr("transform", matrix);
     // 记录值
     if (isLog) {
-      this.carryLog();
+      this.carryLog({ x, y });
     }
   }
+
   /*
    * 设计图移动到指定位置
    * @param {number} x 移动距离x
    * @param {number} y 移动距离y
    * */
   imageMoveReal(x, y) {
+    let angle = this.getAngle();
+    this.imageRotate(360 - angle, this.getOsTypePlus(), false);
     this.imageMove(x, y, "real");
+    this.imageRotate(angle, this.getOsTypePlus(), false);
   }
 
   /*
@@ -159,7 +193,6 @@ export class DesignImage {
       EM.rotate(-nowAngle, imgBBox.cx, imgBBox.cy);
       IM.rotate(angle, imgBBox.cx, imgBBox.cy);
       EM.rotate(angle, imgBBox.cx, imgBBox.cy);
-      console.log("real rotate", nowAngle, angle);
     }
     // 设置变化后的矩阵
     dom.imgBd.attr("transform", IM);
@@ -181,7 +214,6 @@ export class DesignImage {
       }
       if (type === "real") {
         _angle = angle;
-        console.log("记录值", _angle);
       }
       if (_angle === 360) _angle = 0;
       this.carryLog({ angle: _angle });
@@ -261,9 +293,6 @@ export class DesignImage {
     // 记录值
     if (isLog) {
       this.carryLog();
-      console.log(111);
-      console.log(222);
-      console.log(33);
     }
     // 操作栈的记录
     useQueue().addQueueByMove();
@@ -304,6 +333,7 @@ export class DesignImage {
   isImg() {
     return this.getType() === "img";
   }
+
   /*
    * 当前 image 的 type 不是 img
    * @return {boolean} true 不是 img, false 是
@@ -311,6 +341,7 @@ export class DesignImage {
   isNotImg() {
     return this.getType() !== "img";
   }
+
   /*
    * 当前 image 的 type 是 bg
    * @return {boolean} true 是 bg, false 不是
@@ -318,6 +349,7 @@ export class DesignImage {
   isBg() {
     return this.getType() === "bg";
   }
+
   /*
    * 获取当前设计图对应的产品
    * @return {class} 产品类
@@ -325,6 +357,7 @@ export class DesignImage {
   getProd() {
     return useDesign().getProd(this.getProdId());
   }
+
   /*
    * 获取数据
    * @return {object} vue数据
@@ -332,70 +365,87 @@ export class DesignImage {
   getData() {
     return this.data;
   }
+
   // 设置数据
   setData(data) {
     this.data = data;
   }
+
   // 获取自定义设计图id
   getId() {
     return this.id;
   }
+
   // 设置自定义设计图id
   setId(id) {
     this.id = id;
   }
+
   // 获取类型 [bg, img]
   getType() {
     return this.type;
   }
+
   // 设置类型 [bg, img]
   setType(type) {
     this.type = type;
   }
+
   // 获取设计图旋转角度
   getAngle() {
     return this.angle;
   }
+
   // 设置设计图旋转角度
   setAngle(angle) {
     this.angle = angle;
   }
+
   // 获取设计图缩放比例
   getScale() {
     return this.scale;
   }
+
   // 设置设计图缩放比例
   setScale(scale) {
     this.scale = scale;
   }
+
   // 获取设计图移动x
   getX() {
     return this.x;
   }
+
   // 设置设计图移动x
   setX(x) {
     this.x = x;
   }
+
   // 获取设计图移动y
   getY() {
     return this.y;
   }
+
   // 设置设计图移动y
   setY(y) {
     this.y = y;
   }
+
   // 获取设计图的所有dom
   getDom() {
     return this.dom;
   }
+
   // 设置设计图的所有dom
   setDom(dom) {
     this.dom = dom;
   }
+
   // 获取背景图才有的颜色
   getColor() {
     return this.color;
   }
+
   /*
    * 设置背景图才有的颜色
    * @param {string} color 颜色
@@ -407,18 +457,22 @@ export class DesignImage {
     // 背景图的元素同步修改填充色
     this.dom?.bgRect && this.dom.bgRect.attr("fill", color);
   }
+
   // 设置设计图的产品id
   setProdId(prodId) {
     this.prodId = prodId;
   }
+
   // 获取设计图的产品id
   getProdId() {
     return this.prodId;
   }
+
   // 设置翻转状态
   setReverse(reverse) {
     this.reverse = reverse;
   }
+
   // 获取翻转状态
   getReverse() {
     return this.reverse;

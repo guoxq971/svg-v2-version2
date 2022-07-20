@@ -10,9 +10,12 @@ export class imageRotate {
   //记录的鼠标坐标
   x;
   y;
+  // 拖拽过程中的角度
+  angle;
 
   // 拖拽开始
   start(imgSNode, x, y, event, image) {
+    this.angle = image.getAngle() || 0;
     let prod = image.getProd();
     let dom = image.getDom();
     // 记录一次鼠标坐标
@@ -30,7 +33,7 @@ export class imageRotate {
       .text(
         imgBdBBox.cx,
         imgBdBBox.cy - imgBdBBox.h / 2 - 30,
-        image.getAngle().toFixed(2)
+        this.angle.toFixed(2)
       )
       .attr({ stroke: "green" });
     dom.imgBd.add(this.circle);
@@ -38,7 +41,6 @@ export class imageRotate {
 
   // 拖拽中
   move(imgSNode, dx, dy, x, y, event, image) {
-    let prod = image.getProd();
     let dom = image.getDom();
     // 获取图片在body的中心坐标
     let imgOs = getOffset(dom.img.node);
@@ -48,12 +50,13 @@ export class imageRotate {
     if (this.x !== x || this.y !== y) {
       angle = getRotate(imgOs.cx, imgOs.cy, this.x, this.y, x, y);
     }
+    this.angle += angle;
     // 设置旋转
-    image.imageRotate(angle);
+    image.imageRotate(angle, image.getOsTypePlus(), false);
     // 重置鼠标坐标(第一次记录是在start中), 使得下次拖拽的时候可以计算出移动形成的角度
     this.x = x;
     this.y = y;
-    this.text.node.innerHTML = image.getAngle().toFixed(2) + "°";
+    this.text.node.innerHTML = this.angle.toFixed(2) + "°";
   }
 
   // 拖拽结束
@@ -61,6 +64,7 @@ export class imageRotate {
     // 移除圆
     this.circle.remove();
     this.text.remove();
+    image.carryLog({ angle: this.angle });
     useQueue().addQueueByRotate(image);
   }
 }

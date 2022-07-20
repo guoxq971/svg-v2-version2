@@ -63,9 +63,7 @@ export class UseQueue {
     this.getQueue().addQueue(
       new CurrentQueue({
         type: this.getOsTypeRotate(),
-        id: image.id,
         image,
-        angle: image.getAngle(),
       })
     );
   }
