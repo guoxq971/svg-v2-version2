@@ -1,5 +1,9 @@
 import { Message } from "element-ui";
 import { useDesign } from "../index";
+import {
+  DEFILE_QUEUE_OSTYPE_REDO,
+  DEFILE_QUEUE_OSTYPE_UNDO,
+} from "../utils/define";
 
 // 队列
 export class QueueManager {
@@ -9,13 +13,6 @@ export class QueueManager {
   undoQueue = [];
   // 回退栈
   redoQueue = [];
-  // 操作类型
-  osType = {
-    // 撤销
-    undo: "undo",
-    // 回退
-    redo: "redo",
-  };
 
   log() {
     let btn = true;
@@ -40,15 +37,27 @@ export class QueueManager {
     // 如果当前项存在，才进行操作
     if (newQueue) {
       let image = newQueue.getImage();
-      // 设置移动
-      let dx = newQueue.getCx() - oldQueue.getCx();
-      let dy = newQueue.getCy() - oldQueue.getCy();
-      image.imageMove(dx, dy);
-      // 设置旋转
-      image.imageRotateReal(newQueue.getAngle());
       // 切换设计图操作
       if (newQueue.isCut(oldQueue)) {
         useDesign().setImageActionId(newQueue.getImage());
+      }
+      // 设置移动
+      if (newQueue.isCut(oldQueue)) {
+        image.imageMoveReal(newQueue.getX(), newQueue.getY());
+      } else {
+        let dx = newQueue.getCx() - oldQueue.getCx();
+        let dy = newQueue.getCy() - oldQueue.getCy();
+        if (dx !== 0 || dy !== 0) {
+          image.imageMove(dx, dy);
+        }
+      }
+      // 设置旋转
+      if (newQueue.isCut(oldQueue)) {
+        image.imageRotateReal(newQueue.getAngle());
+      } else {
+        if (newQueue.getAngle() !== oldQueue.getAngle()) {
+          image.imageRotateReal(newQueue.getAngle());
+        }
       }
     }
     this.log(logMsg, newQueue, oldQueue);
@@ -109,7 +118,7 @@ export class QueueManager {
     this.setCurrentQueue(queue);
     if (!this.isRedoQueueEmpty()) this.clearRedoQueue();
     this.log(
-      `添加队列；当前操作:${queue.getType()}, 操作值:${queue.getValueByType()}`
+      `添加队列；当前操作:${queue.getOsType()}, 操作值:${queue.getValueByType()}`
     );
   }
 
@@ -188,12 +197,12 @@ export class QueueManager {
 
   // 获取撤销操作类型
   getUndoType() {
-    return this.osType.undo;
+    return DEFILE_QUEUE_OSTYPE_UNDO;
   }
 
   // 获取回退操作类型
   getRedoType() {
-    return this.osType.redo;
+    return DEFILE_QUEUE_OSTYPE_REDO;
   }
 
   // 操作类型是否为撤销操作

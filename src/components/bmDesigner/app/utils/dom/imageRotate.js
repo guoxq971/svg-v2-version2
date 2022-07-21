@@ -23,20 +23,24 @@ export class imageRotate {
     this.y = y;
     // 画一个圆, 在图片边框中加入
     let svg = prod.getDom().svg;
+    let designGroup = prod.getDom().designGroup;
     let imgBBox = dom.img.getBBox();
     let imgBdBBox = dom.imgBd.getBBox();
+    let imgGBBox = dom.imgG.getBBox();
     this.circle = svg.circle(imgBBox.cx, imgBBox.cy, imgBBox.r0).attr({
       fill: "none",
       stroke: "green",
     });
+    console.log("imgBdBBox", imgGBBox, imgBdBBox, imgBBox);
     this.text = svg
       .text(
         imgBdBBox.cx,
-        imgBdBBox.cy - imgBdBBox.h / 2 - 30,
+        imgBdBBox.cy - imgBdBBox.r1 - 40,
         this.angle.toFixed(2)
       )
       .attr({ stroke: "green" });
     dom.imgBd.add(this.circle);
+    designGroup.add(this.text);
   }
 
   // 拖拽中

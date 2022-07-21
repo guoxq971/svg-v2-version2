@@ -1,21 +1,16 @@
-import { useQueue } from "../index";
-
-// 操作类型枚举
-export const OS_TYPE = {
-  // 移动
-  MOVE: "move",
-  // 旋转
-  ROTATE: "rotate",
-  // 缩放
-  SCALE: "scale",
-};
+import {
+  DEFILE_IMAGE_OSTYPE_MOVE,
+  DEFILE_IMAGE_OSTYPE_ROTATE,
+  DEFILE_IMAGE_OSTYPE_SCALE,
+} from "../utils/define";
 
 // 队列-当前项
 export class CurrentQueue {
   // 操作的类型 OS_TYPE
-  type;
+  osType;
   // 设计图class
   image;
+  // 设计图id
   id;
   // 移动距离
   x;
@@ -30,7 +25,7 @@ export class CurrentQueue {
 
   constructor(param) {
     const { type, image } = param;
-    this.setType(type);
+    this.setOsType(type);
     this.setImage(image);
     this.setId(image.getId());
     this.setX(image.getX());
@@ -74,7 +69,7 @@ export class CurrentQueue {
    * @return {boolean} true-一致 false-不一致
    * */
   isSameType(queue) {
-    return this.getType() === queue.getType();
+    return this.getOsType() === queue.getType();
   }
 
   /*
@@ -82,12 +77,12 @@ export class CurrentQueue {
    * @param {string} type 类型
    * */
   getValueByType() {
-    switch (this.getType()) {
-      case OS_TYPE.MOVE:
+    switch (this.getOsType()) {
+      case DEFILE_IMAGE_OSTYPE_MOVE:
         return `${this.getX()},${this.getY()}`;
-      case OS_TYPE.ROTATE:
+      case DEFILE_IMAGE_OSTYPE_ROTATE:
         return this.getAngle();
-      case OS_TYPE.SCALE:
+      case DEFILE_IMAGE_OSTYPE_SCALE:
         return this.getScale();
       default:
         return null;
@@ -95,32 +90,32 @@ export class CurrentQueue {
   }
 
   /*
-   * type是缩放
+   * osType 是缩放
    * */
-  isScaleType() {
-    return this.getType() === OS_TYPE.SCALE;
+  isScaleOsType() {
+    return this.getOsType() === DEFILE_IMAGE_OSTYPE_SCALE;
   }
 
   /*
-   * type是移动
+   * osType 是移动
    * */
-  isMoveType() {
-    return this.getType() === OS_TYPE.MOVE;
+  isMoveOsType() {
+    return this.getOsType() === DEFILE_IMAGE_OSTYPE_MOVE;
   }
 
   /*
-   * type是旋转
+   * osType 是旋转
    * */
-  isRotateType() {
-    return this.getType() === OS_TYPE.ROTATE;
+  isRotateOsType() {
+    return this.getOsType() === DEFILE_IMAGE_OSTYPE_ROTATE;
   }
 
-  setType(type) {
-    this.type = type;
+  setOsType(type) {
+    this.osType = type;
   }
 
-  getType() {
-    return this.type;
+  getOsType() {
+    return this.osType;
   }
 
   setImage(image) {

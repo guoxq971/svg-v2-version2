@@ -1,19 +1,11 @@
-import { QueueProxy, useDesign, useQueue } from "../index";
-import { CurrentQueue, OS_TYPE } from "../queueManager/CurrentQueue";
+import { QueueProxy, useDesign } from "../index";
+import { CurrentQueue } from "../queueManager/CurrentQueue";
+import {
+  DEFILE_IMAGE_OSTYPE_MOVE,
+  DEFILE_IMAGE_OSTYPE_ROTATE,
+} from "../utils/define";
 
 export class UseQueue {
-  getOsTypeMove() {
-    return OS_TYPE.MOVE;
-  }
-
-  getOsTypeRotate() {
-    return OS_TYPE.ROTATE;
-  }
-
-  getOsTypeScale() {
-    return OS_TYPE.SCALE;
-  }
-
   // 获取队列
   getQueue() {
     return QueueProxy();
@@ -48,7 +40,7 @@ export class UseQueue {
     // 添加队列
     this.getQueue().addQueue(
       new CurrentQueue({
-        type: this.getOsTypeMove(),
+        type: DEFILE_IMAGE_OSTYPE_MOVE,
         image,
       })
     );
@@ -62,7 +54,7 @@ export class UseQueue {
     // 添加队列
     this.getQueue().addQueue(
       new CurrentQueue({
-        type: this.getOsTypeRotate(),
+        type: DEFILE_IMAGE_OSTYPE_ROTATE,
         image,
       })
     );

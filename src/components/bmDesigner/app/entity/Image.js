@@ -8,6 +8,12 @@ import { Dom4Image } from "../utils/dom/Dom4Image";
 import { Message } from "element-ui";
 import { Filter } from "../plugin/filter";
 import { useDesign, useQueue } from "../index";
+import {
+  DEFINE_IMAGE_OSTYPE_PLUS,
+  DEFINE_IMAGE_OSTYPE_REAL,
+  DEFINE_IMAGE_TYPE_BG,
+  DEFINE_IMAGE_TYPE_IMG,
+} from "../utils/define";
 
 // 设计图类
 export class DesignImage {
@@ -50,19 +56,19 @@ export class DesignImage {
     // 设置设计图类型
     this.setType(type);
     // 如果类型是背景图,则设置颜色
-    if (type === "bg") this.setColor(data.color);
+    if (type === DEFINE_IMAGE_TYPE_BG) this.setColor(data.color);
     // 设置设计图的dom
     this.setDom(new Dom4Image(type, data, this.getId(), this));
   }
 
   // 获取操作类型-plus
   getOsTypePlus() {
-    return this.osType.plus;
+    return DEFINE_IMAGE_OSTYPE_PLUS;
   }
 
   // 获取操作类型-real
   getOsTypeReal() {
-    return this.osType.real;
+    return DEFINE_IMAGE_OSTYPE_REAL;
   }
 
   /*
@@ -136,16 +142,16 @@ export class DesignImage {
    * @param {string} type 类型 plus=累加,real=操作到真实数值
    * @param {boolean} isLog 是否记录
    * */
-  imageMove(x, y, type = "plus", isLog = true) {
+  imageMove(x, y, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
     if (this.isBg()) return;
     let dom = this.getDom();
     let matrix = dom.imgBd.attr("transform").localMatrix;
-    if (type === "plus") {
+    if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
       matrix.e += x;
       matrix.f += y;
       // matrix.translate(x, y);
     }
-    if (type === "real") {
+    if (type === DEFINE_IMAGE_OSTYPE_REAL) {
       matrix.e = x;
       matrix.f = y;
     }
@@ -165,7 +171,7 @@ export class DesignImage {
   imageMoveReal(x, y) {
     let angle = this.getAngle();
     this.imageRotate(360 - angle, this.getOsTypePlus(), false);
-    this.imageMove(x, y, "real");
+    this.imageMove(x, y, DEFINE_IMAGE_OSTYPE_REAL);
     this.imageRotate(angle, this.getOsTypePlus(), false);
   }
 
@@ -175,7 +181,7 @@ export class DesignImage {
    * @param {string} type 类型 plus=累加,real=操作到真实数值
    * @param {boolean} isLog 是否记录
    * */
-  imageRotate(angle, type = "plus", isLog = true) {
+  imageRotate(angle, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
     if (this.isBg()) return;
     let dom = this.getDom();
     let imgBBox = dom.img.getBBox();
@@ -183,11 +189,11 @@ export class DesignImage {
     let IM = dom.imgBd.attr("transform").localMatrix;
     let EM = dom.editBd.attr("transform").localMatrix;
     // 矩阵以angle为角度, cx,cy 为transform-origin 进行一次旋转变化
-    if (type === "plus") {
+    if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
       IM.rotate(angle, imgBBox.cx, imgBBox.cy);
       EM.rotate(angle, imgBBox.cx, imgBBox.cy);
     }
-    if (type === "real") {
+    if (type === DEFINE_IMAGE_OSTYPE_REAL) {
       let nowAngle = this.getAngle();
       IM.rotate(-nowAngle, imgBBox.cx, imgBBox.cy);
       EM.rotate(-nowAngle, imgBBox.cx, imgBBox.cy);
@@ -200,7 +206,7 @@ export class DesignImage {
     // 记录值
     if (isLog) {
       let _angle;
-      if (type === "plus") {
+      if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
         _angle = this.getAngle() + angle;
         if (_angle > 360) {
           _angle -= 360;
@@ -212,7 +218,7 @@ export class DesignImage {
           _angle = 360 - _angle;
         }
       }
-      if (type === "real") {
+      if (type === DEFINE_IMAGE_OSTYPE_REAL) {
         _angle = angle;
       }
       if (_angle === 360) _angle = 0;
@@ -224,7 +230,7 @@ export class DesignImage {
    * 设计图旋转到指定角度
    * */
   imageRotateReal(angle) {
-    this.imageRotate(angle, "real");
+    this.imageRotate(angle, DEFINE_IMAGE_OSTYPE_REAL);
   }
 
   /*
@@ -233,7 +239,7 @@ export class DesignImage {
    * @param {string} type 类型 plus=累加,real=操作到真实数值
    * @param {boolean} isLog 是否记录
    * */
-  imageScale(scale, type = "plus", isLog = true) {
+  imageScale(scale, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
     if (this.isBg()) return;
     let dom = this.getDom();
     let imgBBox = dom.img.getBBox();
@@ -272,8 +278,8 @@ export class DesignImage {
     let angle = this.getAngle();
     let scale = this.getScale();
     // 回正
-    this.imageRotate(360 - angle, "plus", false);
-    this.imageScale(1 / scale, "plus", false);
+    this.imageRotate(360 - angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
+    this.imageScale(1 / scale, DEFINE_IMAGE_OSTYPE_PLUS, false);
     let imgBd = this.getDom().imgBd;
     let imgBdBox = getOffset(imgBd.node);
     let groupRectBBox = this.getProd().getDom().designGroupRect.getBBox();
@@ -286,10 +292,10 @@ export class DesignImage {
     if (type === "y") {
       matrix.e = groupRectBBox.cx - imgBdBox.h / 2;
     }
-    this.imageMove(matrix.e, matrix.f, "real");
+    this.imageMove(matrix.e, matrix.f, DEFINE_IMAGE_OSTYPE_REAL);
     // 转回已有
-    this.imageRotate(angle, "plus", false);
-    this.imageScale(scale, "plus", false);
+    this.imageRotate(angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
+    this.imageScale(scale, DEFINE_IMAGE_OSTYPE_PLUS, false);
     // 记录值
     if (isLog) {
       this.carryLog();
@@ -304,7 +310,7 @@ export class DesignImage {
    * */
   copy(newImage) {
     if (this.isBg()) return;
-    newImage.imageMove(this.getX(), this.getY(), "real");
+    newImage.imageMove(this.getX(), this.getY(), DEFINE_IMAGE_OSTYPE_REAL);
     newImage.imageScale(this.getScale());
     newImage.imageRotate(this.getAngle());
     newImage.imageMove(50, 50);
@@ -331,7 +337,7 @@ export class DesignImage {
    * @return {boolean} true 是 img, false 不是
    * */
   isImg() {
-    return this.getType() === "img";
+    return this.getType() === DEFINE_IMAGE_TYPE_IMG;
   }
 
   /*
@@ -339,7 +345,7 @@ export class DesignImage {
    * @return {boolean} true 不是 img, false 是
    * */
   isNotImg() {
-    return this.getType() !== "img";
+    return this.getType() !== DEFINE_IMAGE_TYPE_IMG;
   }
 
   /*
@@ -347,7 +353,7 @@ export class DesignImage {
    * @return {boolean} true 是 bg, false 不是
    * */
   isBg() {
-    return this.getType() === "bg";
+    return this.getType() === DEFINE_IMAGE_TYPE_BG;
   }
 
   /*

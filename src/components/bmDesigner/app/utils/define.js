@@ -1,0 +1,9 @@
+export const DEFINE_IMAGE_OSTYPE_PLUS = "plus";
+export const DEFINE_IMAGE_OSTYPE_REAL = "real";
+export const DEFINE_IMAGE_TYPE_BG = "bg";
+export const DEFINE_IMAGE_TYPE_IMG = "img";
+export const DEFILE_IMAGE_OSTYPE_MOVE = "move";
+export const DEFILE_IMAGE_OSTYPE_ROTATE = "rotate";
+export const DEFILE_IMAGE_OSTYPE_SCALE = "scale";
+export const DEFILE_QUEUE_OSTYPE_UNDO = "undo";
+export const DEFILE_QUEUE_OSTYPE_REDO = "redo";
