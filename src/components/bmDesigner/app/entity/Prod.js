@@ -1,7 +1,7 @@
 import { uuid } from "../utils/util";
 import { Dom4Prod } from "../utils/dom/Dom4Prod";
 import { prodAdaptor } from "../utils/adaptor";
-import { DesignProxy, useQueue } from "../index";
+import { DesignProxy } from "../index";
 
 // 产品类
 export class Prod {

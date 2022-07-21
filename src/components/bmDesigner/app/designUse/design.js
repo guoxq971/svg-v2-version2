@@ -1,5 +1,4 @@
-import { DesignProxy, useDesign } from "../index";
-import { DesignImage } from "../entity/Image";
+import { DesignProxy } from "../index";
 import { Bg } from "../entity/image/bg";
 import { Img } from "../entity/image/img";
 

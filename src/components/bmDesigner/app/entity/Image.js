@@ -6,7 +6,7 @@ import {
 } from "../utils/util";
 import { Message } from "element-ui";
 import { Filter } from "../plugin/filter";
-import { useDesign, useQueue } from "../index";
+import { useDesign } from "../index";
 import {
   DEFINE_IMAGE_OSTYPE_PLUS,
   DEFINE_IMAGE_OSTYPE_REAL,

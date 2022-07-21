@@ -2,7 +2,9 @@
  * 队列中的当前项
  * */
 export class CurrentQueue {
+  // 操作中的素有设计图
   imageList;
+  // 当前操作的设计图id
   actionImageId;
   constructor(param) {
     this.setImageList(param.imageList);
