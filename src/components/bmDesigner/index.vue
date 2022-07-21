@@ -241,7 +241,7 @@ export default {
       // 图层列表
       layerList: [],
       // 类型激活
-      typeActiveName: "prod",
+      typeActiveName: "pic",
       // 选择产品的激活
       activeName: "1",
       // 背景色
@@ -265,6 +265,13 @@ export default {
     handlerApplyColor(color) {
       color = color || this.color;
       vueApplyBgColor(color, this.layerList);
+      useQueue().addQueue();
+    },
+    // 设计图-选中
+    picClick(data) {
+      let image = vueSelectImage(data, this.layerList);
+      useQueue().addQueue();
+      return image;
     },
     // 下载图片
     handlerDown() {
@@ -300,10 +307,6 @@ export default {
     // 图层-复制
     handlerCopy() {
       vueCopyImage(this.picClick);
-    },
-    // 设计图-选中
-    picClick(data) {
-      return vueSelectImage(data, this.layerList);
     },
     // 图库-删除(提供给design类使用)
     handlerImgDel(id) {

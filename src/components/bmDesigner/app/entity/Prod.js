@@ -98,7 +98,7 @@ export class Prod {
    * */
   addImage(image) {
     this.designSNodeGroup.push(image);
-    useQueue().addQueueByMove(image);
+    // useQueue().addQueueByMove(image);
     return image;
   }
   /*

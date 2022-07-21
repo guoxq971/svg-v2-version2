@@ -24,7 +24,7 @@ export function layerIndex(result, layerList, data, type) {
 }
 
 // 获取当前激活的图层设计图
-export function vueGetImage(layerList, id) {
+export function vueGetActiveImageLayer(layerList, id) {
   return layerList.find((item) => item.sid === id);
 }
 
@@ -61,17 +61,19 @@ export function vueSelectImage(data, layerList) {
 export function vueApplyBgColor(color, layerList) {
   const { image, hasBg } = useDesign().addImage4TypeByBg(color);
   if (hasBg) {
-    let layer = vueGetImage(layerList, image.id);
+    let layer = vueGetActiveImageLayer(layerList, image.id);
     layer.name = `${color}`;
   } else {
-    layerList.push(bgImageAdaptor(image));
+    let d = bgImageAdaptor(image);
+    layerList.push(d);
+    image.setData(d);
   }
 }
 
 // 图层-上下移动
 export function vueLayerUpDown(type, layerList, activeImgId, msgFlag, data) {
   // 图层dom操作 + 提示信息
-  data = data ? data : vueGetImage(layerList, activeImgId);
+  data = data ? data : vueGetActiveImageLayer(layerList, activeImgId);
   let result = layer(type, data.sNode, msgFlag);
   // vue数据操作
   let list = layerIndex(result, layerList, data, type);

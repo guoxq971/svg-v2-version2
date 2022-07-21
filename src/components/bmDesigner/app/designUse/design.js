@@ -1,5 +1,7 @@
 import { DesignProxy, useDesign } from "../index";
 import { DesignImage } from "../entity/Image";
+import { Bg } from "../entity/image/bg";
+import { Img } from "../entity/image/img";
 
 export class UseDesign {
   /*
@@ -48,8 +50,12 @@ export class UseDesign {
    * 设置激活的设计图id
    * @param {class} image 设计图class
    * */
-  setImageActionId(image) {
-    image.getProd().setImageActionId(image.getData().sid);
+  setImageActionId(image, prod) {
+    if (typeof image === "string") {
+      prod.setImageActionId(image);
+    } else {
+      image.getProd().setImageActionId(image.getData().sid);
+    }
     this.setEditMode();
   }
 
@@ -67,7 +73,7 @@ export class UseDesign {
     } else {
       // 初始化图片添加到产品中，并返回图片sNode
       image = prod.addImage(
-        new DesignImage({ type: "bg", data: { color: color } })
+        new Bg({ data: { color: color }, prodId: prod.getId() })
       );
     }
     // 将图片设置为激活状态
@@ -87,9 +93,7 @@ export class UseDesign {
   addImage4TypeByImg(data) {
     let prod = this.getProd();
     // 初始化图片添加到产品中，并返回图片sNode
-    let image = prod.addImage(
-      new DesignImage({ type: "img", data: data, prodId: prod.id })
-    );
+    let image = prod.addImage(new Img({ data: data, prodId: prod.id }));
     // 将图片设置为激活状态
     prod.setImageActionId(image.getId());
     // 进入编辑模式

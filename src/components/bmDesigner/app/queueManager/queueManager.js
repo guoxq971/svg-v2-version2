@@ -20,7 +20,6 @@ export class QueueManager {
       console.log("撤销栈", this.undoQueue);
       console.log("回退栈", this.redoQueue);
       console.log("当前项", this.currentQueue);
-      console.log(arguments);
       console.log("===============================");
     }
   }
@@ -36,29 +35,26 @@ export class QueueManager {
     let logMsg = "";
     // 如果当前项存在，才进行操作
     if (newQueue) {
-      let image = newQueue.getImage();
+      let prod = newQueue.getImageList()[0].getImage().getProd();
       // 切换设计图操作
-      if (newQueue.isCut(oldQueue)) {
-        useDesign().setImageActionId(newQueue.getImage());
-      }
-      // 设置移动
-      if (newQueue.isCut(oldQueue)) {
-        image.imageMoveReal(newQueue.getX(), newQueue.getY());
-      } else {
-        let dx = newQueue.getCx() - oldQueue.getCx();
-        let dy = newQueue.getCy() - oldQueue.getCy();
-        if (dx !== 0 || dy !== 0) {
+      useDesign().setImageActionId(newQueue.getActionImageId(), prod);
+      // 循环对所有设计图操作
+      newQueue.getImageList().forEach((imageQueue, index) => {
+        let image = imageQueue.getImage();
+        let oldImageQueue = oldQueue.getImageList()[index];
+        // 设置移动
+        if (imageQueue.isCut(oldImageQueue)) {
+          image.imageMoveReal(imageQueue.getX(), imageQueue.getY());
+        } else {
+          let dx = imageQueue.getCx() - oldImageQueue.getCx();
+          let dy = imageQueue.getCy() - oldImageQueue.getCy();
           image.imageMove(dx, dy);
         }
-      }
-      // 设置旋转
-      if (newQueue.isCut(oldQueue)) {
-        image.imageRotateReal(newQueue.getAngle());
-      } else {
-        if (newQueue.getAngle() !== oldQueue.getAngle()) {
-          image.imageRotateReal(newQueue.getAngle());
-        }
-      }
+        // 设置旋转
+        image.imageRotateReal(imageQueue.getAngle());
+        // 设置缩放
+        image.imageScaleReal(imageQueue.getScale());
+      });
     }
     this.log(logMsg, newQueue, oldQueue);
   }
@@ -105,6 +101,7 @@ export class QueueManager {
 
   /*
    *  添加队列
+   * @param {Object} queue 队列
    * 1. 获取当前项
    * 2. 当前项不为空，则将当前项添加到撤销栈
    * 3. 设置接受的queue为当前项
@@ -117,9 +114,7 @@ export class QueueManager {
     }
     this.setCurrentQueue(queue);
     if (!this.isRedoQueueEmpty()) this.clearRedoQueue();
-    this.log(
-      `添加队列；当前操作:${queue.getOsType()}, 操作值:${queue.getValueByType()}`
-    );
+    this.log();
   }
 
   // 添加撤销栈

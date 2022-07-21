@@ -1,5 +1,6 @@
 import { getQuadrant, getAngle, getMouseDirection, getOffset } from "../util";
 import { useQueue } from "../../index";
+import { DEFINE_IMAGE_OSTYPE_PLUS } from "@/components/bmDesigner/app/utils/define";
 
 // 旋转
 export class imageRotate {
@@ -26,12 +27,10 @@ export class imageRotate {
     let designGroup = prod.getDom().designGroup;
     let imgBBox = dom.img.getBBox();
     let imgBdBBox = dom.imgBd.getBBox();
-    let imgGBBox = dom.imgG.getBBox();
     this.circle = svg.circle(imgBBox.cx, imgBBox.cy, imgBBox.r0).attr({
       fill: "none",
       stroke: "green",
     });
-    console.log("imgBdBBox", imgGBBox, imgBdBBox, imgBBox);
     this.text = svg
       .text(
         imgBdBBox.cx,
@@ -56,7 +55,7 @@ export class imageRotate {
     }
     this.angle += angle;
     // 设置旋转
-    image.imageRotate(angle, image.getOsTypePlus(), false);
+    image.imageRotate(angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
     // 重置鼠标坐标(第一次记录是在start中), 使得下次拖拽的时候可以计算出移动形成的角度
     this.x = x;
     this.y = y;
@@ -69,7 +68,7 @@ export class imageRotate {
     this.circle.remove();
     this.text.remove();
     image.carryLog({ angle: this.angle });
-    useQueue().addQueueByRotate(image);
+    useQueue().addQueue();
   }
 }
 

@@ -1,14 +1,28 @@
 import { QueueProxy, useDesign } from "../index";
+import { ImageQueue } from "../queueManager/ImageQueue";
 import { CurrentQueue } from "../queueManager/CurrentQueue";
-import {
-  DEFILE_IMAGE_OSTYPE_MOVE,
-  DEFILE_IMAGE_OSTYPE_ROTATE,
-} from "../utils/define";
 
 export class UseQueue {
   // 获取队列
   getQueue() {
     return QueueProxy();
+  }
+
+  /*
+   * 添加一次队列
+   * */
+  addQueue() {
+    let imageList = [];
+    const prod = useDesign().getProd();
+    prod.getDesignSNodeGroup().forEach((image) => {
+      imageList.push(new ImageQueue(image));
+    });
+    this.getQueue().addQueue(
+      new CurrentQueue({
+        imageList: imageList,
+        actionImageId: prod.getImageActionId(),
+      })
+    );
   }
 
   /*
@@ -30,33 +44,5 @@ export class UseQueue {
    * */
   clear() {
     this.getQueue().clear();
-  }
-
-  /*
-   * 移动
-   * */
-  addQueueByMove(image) {
-    if (!image) image = useDesign().getActiveImage();
-    // 添加队列
-    this.getQueue().addQueue(
-      new CurrentQueue({
-        type: DEFILE_IMAGE_OSTYPE_MOVE,
-        image,
-      })
-    );
-  }
-
-  /*
-   * 旋转
-   * */
-  addQueueByRotate(image) {
-    if (!image) image = useDesign().getActiveImage();
-    // 添加队列
-    this.getQueue().addQueue(
-      new CurrentQueue({
-        type: DEFILE_IMAGE_OSTYPE_ROTATE,
-        image,
-      })
-    );
   }
 }

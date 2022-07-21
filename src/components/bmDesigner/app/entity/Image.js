@@ -4,7 +4,6 @@ import {
   getOffset,
   uuid,
 } from "../utils/util";
-import { Dom4Image } from "../utils/dom/Dom4Image";
 import { Message } from "element-ui";
 import { Filter } from "../plugin/filter";
 import { useDesign, useQueue } from "../index";
@@ -17,14 +16,14 @@ import {
 
 // 设计图类
 export class DesignImage {
-  // 设计图的产品id
-  prodId;
   // vue 数据
   data = {};
+  // 设计图的所有dom[不同的设计图不同的dom、bg、img、text]
+  dom;
+  // 设计图的产品id
+  prodId;
   // 自定义设计图id
   id;
-  // 类型 [bg, img]
-  type = "";
   // 设计图旋转角度
   angle = 0;
   // 设计图缩放比例
@@ -35,68 +34,54 @@ export class DesignImage {
   y = 0;
   // 是否翻转
   reverse = false;
-  // 设计图的所有dom
-  dom;
-  // 背景图才有的颜色
-  color;
-
-  // 操作类型
-  osType = {
-    plus: "plus",
-    real: "real",
-  };
 
   // 构造函数
   constructor(param) {
-    let { type, data, prodId } = param;
+    let { prodId } = param;
     // 设置设计图自定义id
     this.setId(uuid());
     // 设置当前设计图对应的产品id
     this.setProdId(prodId);
-    // 设置设计图类型
-    this.setType(type);
-    // 如果类型是背景图,则设置颜色
-    if (type === DEFINE_IMAGE_TYPE_BG) this.setColor(data.color);
-    // 设置设计图的dom
-    this.setDom(new Dom4Image(type, data, this.getId(), this));
-  }
-
-  // 获取操作类型-plus
-  getOsTypePlus() {
-    return DEFINE_IMAGE_OSTYPE_PLUS;
-  }
-
-  // 获取操作类型-real
-  getOsTypeReal() {
-    return DEFINE_IMAGE_OSTYPE_REAL;
   }
 
   /*
    * 获取设计图当前在svg中的数据
    * */
-  geBBox() {
-    let bbox = this.getDom().imgBd.getBBox();
-    return bbox;
+  // geBBox() {
+  //   let bbox = this.getDom().imgBd?.getBBox();
+  //   return bbox;
+  // }
+
+  /*
+   * (伪造抽象类)获取设计图中的信息
+   * */
+  getBBox() {
+    console.error(
+      "getBBox is abstract method, 这是个抽象方法，未实现, 现在用的是父类的默认方法，可能会出现错误"
+    );
+    return this.getDom().imgG.getBBox();
   }
 
   // 执行一次记录
   carryLog(param = {}) {
     let { angle, scale, x, y } = param;
-    console.log("carryLog", angle, scale, x, y);
     // x,y
     if (
       !["", null, undefined].includes(x) &&
       !["", null, undefined].includes(y)
     ) {
+      console.log("carryLog move", x, y);
       this.setX(Number(x));
       this.setY(Number(y));
     }
     // angle
     if (!["", null, undefined].includes(angle)) {
+      console.log("carryLog rotate", angle);
       this.setAngle(Number(angle));
     }
     // scale
     if (!["", null, undefined].includes(scale)) {
+      console.log("carryLog scale", scale);
       this.setScale(Number(scale));
     }
   }
@@ -106,7 +91,6 @@ export class DesignImage {
    * @param {string} type 翻转类型 x垂直, y水平
    * */
   imageReverse(type) {
-    if (this.isBg()) return;
     if (!["x", "y"].includes(type)) {
       Message.warning(`暂不支持${type}类型翻转`);
       return;
@@ -143,7 +127,6 @@ export class DesignImage {
    * @param {boolean} isLog 是否记录
    * */
   imageMove(x, y, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
-    if (this.isBg()) return;
     let dom = this.getDom();
     let matrix = dom.imgBd.attr("transform").localMatrix;
     if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
@@ -170,9 +153,9 @@ export class DesignImage {
    * */
   imageMoveReal(x, y) {
     let angle = this.getAngle();
-    this.imageRotate(360 - angle, this.getOsTypePlus(), false);
+    this.imageRotate(360 - angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
     this.imageMove(x, y, DEFINE_IMAGE_OSTYPE_REAL);
-    this.imageRotate(angle, this.getOsTypePlus(), false);
+    this.imageRotate(angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
   }
 
   /*
@@ -182,18 +165,19 @@ export class DesignImage {
    * @param {boolean} isLog 是否记录
    * */
   imageRotate(angle, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
-    if (this.isBg()) return;
     let dom = this.getDom();
     let imgBBox = dom.img.getBBox();
     // 图片矩阵
     let IM = dom.imgBd.attr("transform").localMatrix;
     let EM = dom.editBd.attr("transform").localMatrix;
     // 矩阵以angle为角度, cx,cy 为transform-origin 进行一次旋转变化
+    // 累计
     if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
       IM.rotate(angle, imgBBox.cx, imgBBox.cy);
       EM.rotate(angle, imgBBox.cx, imgBBox.cy);
     }
-    if (type === DEFINE_IMAGE_OSTYPE_REAL) {
+    // 真实
+    else if (type === DEFINE_IMAGE_OSTYPE_REAL) {
       let nowAngle = this.getAngle();
       IM.rotate(-nowAngle, imgBBox.cx, imgBBox.cy);
       EM.rotate(-nowAngle, imgBBox.cx, imgBBox.cy);
@@ -240,12 +224,20 @@ export class DesignImage {
    * @param {boolean} isLog 是否记录
    * */
   imageScale(scale, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
-    if (this.isBg()) return;
     let dom = this.getDom();
     let imgBBox = dom.img.getBBox();
     // 图片矩阵
     let IM = dom.img.attr("transform").localMatrix;
-    IM.scale(scale, scale, imgBBox.cx, imgBBox.cy);
+    // 累计
+    if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
+      IM.scale(scale, scale, imgBBox.cx, imgBBox.cy);
+    }
+    // 真实
+    else if (type === DEFINE_IMAGE_OSTYPE_REAL) {
+      let nowScale = this.getScale();
+      IM.scale(1 / nowScale, 1 / nowScale, imgBBox.cx, imgBBox.cy);
+      IM.scale(scale, scale, imgBBox.cx, imgBBox.cy);
+    }
     // 设置变化后的矩阵
     dom.img.attr("transform", IM);
     // 同时改变其他元素
@@ -262,10 +254,23 @@ export class DesignImage {
     dom.editDelete.attr({ x: -18 + bbox.x, y: bbox.y2 });
     // 记录值
     if (isLog) {
-      let _scale = this.getScale();
-      _scale *= scale;
+      let _scale;
+      if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
+        _scale = this.getScale();
+        _scale *= scale;
+      }
+      if (type === DEFINE_IMAGE_OSTYPE_REAL) {
+        _scale = scale;
+      }
       this.carryLog({ scale: _scale });
     }
+  }
+
+  /*
+   * 缩放设计图到指定比例
+   * */
+  imageScaleReal(scale) {
+    this.imageScale(scale, DEFINE_IMAGE_OSTYPE_REAL);
   }
 
   /*
@@ -274,7 +279,6 @@ export class DesignImage {
    * @param {boolean} isLog 是否记录
    * */
   imageAlign(type, isLog = true) {
-    if (this.isBg()) return;
     let angle = this.getAngle();
     let scale = this.getScale();
     // 回正
@@ -296,12 +300,10 @@ export class DesignImage {
     // 转回已有
     this.imageRotate(angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
     this.imageScale(scale, DEFINE_IMAGE_OSTYPE_PLUS, false);
-    // 记录值
     if (isLog) {
+      // 记录值
       this.carryLog();
     }
-    // 操作栈的记录
-    useQueue().addQueueByMove();
   }
 
   /*
@@ -309,8 +311,12 @@ export class DesignImage {
    * @param {class} newImage 新的设计图类
    * */
   copy(newImage) {
-    if (this.isBg()) return;
-    newImage.imageMove(this.getX(), this.getY(), DEFINE_IMAGE_OSTYPE_REAL);
+    newImage.imageMove(
+      this.getX(),
+      this.getY(),
+      DEFINE_IMAGE_OSTYPE_REAL,
+      false
+    );
     newImage.imageScale(this.getScale());
     newImage.imageRotate(this.getAngle());
     newImage.imageMove(50, 50);
@@ -387,7 +393,7 @@ export class DesignImage {
     this.id = id;
   }
 
-  // 获取类型 [bg, img]
+  // 获取类型
   getType() {
     return this.type;
   }
@@ -445,23 +451,6 @@ export class DesignImage {
   // 设置设计图的所有dom
   setDom(dom) {
     this.dom = dom;
-  }
-
-  // 获取背景图才有的颜色
-  getColor() {
-    return this.color;
-  }
-
-  /*
-   * 设置背景图才有的颜色
-   * @param {string} color 颜色
-   * - 设置背景图才有的颜色
-   * - 通过修改设计图的dom的fill属性
-   * */
-  setColor(color) {
-    this.color = color;
-    // 背景图的元素同步修改填充色
-    this.dom?.bgRect && this.dom.bgRect.attr("fill", color);
   }
 
   // 设置设计图的产品id
