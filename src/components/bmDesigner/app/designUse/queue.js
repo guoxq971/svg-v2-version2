@@ -12,11 +12,11 @@ export class UseQueue {
    * 添加一次队列
    * */
   addQueue() {
-    let imageList = [];
     const prod = useDesign().getProd();
-    prod.getDesignSNodeGroup().forEach((image) => {
-      imageList.push(new ImageQueue(image));
-    });
+    const imageList = prod
+      .getDesignSNodeGroup()
+      .map((image) => new ImageQueue(image));
+
     this.getQueue().addQueue(
       new CurrentQueue({
         imageList: imageList,

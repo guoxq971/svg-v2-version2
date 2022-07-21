@@ -18,7 +18,7 @@ import {
 export class DesignImage {
   // vue 数据
   data = {};
-  // 设计图的所有dom[不同的设计图不同的dom、bg、img、text]
+  // 设计图的所有dom[不同的设计图不同的dom. bg、img、text]
   dom;
   // 设计图的产品id
   prodId;
@@ -43,14 +43,6 @@ export class DesignImage {
     // 设置当前设计图对应的产品id
     this.setProdId(prodId);
   }
-
-  /*
-   * 获取设计图当前在svg中的数据
-   * */
-  // geBBox() {
-  //   let bbox = this.getDom().imgBd?.getBBox();
-  //   return bbox;
-  // }
 
   /*
    * (伪造抽象类)获取设计图中的信息

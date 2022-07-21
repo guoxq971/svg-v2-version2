@@ -6,6 +6,8 @@ export class CurrentQueue {
   imageList;
   // 当前操作的设计图id
   actionImageId;
+
+  // 构造函数
   constructor(param) {
     this.setImageList(param.imageList);
     this.setActionImageId(param.actionImageId);

@@ -35,19 +35,21 @@ export class QueueManager {
     let logMsg = "";
     // 如果当前项存在，才进行操作
     if (newQueue) {
-      let prod = newQueue.getImageList()[0].getImage().getProd();
+      const prod = newQueue.getImageList()[0].getImage().getProd();
       // 切换设计图操作
       useDesign().setImageActionId(newQueue.getActionImageId(), prod);
       // 循环对所有设计图操作
       newQueue.getImageList().forEach((imageQueue, index) => {
-        let image = imageQueue.getImage();
-        let oldImageQueue = oldQueue.getImageList()[index];
+        // 设计图
+        const image = imageQueue.getImage();
+        // 上一次操作的队列
+        const oldImageQueue = oldQueue.getImageList()[index];
         // 设置移动
         if (imageQueue.isCut(oldImageQueue)) {
           image.imageMoveReal(imageQueue.getX(), imageQueue.getY());
         } else {
-          let dx = imageQueue.getCx() - oldImageQueue.getCx();
-          let dy = imageQueue.getCy() - oldImageQueue.getCy();
+          const dx = imageQueue.getCx() - oldImageQueue.getCx();
+          const dy = imageQueue.getCy() - oldImageQueue.getCy();
           image.imageMove(dx, dy);
         }
         // 设置旋转
