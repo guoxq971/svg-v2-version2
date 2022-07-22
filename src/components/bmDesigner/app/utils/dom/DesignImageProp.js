@@ -9,6 +9,7 @@ import {
   DEFINE_IMAGE_OSTYPE_REAL,
 } from "../define";
 import {
+  domUtilImageMove,
   domUtilImageReverse,
   domUtilImageRotate,
   domUtilImageScale,
@@ -91,18 +92,15 @@ export class DesignImageProp extends DesignImage {
    * */
   imageMove(x, y, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
     let dom = this.getDom();
-    let matrix = dom.imgBd.attr("transform").localMatrix;
+    let M = domUtilImageMove(dom).getMatrix();
     if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
-      matrix.e += x;
-      matrix.f += y;
-      // matrix.translate(x, y);
+      domUtilImageMove(dom).move(x, y);
     }
     if (type === DEFINE_IMAGE_OSTYPE_REAL) {
-      matrix.e = x;
-      matrix.f = y;
+      domUtilImageMove(dom).move(-this.getX(), -this.getY(), M);
+      domUtilImageMove(dom).move(x, y, M);
     }
-    dom.imgBd.attr("transform", matrix);
-    dom.editBd.attr("transform", matrix);
+    domUtilImageMove(dom).setMatrix(M);
     // 记录值
     if (isLog) {
       this.carryLog({ x, y });
@@ -120,6 +118,9 @@ export class DesignImageProp extends DesignImage {
 
   /*
    * 设计图真实操作
+   * - 回退到初始
+   * - 执行操作
+   * - 恢复到当前
    * @param {string} param.type 操作类型
    * @param {number} param.x, param.y 移动距离
    * @param {number} param.angle 旋转角度
@@ -130,8 +131,10 @@ export class DesignImageProp extends DesignImage {
     let type = param.type;
     let angle = this.getAngle();
     let scale = this.getScale();
+    // 将设计图回退到初始状态(这个不会记录)
     this.imageRotate(360 - angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
     this.imageScale(1 / scale, DEFINE_IMAGE_OSTYPE_PLUS, false);
+    // 执行操作
     switch (type) {
       case DEFILE_IMAGE_OSTYPE_MOVE:
         param.callback
@@ -152,6 +155,7 @@ export class DesignImageProp extends DesignImage {
         console.error(`imageHandleReal 暂不支持的操作类型 ${type}`);
         break;
     }
+    // 将设计图恢复(这个不会记录)
     this.imageRotate(angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
     this.imageScale(scale, DEFINE_IMAGE_OSTYPE_PLUS, false);
   }
@@ -212,21 +216,19 @@ export class DesignImageProp extends DesignImage {
    * */
   imageScale(scale, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
     let dom = this.getDom();
-    let imgBBox = dom.img.getBBox();
     // 图片矩阵
-    let IM = dom.img.attr("transform").localMatrix;
+    let M = domUtilImageScale(dom).getMatrix();
     // 累计
     if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
-      IM.scale(scale, scale, imgBBox.cx, imgBBox.cy);
+      domUtilImageScale(dom).scale(scale, M);
     }
     // 真实
     else if (type === DEFINE_IMAGE_OSTYPE_REAL) {
-      let nowScale = this.getScale();
-      IM.scale(1 / nowScale, 1 / nowScale, imgBBox.cx, imgBBox.cy);
-      IM.scale(scale, scale, imgBBox.cx, imgBBox.cy);
+      domUtilImageScale(dom).scale(1 / this.getScale(), M);
+      domUtilImageScale(dom).scale(scale, M);
     }
     // 设置节点缩放
-    domUtilImageScale(dom, IM);
+    domUtilImageScale(dom).setMatrix(M);
     // 记录值
     if (isLog) {
       let _scale;
