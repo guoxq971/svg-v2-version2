@@ -12,6 +12,17 @@ export class CurrentQueue {
     this.setImageList(param.imageList);
     this.setActionImageId(param.actionImageId);
   }
+  /*
+   * 获取队列中的产品
+   * @return {Prod} 产品class
+   * */
+  getProd() {
+    console.log(this.imageList);
+    return this.imageList
+      .find((image) => image.getId() === this.actionImageId)
+      .getImage()
+      .getProd();
+  }
   setImageList(imageList) {
     this.imageList = imageList;
   }

@@ -2,6 +2,9 @@ import { DesignImage } from "../Image";
 import { DEFINE_IMAGE_TYPE_BG } from "../../utils/define";
 import { Dom4BgImage } from "../../utils/dom/Dom4BgImage";
 
+/*
+ * 设计图(类型:填充色背景图)
+ * */
 export class Bg extends DesignImage {
   // 类型
   type = DEFINE_IMAGE_TYPE_BG;

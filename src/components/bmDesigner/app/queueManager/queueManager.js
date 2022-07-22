@@ -35,9 +35,11 @@ export class QueueManager {
     let logMsg = "";
     // 如果当前项存在，才进行操作
     if (newQueue) {
-      const prod = newQueue.getImageList()[0].getImage().getProd();
-      // 切换设计图操作
-      useDesign().setImageActionId(newQueue.getActionImageId(), prod);
+      // 切换当前激活设计图操作
+      useDesign().setImageActionId(
+        newQueue.getActionImageId(),
+        newQueue.getProd()
+      );
       // 循环对所有设计图操作
       newQueue.getImageList().forEach((imageQueue, index) => {
         // 设计图

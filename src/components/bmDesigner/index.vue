@@ -334,6 +334,7 @@ export default {
     // 居中
     handlerAlign(type) {
       useDesign().getActiveImage().imageAlign(type);
+      useQueue().addQueue();
     },
     // 翻转
     async handlerRevere(type) {
