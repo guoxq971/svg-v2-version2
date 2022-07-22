@@ -1,5 +1,5 @@
-import { useDesign } from "../../index";
-import { cratePicBgRect, createPicImgG } from "./dom4CreateImage";
+import { useDesign } from "../../../index";
+import { cratePicBgRect, createPicImgG } from "../dom4CreateImage";
 import { Dom4ImageEntity } from "./Dom4ImageEntity";
 /*
  * 创建背景图

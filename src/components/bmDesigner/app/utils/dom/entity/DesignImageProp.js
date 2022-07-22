@@ -1,19 +1,19 @@
-import { DesignImage } from "../../entity/Image";
+import { DesignImage } from "../../../entity/Image";
 import { Message } from "element-ui";
-import { getOffset } from "../util";
+import { getOffset } from "../../util";
 import {
   DEFILE_IMAGE_OSTYPE_MOVE,
   DEFILE_IMAGE_OSTYPE_ROTATE,
   DEFILE_IMAGE_OSTYPE_SCALE,
   DEFINE_IMAGE_OSTYPE_PLUS,
   DEFINE_IMAGE_OSTYPE_REAL,
-} from "../define";
+} from "../../define";
 import {
   domUtilImageMove,
   domUtilImageReverse,
   domUtilImageRotate,
   domUtilImageScale,
-} from "./dom4Util";
+} from "../dom4Util";
 
 /*
  * 设计图属性

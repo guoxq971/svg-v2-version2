@@ -1,5 +1,5 @@
 import { uuid } from "../utils/util";
-import { Dom4Prod } from "../utils/dom/Dom4Prod";
+import { Dom4Prod } from "../utils/dom/entity/Dom4Prod";
 import { prodAdaptor } from "../utils/adaptor";
 import { DesignProxy } from "../index";
 

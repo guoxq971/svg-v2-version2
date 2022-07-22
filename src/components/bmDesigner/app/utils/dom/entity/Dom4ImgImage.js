@@ -1,4 +1,4 @@
-import { useDesign } from "../../index";
+import { useDesign } from "../../../index";
 import {
   cratePicEditBd,
   cratePicEditDelete,
@@ -10,10 +10,10 @@ import {
   cratePicImgBd,
   cratePicImgClip,
   createPicImgG,
-} from "./dom4CreateImage";
-import { ImageMove } from "./imageMove";
-import { imageRotate } from "./imageRotate";
-import { imageScale } from "./imageScale";
+} from "../dom4CreateImage";
+import { ImageMove } from "../imageMove";
+import { imageRotate } from "../imageRotate";
+import { imageScale } from "../imageScale";
 import { Dom4ImageEntity } from "./Dom4ImageEntity";
 
 /*

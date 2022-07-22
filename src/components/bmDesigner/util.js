@@ -1,5 +1,4 @@
 import { SvgImgToBase64, swapArrData } from "./app/utils/util";
-import { layer } from "./app/utils/layer";
 import saveSvgAsPng from "save-svg-as-png";
 import {
   bgImageAdaptor,
@@ -7,6 +6,7 @@ import {
   imageAdaptor,
 } from "./app/utils/adaptor";
 import { useDesign } from "./app/index";
+import { domUtilLayer } from "@/components/bmDesigner/app/utils/dom/dom4Util";
 
 // 图层数据下标调动
 export function layerIndex(result, layerList, data, type) {
@@ -74,7 +74,7 @@ export function vueApplyBgColor(color, layerList) {
 export function vueLayerUpDown(type, layerList, activeImgId, msgFlag, data) {
   // 图层dom操作 + 提示信息
   data = data ? data : vueGetActiveImageLayer(layerList, activeImgId);
-  let result = layer(type, data.sNode, msgFlag);
+  let result = domUtilLayer(type, data.sNode, msgFlag);
   // vue数据操作
   let list = layerIndex(result, layerList, data, type);
   // return这个是置顶、置底的时候用的

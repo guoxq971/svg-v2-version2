@@ -1,6 +1,6 @@
 import { DEFINE_IMAGE_TYPE_IMG } from "../../utils/define";
-import { Dom4ImgImage } from "../../utils/dom/Dom4ImgImage";
-import { DesignImageProp } from "../../utils/dom/DesignImageProp";
+import { Dom4ImgImage } from "../../utils/dom/entity/Dom4ImgImage";
+import { DesignImageProp } from "../../utils/dom/entity/DesignImageProp";
 
 /*
  * 设计图(类型:图片)

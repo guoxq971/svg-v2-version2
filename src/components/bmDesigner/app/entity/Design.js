@@ -1,5 +1,4 @@
 import { domUtilCutMode } from "../utils/dom/dom4Util";
-import { addEventOverall } from "../utils/overall";
 import { hotkeyInit } from "../utils/hotkeys";
 import { imageAdapterV2 } from "../utils/adaptor";
 
@@ -42,7 +41,7 @@ export class Design {
     this.api.selBgImage = param.selBgImage;
 
     // 监听鼠标按下，进入预览模式
-    addEventOverall();
+    this.addEventOverall();
     // 初始化快捷键
     hotkeyInit({ copy: this.api.imgCopy });
   }
@@ -152,5 +151,20 @@ export class Design {
     // 产品
     const prod = this.getProd();
     domUtilCutMode(type, prod);
+  }
+  // 监听鼠标按下
+  addEventOverall() {
+    const that = this;
+    // image.mousedown > mousedown
+    document.addEventListener("mousedown", function (e) {
+      // 该层级的 dom 上面出现自定义属性 bm
+      let result = e.path.some((item) => {
+        return item.getAttribute ? item?.getAttribute("bm") : "";
+      });
+      //当前鼠标按下的地方 = 当前是设计模式 && 不存在自定义属性 bm
+      if (that.isEditMode() && !result) {
+        that.setPreviewMode();
+      }
+    });
   }
 }

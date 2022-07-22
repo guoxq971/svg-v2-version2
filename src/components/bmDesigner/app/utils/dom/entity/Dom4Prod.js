@@ -10,14 +10,38 @@ import {
   createProdDashedPath,
   createProductImg,
   createSvg,
-} from "./dom4CreateProd";
-import { moveToCenter } from "./dom4Util";
-import { Dom4ProdEntity } from "./Dom4ProdEntity";
+} from "../dom4CreateProd";
+import { domUtilMoveToCenter } from "../dom4Util";
 
 // 产品的 dom 对象
-export class Dom4Prod extends Dom4ProdEntity {
+export class Dom4Prod {
+  // svg 容器
+  svgContainer;
+  // svg
+  svg;
+  // defs 裁剪 预览模式
+  defsClipD1;
+  // defs 裁剪 编辑模式
+  defsClipD2;
+  // [编辑模式]边框红色虚线path
+  editBdRedDashedPath;
+  // [预览模式]背景图
+  previewBgImg;
+  // [预览/编辑模式]设计图组
+  designGroup;
+  // [预览/编辑模式]设计图组-rect
+  designGroupRect;
+  // [预览/编辑模式]设计图组clip-rect
+  designGroupClipRect;
+  // [预览模式]产品图
+  previewProdImg;
+  // [编辑模式]产品的红色虚线
+  editProdDashedPath;
+  // [编辑模式]边框的黑色虚线
+  editBdDashedPath;
+
+  // 构造函数
   constructor(container, d1, d2, d3, bgUrl, prodUrl) {
-    super();
     // svg 容器
     this.svgContainer = Snap(container);
     // svg 对象
@@ -58,7 +82,7 @@ export class Dom4Prod extends Dom4ProdEntity {
       h: bbox.height,
     });
     // 移动到中心位置
-    moveToCenter(
+    domUtilMoveToCenter(
       [
         this.designGroup,
         this.editBdRedDashedPath,
