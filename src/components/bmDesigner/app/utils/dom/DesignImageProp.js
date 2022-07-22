@@ -38,9 +38,15 @@ export class DesignImageProp extends DesignImage {
    * (伪造抽象类)获取设计图中的信息
    * */
   getBBox() {
-    console.error(
-      "getBBox is abstract method, 这是个抽象方法，未实现, 现在用的是父类的默认方法，可能会出现错误"
-    );
+    let bbox = {};
+    try {
+      bbox = this.getDom().imgG.getBBox();
+    } catch (e) {
+      console.error(
+        e,
+        "getBBox is abstract method, 这是个抽象方法，未实现, 现在用的是父类的默认方法，可能会出现错误"
+      );
+    }
     return this.getDom().imgG.getBBox();
   }
 
@@ -94,7 +100,7 @@ export class DesignImageProp extends DesignImage {
     let dom = this.getDom();
     let M = domUtilImageMove(dom).getMatrix();
     if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
-      domUtilImageMove(dom).move(x, y);
+      domUtilImageMove(dom).move(x, y, M);
     }
     if (type === DEFINE_IMAGE_OSTYPE_REAL) {
       domUtilImageMove(dom).move(-this.getX(), -this.getY(), M);

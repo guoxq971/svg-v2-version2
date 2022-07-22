@@ -1,4 +1,4 @@
-import { createClipPath } from "./dom4Create";
+import { createClipPath } from "./dom4CreateImage";
 // 创建 svg
 export function createSvg(param = {}) {
   let { w, h } = param;

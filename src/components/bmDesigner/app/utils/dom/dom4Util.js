@@ -1,15 +1,12 @@
+import { convertCanvasToImage, convertImageToCanvas } from "../util";
+import { Filter } from "../../plugin/filter";
+
 /*
  * 移动到指定位置(中心)
  * @param {SNode} snap 节点
  * @param {number} x 横坐标
  * @param {number} y 纵坐标
  * */
-import {
-  convertCanvasToImage,
-  convertImageToCanvas,
-} from "@/components/bmDesigner/app/utils/util";
-import { Filter } from "@/components/bmDesigner/app/plugin/filter";
-
 export function moveToCenter(SNode, x, y) {
   if (Snap.is(SNode, "array")) {
     SNode.forEach((item) => {
@@ -24,6 +21,49 @@ export function moveToCenter(SNode, x, y) {
     M.translate(x - bbox.x - bbox.width / 2, y - bbox.y - bbox.height / 2);
     SNode.attr({ transform: M });
   }
+}
+
+/*
+ * 切换模式
+ * @param {string} type 模式
+ * */
+export function domUtilCutMode(type, prod) {
+  // 产品的dom
+  let SNode = prod.getDom();
+  // 产品下所有的设计图
+  let designSNodeGroup = prod.getDesignSNodeGroup();
+  let id;
+
+  if (type === "preview") {
+    id = SNode.defsClipD1.attr("id");
+    SNode.editBdRedDashedPath.node.style.display = "none";
+    SNode.editProdDashedPath.node.style.display = "none";
+    SNode.editBdDashedPath.node.style.display = "none";
+    SNode.editProdDashedPath.node.style.display = "none";
+    SNode.previewProdImg.node.style.display = "inline";
+    SNode.previewBgImg.node.style.display = "inline";
+    designSNodeGroup.forEach((itemSNode) => {
+      if (itemSNode.isImg()) itemSNode.dom.editBd.node.style.display = "none";
+    });
+  }
+
+  if (type === "edit") {
+    id = SNode.defsClipD2.attr("id");
+    SNode.editBdRedDashedPath.node.style.display = "inline";
+    SNode.editProdDashedPath.node.style.display = "inline";
+    SNode.editBdDashedPath.node.style.display = "inline";
+    SNode.editProdDashedPath.node.style.display = "inline";
+    SNode.previewProdImg.node.style.display = "none";
+    SNode.previewBgImg.node.style.display = "none";
+    designSNodeGroup.forEach((itemSNode) => {
+      if (itemSNode.isImg()) itemSNode.dom.editBd.node.style.display = "inline";
+    });
+  }
+
+  // 将需要裁剪的元素的clip-path设置为相应的id
+  SNode.svg.selectAll(".design-d").forEach((itemSNode) => {
+    itemSNode.node.style["clip-path"] = `url("#${id}")`;
+  });
 }
 
 /*

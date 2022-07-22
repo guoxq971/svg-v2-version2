@@ -1,4 +1,4 @@
-import { cutMode } from "../utils/dom/designUtil";
+import { domUtilCutMode } from "../utils/dom/dom4Util";
 import { addEventOverall } from "../utils/overall";
 import { hotkeyInit } from "../utils/hotkeys";
 import { imageAdapterV2 } from "../utils/adaptor";
@@ -123,7 +123,7 @@ export class Design {
   setEditMode() {
     if (this.isPreviewMode()) {
       this.setMode("edit");
-      cutMode(this.getMode());
+      this.cutMode(this.getMode());
       this.getProd().patrolImgMode();
     }
   }
@@ -134,7 +134,7 @@ export class Design {
    * */
   setPreviewMode() {
     this.setMode("preview");
-    cutMode(this.getMode());
+    this.cutMode(this.getMode());
   }
   // 设为模式
   setMode(mode) {
@@ -147,5 +147,10 @@ export class Design {
   // 获取当前激活的产品id
   getProdActiveId() {
     return this.prodActiveId;
+  }
+  cutMode(type) {
+    // 产品
+    const prod = this.getProd();
+    domUtilCutMode(type, prod);
   }
 }

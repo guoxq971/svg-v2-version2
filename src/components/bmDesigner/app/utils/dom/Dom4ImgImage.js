@@ -1,4 +1,3 @@
-import { Dom4ImgImageEntity } from "./Dom4ImgImageEntity";
 import { useDesign } from "../../index";
 import {
   cratePicEditBd,
@@ -15,11 +14,26 @@ import {
 import { ImageMove } from "./imageMove";
 import { imageRotate } from "./imageRotate";
 import { imageScale } from "./imageScale";
+import { Dom4ImageEntity } from "./Dom4ImageEntity";
 
 /*
  * 创建设计图
  * */
-export class Dom4ImgImage extends Dom4ImgImageEntity {
+export class Dom4ImgImage extends Dom4ImageEntity {
+  // 编辑边框
+  editBd;
+  // 编辑rect
+  editRect;
+  // 编辑移动
+  editMove;
+  // 编辑缩放
+  editScale;
+  // 编辑旋转
+  editRotate;
+  // 编辑删除
+  editDelete;
+
+  // 构造函数
   constructor(param, parent) {
     super();
     this.init(param, parent);

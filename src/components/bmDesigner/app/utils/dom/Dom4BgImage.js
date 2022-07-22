@@ -1,11 +1,15 @@
-import { Dom4BgImageEntity } from "./Dom4BgImageEntity";
 import { useDesign } from "../../index";
 import { cratePicBgRect, createPicImgG } from "./dom4CreateImage";
+import { Dom4ImageEntity } from "./Dom4ImageEntity";
 /*
  * 创建背景图
  * @param {String} color 背景颜色
  * */
-export class Dom4BgImage extends Dom4BgImageEntity {
+export class Dom4BgImage extends Dom4ImageEntity {
+  // 背景rect
+  bgRect;
+
+  // 构造函数
   constructor(color) {
     super();
     this.init(color);
