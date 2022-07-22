@@ -1,7 +1,6 @@
 import { DesignImage } from "../../entity/Image";
 import { Message } from "element-ui";
-import { convertCanvasToImage, convertImageToCanvas, getOffset } from "../util";
-import { Filter } from "../../plugin/filter";
+import { getOffset } from "../util";
 import {
   DEFILE_IMAGE_OSTYPE_MOVE,
   DEFILE_IMAGE_OSTYPE_ROTATE,
@@ -9,7 +8,11 @@ import {
   DEFINE_IMAGE_OSTYPE_PLUS,
   DEFINE_IMAGE_OSTYPE_REAL,
 } from "../define";
-import { utilImageScale } from "@/components/bmDesigner/app/utils/dom/dom4Util";
+import {
+  domUtilImageReverse,
+  domUtilImageRotate,
+  domUtilImageScale,
+} from "./dom4Util";
 
 /*
  * 设计图属性
@@ -73,28 +76,10 @@ export class DesignImageProp extends DesignImage {
       Message.warning(`暂不支持${type}类型翻转`);
       return;
     }
+    // 设置节点翻转
+    domUtilImageReverse(this.getDom(), type);
+    // 记录翻转
     this.setReverse(!this.getReverse());
-    let dom = this.getDom();
-    let imgAttr = dom.img.attr();
-    let image = new Image();
-    image.src = imgAttr.href;
-    image.onload = () => {
-      let cvs = convertImageToCanvas(image);
-      if (cvs.getContext && cvs.getContext("2d")) {
-        let ctx = cvs.getContext("2d");
-        const filter = new Filter(ctx); // 实例滤镜
-        // 水平翻转
-        if (type === "y") {
-          filter.flipHorizontal(0, 0, image.width, image.height);
-        }
-        // 垂直翻转
-        if (type === "x") {
-          filter.flipVertical(0, 0, image.width, image.height);
-        }
-        let img = convertCanvasToImage(cvs);
-        dom.img.attr("href", img.src);
-      }
-    };
   }
 
   /*
@@ -164,6 +149,7 @@ export class DesignImageProp extends DesignImage {
           : this.imageScale(param.scale, DEFINE_IMAGE_OSTYPE_REAL);
         break;
       default:
+        console.error(`imageHandleReal 暂不支持的操作类型 ${type}`);
         break;
     }
     this.imageRotate(angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
@@ -177,28 +163,20 @@ export class DesignImageProp extends DesignImage {
    * @param {boolean} isLog 是否记录
    * */
   imageRotate(angle, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
-    let dom = this.getDom();
-    let imgBBox = dom.img.getBBox();
+    const dom = this.getDom();
     // 图片矩阵
-    let IM = dom.imgBd.attr("transform").localMatrix;
-    let EM = dom.editBd.attr("transform").localMatrix;
-    // 矩阵以angle为角度, cx,cy 为transform-origin 进行一次旋转变化
-    // 累计
-    if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
-      IM.rotate(angle, imgBBox.cx, imgBBox.cy);
-      EM.rotate(angle, imgBBox.cx, imgBBox.cy);
-    }
-    // 真实
-    else if (type === DEFINE_IMAGE_OSTYPE_REAL) {
-      let nowAngle = this.getAngle();
-      IM.rotate(-nowAngle, imgBBox.cx, imgBBox.cy);
-      EM.rotate(-nowAngle, imgBBox.cx, imgBBox.cy);
-      IM.rotate(angle, imgBBox.cx, imgBBox.cy);
-      EM.rotate(angle, imgBBox.cx, imgBBox.cy);
+    let M = domUtilImageRotate(dom).getMatrix();
+    switch (type) {
+      case DEFINE_IMAGE_OSTYPE_PLUS:
+        domUtilImageRotate(dom).rotate(angle, M);
+        break;
+      case DEFINE_IMAGE_OSTYPE_REAL:
+        domUtilImageRotate(dom).rotate(-this.getAngle(), M);
+        domUtilImageRotate(dom).rotate(angle, M);
+        break;
     }
     // 设置变化后的矩阵
-    dom.imgBd.attr("transform", IM);
-    dom.editBd.attr("transform", EM);
+    domUtilImageRotate(dom).setMatrix(M);
     // 记录值
     if (isLog) {
       let _angle;
@@ -247,8 +225,8 @@ export class DesignImageProp extends DesignImage {
       IM.scale(1 / nowScale, 1 / nowScale, imgBBox.cx, imgBBox.cy);
       IM.scale(scale, scale, imgBBox.cx, imgBBox.cy);
     }
-    // 设置变化后的矩阵
-    utilImageScale(dom, IM);
+    // 设置节点缩放
+    domUtilImageScale(dom, IM);
     // 记录值
     if (isLog) {
       let _scale;
@@ -299,31 +277,19 @@ export class DesignImageProp extends DesignImage {
    * @param {class} newImage 新的设计图类
    * */
   copy(newImage) {
-    newImage.imageMove(
-      this.getX(),
-      this.getY(),
-      DEFINE_IMAGE_OSTYPE_REAL,
-      false
-    );
-    newImage.imageScale(this.getScale());
-    newImage.imageRotate(this.getAngle());
-    newImage.imageMove(50, 50);
-  }
-
-  /*
-   * 图层显示\隐藏
-   * - 操作dom元素的显示隐藏
-   * - 操作vue数据的显示隐藏
-   * */
-  layerTrigger() {
-    // 操作元素
-    let dom = this.getDom().imgG;
-    dom.node.style.display =
-      dom.node.style.display === "none" ? "inline" : "none";
-    // 操作vue数据
-    let data = this.getData();
-    data.isShow = !data.isShow;
-    this.setData(data);
+    let x = this.getX() + 50;
+    let y = this.getY() + 50;
+    let angle = this.getAngle();
+    let scale = this.getScale();
+    newImage.imageMove(x, y, DEFINE_IMAGE_OSTYPE_REAL, false);
+    newImage.imageScale(angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
+    newImage.imageRotate(scale, DEFINE_IMAGE_OSTYPE_PLUS, false);
+    newImage.carryLog({
+      x: x,
+      y: y,
+      angle: angle,
+      scale: scale,
+    });
   }
 
   // 获取设计图旋转角度

@@ -25,6 +25,22 @@ export class DesignImage {
   }
 
   /*
+   * 图层显示\隐藏
+   * - 操作dom元素的显示隐藏
+   * - 操作vue数据的显示隐藏
+   * */
+  layerTrigger() {
+    // 操作元素
+    let dom = this.getDom().imgG;
+    dom.node.style.display =
+      dom.node.style.display === "none" ? "inline" : "none";
+    // 操作vue数据
+    let data = this.getData();
+    data.isShow = !data.isShow;
+    this.setData(data);
+  }
+
+  /*
    * 当前 image 的 type 是 img
    * @return {boolean} true 是 img, false 不是
    * */
