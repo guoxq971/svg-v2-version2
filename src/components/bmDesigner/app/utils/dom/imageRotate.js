@@ -3,6 +3,7 @@ import {
   DEFILE_IMAGE_OSTYPE_ROTATE,
   DEFINE_IMAGE_OSTYPE_PLUS,
 } from "../define";
+import { useSnap } from "../../../../designApp/useSnap";
 
 // 旋转
 export class imageRotate {
@@ -13,22 +14,21 @@ export class imageRotate {
   //记录的鼠标坐标
   x;
   y;
-  // 拖拽过程中的角度
-  angle;
+  // 角度
+  rotate = 0;
 
   // 拖拽开始
-  start(imgSNode, x, y, event, image) {
-    this.angle = image.getAngle() || 0;
-    let prod = image.getProd();
-    let dom = image.getDom();
+  start(x, y, event, imgId, svgId) {
+    let us = new useSnap(svgId, imgId);
     // 记录一次鼠标坐标
     this.x = x;
     this.y = y;
     // 画一个圆, 在图片边框中加入
-    let svg = prod.getDom().svg;
-    let designGroup = prod.getDom().designGroup;
-    let imgBBox = dom.img.getBBox();
-    let imgBdBBox = dom.imgBd.getBBox();
+    let svg = us.svg();
+    let imgBd = us.imgBd();
+    let designGroup = us.designGroup();
+    let imgBBox = us.img().getBBox();
+    let imgBdBBox = imgBd.getBBox();
     this.circle = svg.circle(imgBBox.cx, imgBBox.cy, imgBBox.r0).attr({
       fill: "none",
       stroke: "green",
@@ -37,43 +37,47 @@ export class imageRotate {
       .text(
         imgBdBBox.cx,
         imgBdBBox.cy - imgBdBBox.r1 - 40,
-        this.angle.toFixed(2)
+        this.rotate.toFixed(2)
       )
       .attr({ stroke: "green" });
-    dom.imgBd.add(this.circle);
+    imgBd.add(this.circle);
     designGroup.add(this.text);
   }
 
   // 拖拽中
-  move(imgSNode, dx, dy, x, y, event, image) {
-    let dom = image.getDom();
+  move(dx, dy, x, y, event, imgId, svgId) {
+    let us = new useSnap(svgId, imgId);
+    let img = us.img();
+    let imgBd = us.imgBd();
+    let editBd = us.editBd();
     // 获取图片在body的中心坐标
-    let imgOs = getOffset(dom.img.node);
+    let imgOs = getOffset(img.node);
     // 旋转角度
     let angle = 0;
     // 如果相等, 就是两条线重合, 是0度
     if (this.x !== x || this.y !== y) {
       angle = getRotate(imgOs.cx, imgOs.cy, this.x, this.y, x, y);
     }
-    this.angle += angle;
+    this.rotate += angle;
     // 设置旋转
-    image.imageRotate(angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
+    let IM = imgBd.attr("transform").localMatrix;
+    let EM = editBd.attr("transform").localMatrix;
+    let bbox = img.getBBox();
+    IM.rotate(angle, bbox.cx, bbox.cy);
+    EM.rotate(angle, bbox.cx, bbox.cy);
+    imgBd.attr({ transform: IM });
+    editBd.attr({ transform: EM });
     // 重置鼠标坐标(第一次记录是在start中), 使得下次拖拽的时候可以计算出移动形成的角度
     this.x = x;
     this.y = y;
-    this.text.node.innerHTML = this.angle.toFixed(2) + "°";
+    this.text.node.innerHTML = this.rotate.toFixed(2) + "°";
   }
 
   // 拖拽结束
-  end(imgSNode, event, image) {
+  end(event, imgId, svgId) {
     // 移除圆
     this.circle.remove();
     this.text.remove();
-    image.carryLog({
-      angle: this.angle,
-      type: DEFILE_IMAGE_OSTYPE_ROTATE,
-      handleType: DEFINE_IMAGE_OSTYPE_PLUS,
-    });
   }
 }
 

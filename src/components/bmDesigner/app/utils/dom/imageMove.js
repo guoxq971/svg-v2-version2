@@ -1,38 +1,29 @@
-import { DEFILE_IMAGE_OSTYPE_MOVE, DEFINE_IMAGE_OSTYPE_PLUS } from "../define";
+import { useSnap } from "../../../../designApp/useSnap";
 
 export class ImageMove {
   x;
   y;
-  dx;
-  dy;
-  org_x;
-  org_y;
 
-  start(imgSNode, x, y, event, image) {
+  start(x, y, event, id) {
     this.x = x;
     this.y = y;
-    this.org_x = image.getX();
-    this.org_y = image.getY();
   }
 
-  move(imgSNode, dx, dy, x, y, event, image) {
+  move(dx, dy, x, y, event, imgId, svgId) {
+    let us = new useSnap(svgId, imgId);
     let _x = x - this.x;
     let _y = y - this.y;
-    this.dx = dx;
-    this.dy = dy;
     // 移动
-    image.imageMove(_x, _y, DEFINE_IMAGE_OSTYPE_PLUS, false);
+    let imgBd = us.imgBd();
+    let editBd = us.editBd();
+    let matrix = imgBd.attr("transform").localMatrix;
+    matrix.e += _x;
+    matrix.f += _y;
+    imgBd.attr("transform", matrix);
+    editBd.attr("transform", matrix);
     this.x = x;
     this.y = y;
   }
 
-  end(imgSNode, event, image) {
-    let bbox = image.getDom().imgBd.getBBox();
-    image.carryLog({
-      x: bbox.x,
-      y: bbox.y,
-      type: DEFILE_IMAGE_OSTYPE_MOVE,
-      handleType: DEFINE_IMAGE_OSTYPE_PLUS,
-    });
-  }
+  end(event, id) {}
 }

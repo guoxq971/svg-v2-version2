@@ -16,18 +16,24 @@ export class mock {
           id: uuid(),
           name: `图片${index}`,
           url: require("./img/pic_1.png"),
+          width: 100,
+          height: 100,
         };
       } else if (index === 1) {
         obj = {
           id: index,
           name: `图片${index}`,
           url: require("./img/pic_2.png"),
+          width: 100,
+          height: 100,
         };
       } else {
         obj = {
           id: uuid(),
           name: `图片${index}`,
           url: require("./img/pic_2.png"),
+          width: 100,
+          height: 100,
         };
       }
       return obj;
@@ -50,6 +56,7 @@ export class mock {
           d1: getD().d_1.d1,
           d2: getD().d_1.d2,
           d3: getD().d_1.d3,
+          imageList: [this.imageList()[0]],
         };
       } else {
         obj = {

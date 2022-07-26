@@ -1,5 +1,6 @@
 import { getOffset, getDistance } from "../util";
 import { DEFILE_IMAGE_OSTYPE_SCALE, DEFINE_IMAGE_OSTYPE_PLUS } from "../define";
+import { useSnap } from "@/components/designApp/useSnap";
 
 // 缩放
 export class imageScale {
@@ -9,44 +10,61 @@ export class imageScale {
   //记录的鼠标坐标
   x;
   y;
-  scale;
+  // 缩放比例
+  scale = 1;
 
   // 拖拽开始
-  start(imgSNode, x, y, event, image) {
+  start(x, y, event, imgId, svgId) {
+    let us = new useSnap(svgId, imgId);
+    let img = us.img();
     // 图片在body中的右下角坐标
-    let os = getOffset(imgSNode.img.node);
+    let os = getOffset(img.node);
     // 计算鼠标到设计图右下角的偏移量
     this.offset_x = x - os.x2;
     this.offset_y = y - os.y2;
     this.x = os.x2;
     this.y = os.y2;
-    this.scale = image.getScale();
   }
 
   // 拖拽中
-  move(imgSNode, dx, dy, x, y, event, image) {
+  move(dx, dy, x, y, event, imgId, svgId) {
+    let us = new useSnap(svgId, imgId);
+    let img = us.img();
+    let editMove = us.editMove();
+    let editRect = us.editRect();
+    let editRotate = us.editRotate();
+    let editScale = us.editScale();
+    let editDelete = us.editDelete();
     // 获取图片在body的坐标信息
-    let imgOs = getOffset(imgSNode.img.node);
+    let imgOs = getOffset(img.node);
     let x2 = x - this.offset_x;
     let y2 = y - this.offset_y;
     // 计算缩放比例
     let scale = getScale(imgOs.cx, imgOs.cy, this.x, this.y, x2, y2);
     this.scale *= scale;
     // 缩放
-    image.imageScale(scale, DEFINE_IMAGE_OSTYPE_PLUS, false);
+    let IM = img.attr("transform").localMatrix;
+    let bbox = img.getBBox();
+    IM.scale(scale, scale, bbox.cx, bbox.cy);
+    img.attr({ transform: IM });
+    // 同时改变其他元素
+    editRect.attr({
+      x: bbox.x,
+      y: bbox.y,
+      width: bbox.width,
+      height: bbox.height,
+    });
+    editMove.attr({ x: -18 + bbox.x, y: -18 + bbox.y });
+    editRotate.attr({ x: bbox.x2, y: -18 + bbox.y });
+    editScale.attr({ x: bbox.x2, y: bbox.y2 });
+    editDelete.attr({ x: -18 + bbox.x, y: bbox.y2 });
     // 重置鼠标坐标(第一次记录是在start中), 使得下次拖拽的时候可以计算出移动形成的缩放比例
     this.x = x2;
     this.y = y2;
   }
 
   // 拖拽结束
-  end(imgSNode, event, image) {
-    image.carryLog({
-      scale: this.scale,
-      type: DEFILE_IMAGE_OSTYPE_SCALE,
-      handleType: DEFINE_IMAGE_OSTYPE_PLUS,
-    });
-  }
+  end(event, imgId, svgId) {}
 }
 
 /*

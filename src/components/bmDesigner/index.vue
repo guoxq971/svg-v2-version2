@@ -81,13 +81,13 @@
               :key="item"
             ></div>
           </div>
-<!--          <div-->
-<!--            id="design"-->
-<!--            class="design-wrap"-->
-<!--            style="width: 750px; height: 550px"-->
-<!--            ref="designBd"-->
-<!--          ></div>-->
-          <designApp style="width: 750px; height: 550px"/>
+          <!--          <div-->
+          <!--            id="design"-->
+          <!--            class="design-wrap"-->
+          <!--            style="width: 750px; height: 550px"-->
+          <!--            ref="designBd"-->
+          <!--          ></div>-->
+          <designApp class="design-wrap" style="width: 750px; height: 550px" />
         </div>
       </div>
       <!-- 右侧-操作 -->
