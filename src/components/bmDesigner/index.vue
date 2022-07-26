@@ -81,12 +81,13 @@
               :key="item"
             ></div>
           </div>
-          <div
-            id="design"
-            class="design-wrap"
-            style="width: 750px; height: 550px"
-            ref="designBd"
-          ></div>
+<!--          <div-->
+<!--            id="design"-->
+<!--            class="design-wrap"-->
+<!--            style="width: 750px; height: 550px"-->
+<!--            ref="designBd"-->
+<!--          ></div>-->
+          <designApp style="width: 750px; height: 550px"/>
         </div>
       </div>
       <!-- 右侧-操作 -->
@@ -211,6 +212,7 @@
 </template>
 
 <script>
+import designApp from "../designApp/index";
 import bmSwiper from "./components/bmSwiper.vue";
 import bmInfo from "./components/bmInfo.vue";
 import bmSearchList from "./components/bmSearchList.vue";
@@ -228,7 +230,7 @@ import {
 } from "./util";
 
 export default {
-  components: { bmSwiper, bmInfo, bmSearchList },
+  components: { bmSwiper, bmInfo, bmSearchList, designApp },
   data() {
     return {
       // 当前激活的设计图id
@@ -340,16 +342,16 @@ export default {
     handlerScale() {},
   },
   mounted() {
-    QueueProxy();
-    DesignProxy({
-      imgClick: (id) => this.setVueActiveImgId(id),
-      imgDelete: (id) => this.handlerImgDel(id),
-      imgCopy: () => this.handlerCopy(),
-      selImage: (id) => this.picClick(id),
-      selBgImage: (color) => this.handlerApplyColor(color),
-      getLayerList: () => this.layerList,
-      updateLayerList: (list) => (this.layerList = list),
-    }).addProd(new Prod({ data: this.productList[1] }));
+    // QueueProxy();
+    // DesignProxy({
+    //   imgClick: (id) => this.setVueActiveImgId(id),
+    //   imgDelete: (id) => this.handlerImgDel(id),
+    //   imgCopy: () => this.handlerCopy(),
+    //   selImage: (id) => this.picClick(id),
+    //   selBgImage: (color) => this.handlerApplyColor(color),
+    //   getLayerList: () => this.layerList,
+    //   updateLayerList: (list) => (this.layerList = list),
+    // }).addProd(new Prod({ data: this.productList[1] }));
   },
 };
 </script>
