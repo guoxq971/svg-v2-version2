@@ -7,6 +7,8 @@ import {
 
 // 队列
 export class QueueManager {
+  // 记录执行次数(log)
+  index = 0;
   // 当前项
   currentQueue;
   // 撤销栈
@@ -14,13 +16,16 @@ export class QueueManager {
   // 回退栈
   redoQueue = [];
 
-  log() {
+  log(osType) {
+    this.index++;
     let btn = true;
     if (btn) {
+      let u = "===============================";
+      console.log(u + `任务队列-${this.index}-${osType}` + u);
       console.log("撤销栈", this.undoQueue);
       console.log("回退栈", this.redoQueue);
       console.log("当前项", this.currentQueue);
-      console.log("===============================");
+      console.log(u + u);
     }
   }
 
@@ -32,7 +37,6 @@ export class QueueManager {
    * 1. 如果old和new的id不同，则从新设置设计图激活id
    * */
   execute(newQueue, oldQueue, osType) {
-    let logMsg = "";
     // 如果当前项存在，才进行操作
     if (newQueue) {
       // 切换当前激活设计图操作
@@ -42,25 +46,36 @@ export class QueueManager {
       );
       // 循环对所有设计图操作
       newQueue.getImageList().forEach((imageQueue, index) => {
-        // 设计图
-        const image = imageQueue.getImage();
-        // 上一次操作的队列
-        const oldImageQueue = oldQueue.getImageList()[index];
-        // 设置移动
-        if (imageQueue.isCut(oldImageQueue)) {
-          image.imageMoveReal(imageQueue.getX(), imageQueue.getY());
-        } else {
-          const dx = imageQueue.getCx() - oldImageQueue.getCx();
-          const dy = imageQueue.getCy() - oldImageQueue.getCy();
-          image.imageMove(dx, dy);
-        }
-        // 设置旋转
-        image.imageRotateReal(imageQueue.getAngle());
-        // 设置缩放
-        image.imageScaleReal(imageQueue.getScale());
+        let image = imageQueue.getImage();
+        // 显示隐藏
+        image.layerTrigger(imageQueue.getIsShow(), false);
+        // 层级
+        // useDesign().swapLayerIndex(curSid, cutSid, type, layerList)
+        //矩阵
+        image.setX(imageQueue.getX());
+        image.setY(imageQueue.getY());
+        image.setAngle(imageQueue.getAngle());
+        image.setScale(imageQueue.getScale());
+        let dom = image.getDom();
+        dom.imgBd.attr("transform", imageQueue.imageProp.imgBdMatrix);
+        dom.editBd.attr("transform", imageQueue.imageProp.editBdMatrix);
+        dom.img.attr("transform", imageQueue.imageProp.imgMatrix);
+        let props = ["x", "y", "width", "height"];
+        let domes = [
+          "editRect",
+          "editMove",
+          "editRotate",
+          "editScale",
+          "editDelete",
+        ];
+        domes.forEach((domKey) => {
+          props.forEach((prop) => {
+            dom[domKey].attr(prop, imageQueue.imageProp[domKey][prop]);
+          });
+        });
       });
     }
-    this.log(logMsg, newQueue, oldQueue);
+    this.log(osType);
   }
 
   /*
@@ -118,7 +133,7 @@ export class QueueManager {
     }
     this.setCurrentQueue(queue);
     if (!this.isRedoQueueEmpty()) this.clearRedoQueue();
-    this.log();
+    this.log("add");
   }
 
   // 添加撤销栈
@@ -181,7 +196,7 @@ export class QueueManager {
   clear() {
     this.clearUndoQueue();
     this.clearRedoQueue();
-    this.log();
+    this.log("clear");
   }
 
   // 设置当前项

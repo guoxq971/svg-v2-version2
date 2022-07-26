@@ -10,6 +10,7 @@ export class Img extends DesignImageProp {
   type = DEFINE_IMAGE_TYPE_IMG;
 
   constructor(param) {
+    param = { ...param, type: DEFINE_IMAGE_TYPE_IMG };
     super(param);
     // 设置数据
     this.setData(param.data);

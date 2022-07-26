@@ -70,9 +70,57 @@ export function domUtilCutMode(type, prod) {
 }
 
 /*
+ * 切换图层-判断并提示
+ * @param {image} image 当前图层
+ * @param {image} cutImage 对比图层
+ * @param {boolean} type 操作类型 up\down
+ * @return {boolean} 是否可以切换 true:可以切换 false:不可以切换
+ * */
+export function domUtilCutLayerMsg(image, cutImage, type) {
+  let prod = useDesign().getProd();
+  // 1 背景图不能操作图层
+  if (image.isBg()) {
+    Message.warning("背景图不能进行移动的图层操作");
+    return;
+  }
+  // 2 设计图不能为空
+  if (prod.designSNodeGroup.length === 0) {
+    Message.warning("请先选择设计图");
+    return;
+  }
+  // 3 当前设计图只有一张
+  if (prod.designSNodeGroup.length === 1) {
+    Message.warning("当前只有一张设计图");
+    return;
+  }
+  // 4 当前设计图已经在顶层
+  if (
+    ["up", "top"].includes(type) &&
+    image.getLayerIndex() === useDesign().getMaxLayerIndex()
+  ) {
+    Message.warning("当前设计图已经在顶层");
+    return;
+  }
+  // 5 当前设计图已经在底层
+  if (
+    ["down", "bottom"].includes(type) &&
+    image.getLayerIndex() === useDesign().getMinLayerIndex()
+  ) {
+    Message.warning("当前设计图已经在底层");
+    return;
+  }
+  return true;
+}
+
+/*
+ * 切换图层-image的layerIndex切换
+ * */
+export function domUtilCutLayerDom(image, cutImage) {}
+
+/*
  * 图层操作
  * @param {string} type 操作类型 down\up
- * @param {any} sNode 设计图的SNode(class组)
+ * @param {any} sNodeDom 设计图的SNode(class组)
  * @param {boolean} msgFlag 是否显示消息
  * */
 export function domUtilLayer(type, sNode, msgFlag = true) {

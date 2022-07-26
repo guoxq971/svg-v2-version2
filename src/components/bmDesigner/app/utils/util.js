@@ -137,6 +137,16 @@ export const swapArrData = (index1, index2, arr) => {
   return arr;
 };
 
+/*
+ * 数组位置移动
+ * */
+export function ArrayMove(arr, index, targetIndex) {
+  let temp = arr[index];
+  arr.splice(index, 1);
+  arr.splice(targetIndex, 0, temp);
+  return arr;
+}
+
 // 图转canvas
 export function convertImageToCanvas(image) {
   let canvas = document.createElement("canvas");

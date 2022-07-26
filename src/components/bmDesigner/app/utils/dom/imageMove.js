@@ -1,5 +1,4 @@
-import { useQueue } from "../../index";
-import { DEFINE_IMAGE_OSTYPE_PLUS } from "@/components/bmDesigner/app/utils/define";
+import { DEFILE_IMAGE_OSTYPE_MOVE, DEFINE_IMAGE_OSTYPE_PLUS } from "../define";
 
 export class ImageMove {
   x;
@@ -29,7 +28,11 @@ export class ImageMove {
 
   end(imgSNode, event, image) {
     let bbox = image.getDom().imgBd.getBBox();
-    image.carryLog({ x: bbox.x, y: bbox.y });
-    useQueue().addQueue();
+    image.carryLog({
+      x: bbox.x,
+      y: bbox.y,
+      type: DEFILE_IMAGE_OSTYPE_MOVE,
+      handleType: DEFINE_IMAGE_OSTYPE_PLUS,
+    });
   }
 }

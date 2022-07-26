@@ -2,11 +2,13 @@ import { DesignImage } from "../../../entity/Image";
 import { Message } from "element-ui";
 import { getOffset } from "../../util";
 import {
+  DEFILE_IMAGE_OSTYPE_COPY,
   DEFILE_IMAGE_OSTYPE_MOVE,
   DEFILE_IMAGE_OSTYPE_ROTATE,
   DEFILE_IMAGE_OSTYPE_SCALE,
   DEFINE_IMAGE_OSTYPE_PLUS,
   DEFINE_IMAGE_OSTYPE_REAL,
+  defineCN,
 } from "../../define";
 import {
   domUtilImageMove,
@@ -14,6 +16,7 @@ import {
   domUtilImageRotate,
   domUtilImageScale,
 } from "../dom4Util";
+import { useQueue } from "../../../index";
 
 /*
  * 设计图属性
@@ -47,31 +50,52 @@ export class DesignImageProp extends DesignImage {
         "getBBox is abstract method, 这是个抽象方法，未实现, 现在用的是父类的默认方法，可能会出现错误"
       );
     }
-    return this.getDom().imgG.getBBox();
+    return bbox;
   }
 
-  // 执行一次记录
+  /*
+   * 执行一次记录
+   * @param {number} param.x 移动距离x
+   * @param {number} param.y 移动距离y
+   * @param {number} param.angle 旋转角度
+   * @param {number} param.scale 缩放比例
+   * @param {boolean} param.isAddQueue 是否执行一次添加队列
+   * @param {string} param.type 操作类型
+   * */
   carryLog(param = {}) {
-    let { angle, scale, x, y } = param;
+    let { angle, scale, x, y, isAddQueue, type, handleType } = param;
+    isAddQueue = isAddQueue !== false ? true : isAddQueue;
+    handleType = handleType ? handleType : "未知";
+    let logArr = [];
     // x,y
     if (
       !["", null, undefined].includes(x) &&
       !["", null, undefined].includes(y)
     ) {
-      console.log("carryLog move", x, y);
+      logArr.push("|| ", x, y);
       this.setX(Number(x));
       this.setY(Number(y));
     }
     // angle
     if (!["", null, undefined].includes(angle)) {
-      console.log("carryLog rotate", angle);
+      logArr.push("|| ", angle);
       this.setAngle(Number(angle));
     }
     // scale
     if (!["", null, undefined].includes(scale)) {
-      console.log("carryLog scale", scale);
+      logArr.push("|| ", scale);
       this.setScale(Number(scale));
     }
+    if (isAddQueue) {
+      logArr.push("|| 进入队列");
+      useQueue().addQueue();
+    } else {
+      logArr.push("|| 没有进入队列");
+    }
+    console.log(
+      `carryLog 操作类型：${defineCN(type)} ${handleType}`,
+      ...logArr
+    );
   }
 
   /*
@@ -96,20 +120,36 @@ export class DesignImageProp extends DesignImage {
    * @param {string} type 类型 plus=累加,real=操作到真实数值
    * @param {boolean} isLog 是否记录
    * */
-  imageMove(x, y, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
+  imageMove(
+    x,
+    y,
+    type = DEFINE_IMAGE_OSTYPE_PLUS,
+    isLog = true,
+    isAddQueue = true
+  ) {
     let dom = this.getDom();
     let M = domUtilImageMove(dom).getMatrix();
     if (type === DEFINE_IMAGE_OSTYPE_PLUS) {
-      domUtilImageMove(dom).move(x, y, M);
+      M.matrix.e += x;
+      M.matrix.f += y;
+      // domUtilImageMove(dom).move(x, y, M);
     }
     if (type === DEFINE_IMAGE_OSTYPE_REAL) {
-      domUtilImageMove(dom).move(-this.getX(), -this.getY(), M);
-      domUtilImageMove(dom).move(x, y, M);
+      // domUtilImageMove(dom).move(-this.getX(), -this.getY(), M);
+      // domUtilImageMove(dom).move(x, y, M);
+      M.matrix.e = x;
+      M.matrix.f = y;
     }
     domUtilImageMove(dom).setMatrix(M);
     // 记录值
     if (isLog) {
-      this.carryLog({ x, y });
+      this.carryLog({
+        handleType: type,
+        x,
+        y,
+        type: DEFILE_IMAGE_OSTYPE_MOVE,
+        isAddQueue,
+      });
     }
   }
 
@@ -118,8 +158,18 @@ export class DesignImageProp extends DesignImage {
    * @param {number} x 移动距离x
    * @param {number} y 移动距离y
    * */
-  imageMoveReal(x, y) {
-    this.imageHandleReal({ type: DEFILE_IMAGE_OSTYPE_MOVE, x, y });
+  imageMoveReal(x, y, isAddQueue = true, isLog = true) {
+    if (isAddQueue) {
+      this.imageHandleReal({ type: DEFILE_IMAGE_OSTYPE_MOVE, x, y });
+    } else {
+      this.imageHandleReal({
+        type: DEFILE_IMAGE_OSTYPE_MOVE,
+        x,
+        y,
+        isAddQueue,
+        isLog,
+      });
+    }
   }
 
   /*
@@ -137,6 +187,8 @@ export class DesignImageProp extends DesignImage {
     let type = param.type;
     let angle = this.getAngle();
     let scale = this.getScale();
+    let isAddQueue = param.isAddQueue !== false ? true : param.isAddQueue;
+    let isLog = param.isLog !== false ? true : param.isLog;
     // 将设计图回退到初始状态(这个不会记录)
     this.imageRotate(360 - angle, DEFINE_IMAGE_OSTYPE_PLUS, false);
     this.imageScale(1 / scale, DEFINE_IMAGE_OSTYPE_PLUS, false);
@@ -145,17 +197,33 @@ export class DesignImageProp extends DesignImage {
       case DEFILE_IMAGE_OSTYPE_MOVE:
         param.callback
           ? param.callback()
-          : this.imageMove(param.x, param.y, DEFINE_IMAGE_OSTYPE_REAL);
+          : this.imageMove(
+              param.x,
+              param.y,
+              DEFINE_IMAGE_OSTYPE_REAL,
+              isLog,
+              isAddQueue
+            );
         break;
       case DEFILE_IMAGE_OSTYPE_ROTATE:
         param.callback
           ? param.callback()
-          : this.imageRotate(param.angle, DEFINE_IMAGE_OSTYPE_REAL);
+          : this.imageRotate(
+              param.angle,
+              DEFINE_IMAGE_OSTYPE_REAL,
+              isLog,
+              isAddQueue
+            );
         break;
       case DEFILE_IMAGE_OSTYPE_SCALE:
         param.callback
           ? param.callback()
-          : this.imageScale(param.scale, DEFINE_IMAGE_OSTYPE_REAL);
+          : this.imageScale(
+              param.scale,
+              DEFINE_IMAGE_OSTYPE_REAL,
+              isLog,
+              isAddQueue
+            );
         break;
       default:
         console.error(`imageHandleReal 暂不支持的操作类型 ${type}`);
@@ -171,8 +239,14 @@ export class DesignImageProp extends DesignImage {
    * @param {number} angle 旋转角度
    * @param {string} type 类型 plus=累加,real=操作到真实数值
    * @param {boolean} isLog 是否记录
+   * @param {boolean} isAddQueue 是否添加队列
    * */
-  imageRotate(angle, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
+  imageRotate(
+    angle,
+    type = DEFINE_IMAGE_OSTYPE_PLUS,
+    isLog = true,
+    isAddQueue = true
+  ) {
     const dom = this.getDom();
     // 图片矩阵
     let M = domUtilImageRotate(dom).getMatrix();
@@ -203,15 +277,20 @@ export class DesignImageProp extends DesignImage {
         _angle = angle;
       }
       if (_angle === 360) _angle = 0;
-      this.carryLog({ angle: _angle });
+      this.carryLog({
+        angle: _angle,
+        type: DEFILE_IMAGE_OSTYPE_ROTATE,
+        isAddQueue: isAddQueue,
+        handleType: type,
+      });
     }
   }
 
   /*
    * 设计图旋转到指定角度
    * */
-  imageRotateReal(angle) {
-    this.imageRotate(angle, DEFINE_IMAGE_OSTYPE_REAL);
+  imageRotateReal(angle, isAddQueue = true, isLog = true) {
+    this.imageRotate(angle, DEFINE_IMAGE_OSTYPE_REAL, isLog, isAddQueue);
   }
 
   /*
@@ -220,7 +299,12 @@ export class DesignImageProp extends DesignImage {
    * @param {string} type 类型 plus=累加,real=操作到真实数值
    * @param {boolean} isLog 是否记录
    * */
-  imageScale(scale, type = DEFINE_IMAGE_OSTYPE_PLUS, isLog = true) {
+  imageScale(
+    scale,
+    type = DEFINE_IMAGE_OSTYPE_PLUS,
+    isLog = true,
+    isAddQueue = true
+  ) {
     let dom = this.getDom();
     // 图片矩阵
     let M = domUtilImageScale(dom).getMatrix();
@@ -244,15 +328,20 @@ export class DesignImageProp extends DesignImage {
       if (type === DEFINE_IMAGE_OSTYPE_REAL) {
         _scale = scale;
       }
-      this.carryLog({ scale: _scale });
+      this.carryLog({
+        scale: _scale,
+        type: DEFILE_IMAGE_OSTYPE_SCALE,
+        isAddQueue,
+        handleType: type,
+      });
     }
   }
 
   /*
    * 缩放设计图到指定比例
    * */
-  imageScaleReal(scale) {
-    this.imageScale(scale, DEFINE_IMAGE_OSTYPE_REAL);
+  imageScaleReal(scale, isAddQueue = true, isLog = true) {
+    this.imageScale(scale, DEFINE_IMAGE_OSTYPE_REAL, isLog, isAddQueue);
   }
 
   /*
@@ -297,6 +386,7 @@ export class DesignImageProp extends DesignImage {
       y: y,
       angle: angle,
       scale: scale,
+      type: DEFILE_IMAGE_OSTYPE_COPY,
     });
   }
 

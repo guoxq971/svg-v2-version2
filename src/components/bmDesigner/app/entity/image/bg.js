@@ -12,6 +12,7 @@ export class Bg extends DesignImage {
   color;
 
   constructor(param) {
+    param = { ...param, type: DEFINE_IMAGE_TYPE_BG };
     super(param);
     // 设置颜色
     this.setColor(param.data.color);

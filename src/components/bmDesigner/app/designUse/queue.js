@@ -11,7 +11,7 @@ export class UseQueue {
   /*
    * 添加一次队列
    * */
-  addQueue() {
+  addQueue(param = {}) {
     const prod = useDesign().getProd();
     const imageList = prod
       .getDesignSNodeGroup()
@@ -21,6 +21,7 @@ export class UseQueue {
       new CurrentQueue({
         imageList: imageList,
         actionImageId: prod.getImageActionId(),
+        ...param,
       })
     );
   }

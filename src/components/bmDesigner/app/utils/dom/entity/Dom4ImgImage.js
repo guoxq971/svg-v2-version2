@@ -20,6 +20,12 @@ import { Dom4ImageEntity } from "./Dom4ImageEntity";
  * 创建设计图
  * */
 export class Dom4ImgImage extends Dom4ImageEntity {
+  // 设计图clip
+  imgClip;
+  // 设计图边框
+  imgBd;
+  // 设计图
+  img;
   // 编辑边框
   editBd;
   // 编辑rect

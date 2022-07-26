@@ -1,6 +1,5 @@
 import { getOffset, getDistance } from "../util";
-import { DEFINE_IMAGE_OSTYPE_PLUS } from "@/components/bmDesigner/app/utils/define";
-import { useQueue } from "@/components/bmDesigner/app";
+import { DEFILE_IMAGE_OSTYPE_SCALE, DEFINE_IMAGE_OSTYPE_PLUS } from "../define";
 
 // 缩放
 export class imageScale {
@@ -42,8 +41,11 @@ export class imageScale {
 
   // 拖拽结束
   end(imgSNode, event, image) {
-    image.carryLog({ scale: this.scale });
-    useQueue().addQueue();
+    image.carryLog({
+      scale: this.scale,
+      type: DEFILE_IMAGE_OSTYPE_SCALE,
+      handleType: DEFINE_IMAGE_OSTYPE_PLUS,
+    });
   }
 }
 

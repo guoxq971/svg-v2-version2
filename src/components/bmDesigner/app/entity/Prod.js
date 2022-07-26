@@ -2,6 +2,7 @@ import { uuid } from "../utils/util";
 import { Dom4Prod } from "../utils/dom/entity/Dom4Prod";
 import { prodAdaptor } from "../utils/adaptor";
 import { DesignProxy } from "../index";
+import { DEFILE_IMAGE_OSTYPE_CREATE_IMAGE } from "../utils/define";
 
 // 产品类
 export class Prod {
@@ -98,8 +99,22 @@ export class Prod {
    * */
   addImage(image) {
     this.designSNodeGroup.push(image);
-    // useQueue().addQueueByMove(image);
+    setTimeout(() => {
+      image.carryLog({ type: DEFILE_IMAGE_OSTYPE_CREATE_IMAGE });
+    });
     return image;
+  }
+
+  /*
+   * 根据数组内的当前下标排序重新赋值-升序(不会处理背景图)
+   * */
+  sortByCurIndex() {
+    this.designSNodeGroup.forEach((image, index) => {
+      image.isNotBg() && image.setLayerIndex(index);
+    });
+  }
+  setDesignGroup(designGroup) {
+    this.designSNodeGroup = designGroup;
   }
   /*
    * 设计图中是否存在背景图
@@ -158,5 +173,11 @@ export class Prod {
     if (api.imgClick && typeof api.imgClick === "function") {
       api.imgClick(id);
     }
+    setTimeout(() => {
+      this.getDesignSNodeGroup().forEach((image) =>
+        image.getDom().imgG.attr("active", "")
+      );
+      this.getImage().getDom().imgG.attr("active", "这个是激活的");
+    });
   }
 }

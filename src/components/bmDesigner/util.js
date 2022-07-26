@@ -1,49 +1,16 @@
-import { SvgImgToBase64, swapArrData } from "./app/utils/util";
+import { ArrayMove, SvgImgToBase64, swapArrData } from "./app/utils/util";
 import saveSvgAsPng from "save-svg-as-png";
 import {
   bgImageAdaptor,
   imageAdapterV2,
   imageAdaptor,
 } from "./app/utils/adaptor";
-import { useDesign } from "./app/index";
-import { domUtilLayer } from "@/components/bmDesigner/app/utils/dom/dom4Util";
-
-// 图层数据下标调动
-export function layerIndex(result, layerList, data, type) {
-  if (result) {
-    // vue 的数据操作
-    let index = layerList.findIndex((item) => item.sid === data.sid);
-    if (type === "up") {
-      layerList = swapArrData(index, index - 1, layerList);
-    }
-    if (type === "down") {
-      layerList = swapArrData(index, index + 1, layerList);
-    }
-  }
-  return layerList;
-}
+import { useDesign, useQueue } from "./app/index";
+import { domUtilCutLayerMsg } from "./app/utils/dom/dom4Util";
 
 // 获取当前激活的图层设计图
 export function vueGetActiveImageLayer(layerList, id) {
   return layerList.find((item) => item.sid === id);
-}
-
-/*
- * 置顶\置底
- * @param {string} type 置顶\置底
- * @param {function} handlerLayer vue函数、图层上下移动
- * */
-export function vueSetTop(type, handlerLayer) {
-  if (useDesign().getActiveImage().isBg()) {
-    this.$message.warning("背景图不能置顶、置底");
-    return;
-  }
-  const fn = () => {
-    let result = handlerLayer(type, null, false);
-    if (result) fn();
-  };
-  // 递归 fn 函数，直到没有图层可以置顶或置底
-  fn();
 }
 
 // 设计图-选中
@@ -70,18 +37,55 @@ export function vueApplyBgColor(color, layerList) {
   }
 }
 
-// 图层-上下移动
-export function vueLayerUpDown(type, layerList, activeImgId, msgFlag, data) {
-  // 图层dom操作 + 提示信息
-  data = data ? data : vueGetActiveImageLayer(layerList, activeImgId);
-  let result = domUtilLayer(type, data.sNode, msgFlag);
-  // vue数据操作
-  let list = layerIndex(result, layerList, data, type);
-  // return这个是置顶、置底的时候用的
+/*
+ * 获取图层-根据sid在vue的layerList中获取
+ * @param {string} sid 设计图自定义id
+ * @return {object}
+ *            {number} index 数据在layerList中的下标
+ *            {object} data  在layerList中的数据
+ * */
+export function vueGetLayerListBySid(sid, layerList) {
+  let index = layerList.findIndex((data) => data.sid === sid);
   return {
-    result,
-    layerList: list,
+    index: index,
+    data: layerList[index],
   };
+}
+
+/*
+ * 图层-上下移动
+ * @param {string} type up\down\top\bottom
+ * @param {layerList} vue数据的图层列表
+ * @param {data} vue数据的当前操作数据
+ * */
+export function vueLayerUpDown(type, layerList, data) {
+  let curImage = data.sNode;
+  let curIndex = vueGetLayerListBySid(data.sid, layerList).index;
+  let cutImage;
+  let cutIndex;
+  let list;
+  if (type === "up") {
+    cutIndex = curIndex - 1;
+  } else if (type === "down") {
+    cutIndex = curIndex + 1;
+  } else if (type === "top") {
+    cutIndex = 0;
+  } else if (type === "bottom") {
+    cutIndex = layerList.length - 1;
+  }
+  cutImage = layerList[cutIndex]?.sNode;
+  const isOk = domUtilCutLayerMsg(curImage, cutImage, type);
+  if (isOk) {
+    let obj = useDesign().swapLayerIndex(
+      curImage.id,
+      cutImage.id,
+      type,
+      layerList
+    );
+    list = obj.list;
+  }
+  // 返回vue使用数据
+  return { isOk, list };
 }
 
 // 图层-删除

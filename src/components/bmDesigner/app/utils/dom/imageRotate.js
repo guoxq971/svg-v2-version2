@@ -1,6 +1,8 @@
 import { getQuadrant, getAngle, getMouseDirection, getOffset } from "../util";
-import { useQueue } from "../../index";
-import { DEFINE_IMAGE_OSTYPE_PLUS } from "@/components/bmDesigner/app/utils/define";
+import {
+  DEFILE_IMAGE_OSTYPE_ROTATE,
+  DEFINE_IMAGE_OSTYPE_PLUS,
+} from "../define";
 
 // 旋转
 export class imageRotate {
@@ -67,8 +69,11 @@ export class imageRotate {
     // 移除圆
     this.circle.remove();
     this.text.remove();
-    image.carryLog({ angle: this.angle });
-    useQueue().addQueue();
+    image.carryLog({
+      angle: this.angle,
+      type: DEFILE_IMAGE_OSTYPE_ROTATE,
+      handleType: DEFINE_IMAGE_OSTYPE_PLUS,
+    });
   }
 }
 

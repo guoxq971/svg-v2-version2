@@ -155,10 +155,10 @@
         <!-- 图层-按钮 -->
         <div class="layer-btn-group">
           <div class="btn-1">
-            <el-button class="item-btn" @click="handlerStick('up')"
+            <el-button class="item-btn" @click="handlerStick('top')"
               >置顶
             </el-button>
-            <el-button class="item-btn" @click="handlerStick('down')"
+            <el-button class="item-btn" @click="handlerStick('bottom')"
               >置底
             </el-button>
             <el-button class="item-btn" @click="handlerLayer('up')"
@@ -225,7 +225,6 @@ import {
   vueDeleteImage,
   vueLayerUpDown,
   vueSelectImage,
-  vueSetTop,
 } from "./util";
 
 export default {
@@ -270,8 +269,12 @@ export default {
     // 设计图-选中
     picClick(data) {
       let image = vueSelectImage(data, this.layerList);
-      useQueue().addQueue();
       return image;
+    },
+    // 产品-选中
+    prodClick(data) {
+      DesignProxy().addProdBefore();
+      DesignProxy().addProd(new Prod({ data: data }));
     },
     // 下载图片
     handlerDown() {
@@ -281,16 +284,15 @@ export default {
      * 图层-上/下移
      * @param {String} type up上/down下
      */
-    handlerLayer(type, data, msgFlag = true) {
-      let { result, layerList } = vueLayerUpDown(
-        type,
-        this.layerList,
-        this.activeImgId,
-        msgFlag,
-        data
-      );
-      this.layerList = layerList;
-      return result;
+    handlerLayer(type, data) {
+      let { isOk, list } = vueLayerUpDown(type, this.layerList, data);
+      if (isOk) this.layerList = list;
+    },
+    // 图层-置顶、置底
+    handlerStick(type) {
+      const data = useDesign().getActiveImage().getData();
+      let { isOk, list } = vueLayerUpDown(type, this.layerList, data);
+      if (isOk) this.layerList = list;
     },
     // 图层-删除
     handlerLayerDelClick(data) {
@@ -316,11 +318,6 @@ export default {
     setVueActiveImgId(id) {
       this.activeImgId = id;
     },
-    // 产品-选中
-    prodClick(data) {
-      DesignProxy().addProdBefore();
-      DesignProxy().addProd(new Prod({ data: data }));
-    },
     // 左侧-类型切换
     handlerActive(type) {
       this.typeActiveName = type;
@@ -334,15 +331,10 @@ export default {
     // 居中
     handlerAlign(type) {
       useDesign().getActiveImage().imageAlign(type);
-      useQueue().addQueue();
     },
     // 翻转
     async handlerRevere(type) {
       useDesign().getActiveImage().imageReverse(type);
-    },
-    // 置顶、置底
-    handlerStick(type) {
-      vueSetTop(type, this.handlerLayer);
     },
     // 缩放
     handlerScale() {},
