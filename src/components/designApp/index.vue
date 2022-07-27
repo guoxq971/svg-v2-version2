@@ -187,19 +187,20 @@ export default {
       let bbox = useUtil.getBBoxByImage(image.svgId, image.id, image);
       let us = new useSnap(image.svgId, image.id);
       let promise = new Promise((resolve) => resolve());
+      let matrix;
       promise
         .then(() => image.setRotate(0))
         .then(() => image.setScale(1))
+        .then(() => matrix = us.imgBd().attr("transform").localMatrix)
+        .then(() => image.setMove(0, 0))
         .then(() => {
-          let imgBd = us.imgBd();
-          let matrix = imgBd.attr("transform").localMatrix;
           let x = matrix.e;
           let y = matrix.f;
           let designGroupRect = us.designGroupRect();
-          let imgBdBox = getOffset(imgBd.node);
+          let imgBBox = us.img().getBBox();
           let groupRectBBox = designGroupRect.getBBox();
-          let alignX = groupRectBBox.cy - imgBdBox.w / 2;
-          let alignY = groupRectBBox.cx - imgBdBox.h / 2;
+          let alignX = groupRectBBox.cy - imgBBox.w / 2;
+          let alignY = groupRectBBox.cx - imgBBox.h / 2;
           // 垂直居中
           if (type === "x") y = alignY;
           // 水平居中

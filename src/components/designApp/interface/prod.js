@@ -200,24 +200,26 @@ export class DesignImage {
     let imgId = this.id;
     let svgId = this.svgId;
     let obj = useUtil.getMatrixByScaleReal(svgId, imgId, scale);
-    this.image.transform = obj.imgMatrix;
-    // 获取sNode节点
-    setTimeout(() => {
-      let us = new useSnap(svgId, imgId);
-      let bbox = us.img().getBBox();
-      this.editRect.x = bbox.x;
-      this.editRect.y = bbox.y;
-      this.editRect.width = bbox.width;
-      this.editRect.height = bbox.height;
-      this.imageMove.x = -18 + bbox.x;
-      this.imageMove.y = -18 + bbox.y;
-      this.imageRotate.x = bbox.x2;
-      this.imageRotate.y = -18 + bbox.y;
-      this.imageScale.x = bbox.x2;
-      this.imageScale.y = bbox.y2;
-      this.imageDelete.x = -18 + bbox.x;
-      this.imageDelete.y = bbox.y2;
-    });
+    let promise = new Promise((resolve) => resolve());
+    promise
+      .then(() => (this.image.transform = obj.imgMatrix))
+      .then(() => {
+        // 获取sNode节点
+        let us = new useSnap(svgId, imgId);
+        let bbox = us.img().getBBox();
+        this.editRect.x = bbox.x;
+        this.editRect.y = bbox.y;
+        this.editRect.width = bbox.width;
+        this.editRect.height = bbox.height;
+        this.imageMove.x = -18 + bbox.x;
+        this.imageMove.y = -18 + bbox.y;
+        this.imageRotate.x = bbox.x2;
+        this.imageRotate.y = -18 + bbox.y;
+        this.imageScale.x = bbox.x2;
+        this.imageScale.y = bbox.y2;
+        this.imageDelete.x = -18 + bbox.x;
+        this.imageDelete.y = bbox.y2;
+      });
   }
 }
 

@@ -79,6 +79,7 @@ export class useUtil {
     // 获取sNode节点
     let us = new useSnap(svgId, imgId);
     let img = us.img();
+    let bbox = img.getBBox();
     // 获取矩阵
     let orgMatrix = img.attr("transform").localMatrix;
     // 根据矩阵获取缩放比例
@@ -89,6 +90,7 @@ export class useUtil {
     // 返回矩阵
     return {
       imgMatrix: obj.imgMatrix,
+      bbox: bbox,
     };
   }
 
