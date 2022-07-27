@@ -1,14 +1,36 @@
 import { getAngle, getMouseDirection, getOffset, getQuadrant } from "../util";
 import { useSnap } from "../../../../designApp/useSnap";
+import { useUtil } from "@/components/designApp/useUtil";
 
 // 旋转
 export class imageRotate {
-  // 获取角度，根据传入的矩阵
+  /*
+   * 获取角度，根据传入的图片id
+   * @param {string} svgId svgId
+   * @param {string} imgId imgId
+   * @return {number} 角度
+   * */
+  static getRotateByImage(svgId, imgId) {
+    let us = new useSnap(svgId, imgId);
+    let orgMatrix = us.imgBd().attr("transform").localMatrix;
+    return imageRotate.getRotateByMatrix(orgMatrix);
+  }
+  /*
+   * 获取角度，根据传入的矩阵
+   * @param {object} matrix 矩阵
+   * @return {number} 角度
+   * */
   static getRotateByMatrix(matrix) {
     let { a, b, c, d, e, f } = matrix;
     return Math.atan2(b, a) * (180.0 / Math.PI);
   }
-  // 获取矩阵(imgBd、editBd)，根据指定的图片和指定的角度(真实)
+  /*
+   * 获取矩阵(imgBd、editBd)，根据指定的图片和指定的角度(真实)
+   * @param {string} svgId svgId
+   * @param {string} imgId imgId
+   * @param {number} angle 角度
+   * @return {object} {imgBdMatrix, editBdMatrix} 矩阵
+   * */
   static getMatrixByAngle(svgId, imgId, angle) {
     let us = new useSnap(svgId, imgId);
     let orgMatrix = us.imgBd().attr("transform").localMatrix;
@@ -24,12 +46,21 @@ export class imageRotate {
   }
   /*
    * 获取矩阵(单个)，根据矩阵和传入的角度(累加)
+   * @param {object} matrix 矩阵
+   * @param {number} angle 角度
+   * @param {number} cx 圆心x
+   * @param {number} cy 圆心y
+   * @return {object} 矩阵
    * */
   static getMatrixByMatrix(matrix, angle, cx, cy) {
     return matrix.rotate(angle, cx, cy);
   }
   /*
    * 获取矩阵(imgBd、editBd)，根据指定的图片和角度(累加)
+   * @param {string} svgId svgId
+   * @param {string} imgId imgId
+   * @param {number} angle 角度
+   * @return {object} {imgBdMatrix, editBdMatrix} 矩阵
    * */
   static getMatrix(svgId, imgId, angle) {
     let us = new useSnap(svgId, imgId);
@@ -51,6 +82,10 @@ export class imageRotate {
   }
   /*
    * 根据指定图片和角度，直接操作don的矩阵
+   * @param {string} svgId svgId
+   * @param {string} imgId imgId
+   * @param {number} angle 角度
+   * @return void
    * */
   static imgRotate(svgId, imgId, angle) {
     let us = new useSnap(svgId, imgId);
@@ -75,8 +110,9 @@ export class imageRotate {
   rotate = 0;
 
   // 拖拽开始
-  start(x, y, event, imgId, svgId, rotate) {
-    this.rotate = rotate;
+  start(x, y, event, imgId, svgId) {
+    let imageBBox = useUtil.getImageBBox(svgId, imgId);
+    this.rotate = imageBBox.rotate;
     let us = new useSnap(svgId, imgId);
     // 记录一次鼠标坐标
     this.x = x;

@@ -249,10 +249,11 @@ export default {
     // 将设计图回到初始状态
     imageFn(svgId, imgId) {
       let image = this.prod.getImage(imgId);
+      let imageRotate = image.getRotate();
       let that = this;
       function before() {
         // 设置旋转-回到0度
-        imageRotate.imgRotate(svgId, imgId, -image.rotate);
+        imageRotate.imgRotate(svgId, imgId, -imageRotate);
         // 设置缩放-回到1
         imageScale.imgScale(svgId, imgId, 1 / image.scale);
         // // 设置位置-回到初始位置
@@ -261,7 +262,7 @@ export default {
       }
       function after(type) {
         type !== "move" && ImageMove.imgMove(svgId, imgId, x, y);
-        type !== "rotate" && imageRotate.imgRotate(svgId, imgId, image.rotate);
+        type !== "rotate" && imageRotate.imgRotate(svgId, imgId, imageRotate);
         type !== "scale" && imageScale.imgScale(svgId, imgId, image.scale);
       }
       return {
@@ -272,10 +273,11 @@ export default {
     // 设计图-获取设计图的一些属性
     getBBoxByImage(svgId, imgId) {
       let image = this.prod.getImage(imgId);
+      let imageRotate = image.getRotate();
       // 设置缩放-回到1
       imageScale.imgScale(svgId, imgId, 1 / image.scale);
       // 设置旋转-回到0度
-      imageRotate.imgRotate(svgId, imgId, -image.rotate);
+      imageRotate.imgRotate(svgId, imgId, -imageRotate);
       let us = new useSnap(svgId, imgId);
       let imgBd = us.imgBd();
       let designGroupRect = us.designGroupRect();
@@ -285,7 +287,7 @@ export default {
       let x = matrix.e;
       let y = matrix.f;
       // 设置旋转-恢复
-      imageRotate.imgRotate(svgId, imgId, image.rotate);
+      imageRotate.imgRotate(svgId, imgId, imageRotate);
       // 设置缩放-恢复
       imageScale.imgScale(svgId, imgId, image.scale);
       return {
@@ -302,8 +304,6 @@ export default {
     layerAlign(type) {
       let image = this.prod.getActiveImage();
       let box = this.getTransformPara(this.id, image.id);
-      console.log(box);
-      console.log(this.prod);
       // let { x, y, alignX, alignY } = this.getBBoxByImage(this.id, image.id);
       // this.imageFn(this.id, image.id).before();
       // // 垂直居中
@@ -315,8 +315,9 @@ export default {
     },
     layerAlign2(type) {
       let image = this.prod.getActiveImage();
+      let imageRotate = image.getRotate();
       // 设置旋转-回到0度
-      imageRotate.imgRotate(this.id, image.id, -image.rotate);
+      imageRotate.imgRotate(this.id, image.id, -imageRotate);
       imageScale.imgScale(this.id, image.id, 1 / image.scale);
       let { x, y, alignX, alignY } = this.getBBoxByImage(this.id, image.id);
       ImageMove.imgMove(this.id, image.id, -x, -y);
@@ -325,7 +326,7 @@ export default {
       // 水平居中
       if (type === "y") y = alignY;
       ImageMove.imgMove(this.id, image.id, x, y);
-      imageRotate.imgRotate(this.id, image.id, image.rotate);
+      imageRotate.imgRotate(this.id, image.id, imageRotate);
       imageScale.imgScale(this.id, image.id, image.scale);
     },
     /*
@@ -334,7 +335,8 @@ export default {
      * */
     layerRotate(rotate) {
       let image = this.prod.getActiveImage();
-      let afterRotate = image.rotate + rotate;
+      let imageRotate = image.getRotate();
+      let afterRotate = imageRotate + rotate;
       afterRotate = afterRotate - (afterRotate % 45);
       image.setRotate(afterRotate);
     },

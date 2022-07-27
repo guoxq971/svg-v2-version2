@@ -177,7 +177,7 @@ export default {
         (...arg) => R.move(...arg, this.image.id, this.svgId, callbackRotate),
         (...arg) =>
           R.start(...arg, this.image.id, this.svgId, this.image.rotate),
-        (...arg) => R.end(...arg, this.image.id, this.svgId, callbackRotate)
+        (...arg) => R.end(...arg, this.image.id, this.svgId)
       );
       // 设计图的缩放事件
       let S = new imageScale();

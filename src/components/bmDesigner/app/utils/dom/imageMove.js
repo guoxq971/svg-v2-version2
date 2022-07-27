@@ -6,9 +6,9 @@ export class ImageMove {
     let imgBd = us.imgBd();
     let editBd = us.editBd();
     let matrix = imgBd.attr("transform").localMatrix;
-    // matrix.e += x;
-    // matrix.f += y;
-    matrix.translate(x, y);
+    matrix.e += x;
+    matrix.f += y;
+    // matrix.translate(x, y);
     imgBd.attr("transform", matrix);
     editBd.attr("transform", matrix);
   }

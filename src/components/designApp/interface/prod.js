@@ -1,5 +1,7 @@
 import { uuid } from "../../bmDesigner/app/utils/util";
 import { imageRotate } from "@/components/bmDesigner/app/utils/dom/imageRotate";
+import { useSnap } from "@/components/designApp/useSnap";
+import { useUtil } from "@/components/designApp/useUtil";
 
 export class ProdMode {
   static preview = "preview";
@@ -93,8 +95,6 @@ export class ProdInterface {
 export class DesignImage {
   // 显示隐藏
   isShow = true;
-  // 旋转角度
-  rotate = 0;
   // 缩放比例
   scale = 1;
   constructor(param) {
@@ -152,13 +152,25 @@ export class DesignImage {
   }
 
   /*
-   * 设计图的display属性 true-显示 false-隐藏
+   * 设计图的display属性
+   * @param {boolean} isShow true-显示 false-隐藏
    * */
   setIsShow(isShow) {
     this.isShow = isShow;
   }
   /*
-   * 设置旋转角度, 同步更改dom的矩阵
+   * 根据设计图的矩阵返回角度
+   * @param {number} rotate 角度
+   * */
+  getRotate() {
+    let imgId = this.id;
+    let svgId = this.svgId;
+    let { rotate } = useUtil.getImageBBox(svgId, imgId);
+    return rotate;
+  }
+  /*
+   * 根据角度更改dom的矩阵
+   * @param {number} rotate 角度
    * */
   setRotate(rotate) {
     let imgId = this.id;
@@ -170,7 +182,6 @@ export class DesignImage {
     );
     this.imageBd.transform = imgBdMatrix;
     this.editBd.transform = editBdMatrix;
-    this.rotate = rotate;
   }
   setScale(scale) {
     this.scale = scale;
