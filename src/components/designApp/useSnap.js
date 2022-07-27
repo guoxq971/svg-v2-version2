@@ -6,8 +6,20 @@ export class useSnap {
   svg() {
     return Snap(`#svg-${this.svgId}`);
   }
+  editProdRedPath() {
+    return Snap(`#svg-${this.svgId}`)?.select(`.editProdRedPath-${this.svgId}`);
+  }
+  editBdBackRect() {
+    return Snap(`#svg-${this.svgId}`)?.select(`.editBdBackRect-${this.svgId}`);
+  }
+  editBdRedPath() {
+    return Snap(`#svg-${this.svgId}`)?.select(`.editBdRedPath-${this.svgId}`);
+  }
   designGroup() {
     return Snap(`#svg-${this.svgId}`)?.select(`.designGroup-${this.svgId}`);
+  }
+  designGroupRect() {
+    return Snap(`#svg-${this.svgId}`)?.select(`.designGroupRect-${this.svgId}`);
   }
   img() {
     return Snap(`#svg-${this.svgId}`)?.select(`.img-${this.imgId}`);

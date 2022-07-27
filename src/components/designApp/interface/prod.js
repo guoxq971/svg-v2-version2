@@ -1,4 +1,5 @@
 import { uuid } from "../../bmDesigner/app/utils/util";
+import { imageRotate } from "@/components/bmDesigner/app/utils/dom/imageRotate";
 
 export class ProdMode {
   static preview = "preview";
@@ -16,26 +17,70 @@ export class ProdMode {
  * 产品
  * */
 export class ProdInterface {
-  constructor(param) {
+  constructor(param, vueThis, svgId) {
+    // 设计图id
+    this.svgId = svgId;
+    this.vueThis = vueThis;
+    // 模式
     this.mode = ProdMode.preview;
+    // 产品自定义id
     this.id = uuid();
+    // 当前激活的设计图自定义id
     this.activeId = "";
     param = { ...param, prodId: this.id };
-    this.imageList = [new DesignImage()];
-    this.imageList = param.imageList.map((item) => {
-      return new DesignImage(item);
+    // 设计图的列表
+    this.imageList = [];
+    param.imageList.forEach((item) => {
+      this.addImage(new DesignImage({ ...item, svgId: this.svgId }));
     });
-    this.activeId = this.imageList[0].id;
+    this.setActiveId(this.imageList[0]?.id || "");
+    // 产品的 d
     this.previewD1 = param.d1;
     this.editD2 = param.d2;
+    // 编辑-边框的红色虚线
     this.editBdRedPath = new EditBdRedPath(param);
+    // 预览-背景图
     this.previewBgImage = new PreviewBgImage(param);
+    // 设计图组
     this.designGroup = new DesignGroup(param);
+    // 预览-产品图
     this.previewProdImage = new PreviewProdImage(param);
+    // 编辑-产品的红色虚线
     this.editProdRedPath = new EditProdRedPath(param);
+    // 编辑-边框的黑色rect
     this.editBdBackRect = new EditBdBlackRect(param);
   }
-
+  getImage(imgId) {
+    return this.imageList.find((item) => item.id === imgId);
+  }
+  /*
+   * 获取当前激活的设计图
+   * */
+  getActiveImage() {
+    return this.imageList.find((item) => item.id === this.activeId);
+  }
+  /*
+   * 添加设计图
+   * */
+  addImage(image) {
+    let img = new DesignImage(image);
+    this.imageList.push(img);
+    this.vueThis.$emit("changeImageList", this.imageList);
+    return img;
+  }
+  /*
+   * 设置当前激活的设计图自定义id
+   * */
+  setActiveId(id) {
+    this.activeId = id;
+    this.vueThis.$emit("changeActiveId", id);
+  }
+  setEditMode() {
+    this.mode = ProdMode.edit;
+  }
+  setPreviewMode() {
+    this.mode = ProdMode.preview;
+  }
   isPreviewMode() {
     return this.mode === ProdMode.preview;
   }
@@ -46,10 +91,19 @@ export class ProdInterface {
 
 // 设计图
 export class DesignImage {
+  // 显示隐藏
+  isShow = true;
+  // 旋转角度
+  rotate = 0;
+  // 缩放比例
+  scale = 1;
   constructor(param) {
+    this.svgId = param.svgId;
+    this.imgData = param;
+    this.type = "img";
     this.id = uuid();
     this.imageBd = {
-      transform: "matrix(1,0,0,1,110,250)",
+      transform: "matrix(1,0,0,1,0,0)",
     };
     this.image = {
       href: param?.url,
@@ -59,7 +113,7 @@ export class DesignImage {
       height: param?.height,
     };
     this.editBd = {
-      transform: "matrix(1,0,0,1,110,250)",
+      transform: "matrix(1,0,0,1,0,0)",
     };
     this.editRect = {
       x: 0,
@@ -96,6 +150,31 @@ export class DesignImage {
       height: 18,
     };
   }
+
+  /*
+   * 设计图的display属性 true-显示 false-隐藏
+   * */
+  setIsShow(isShow) {
+    this.isShow = isShow;
+  }
+  /*
+   * 设置旋转角度, 同步更改dom的矩阵
+   * */
+  setRotate(rotate) {
+    let imgId = this.id;
+    let svgId = this.svgId;
+    let { imgBdMatrix, editBdMatrix } = imageRotate.getMatrixByAngle(
+      svgId,
+      imgId,
+      rotate
+    );
+    this.imageBd.transform = imgBdMatrix;
+    this.editBd.transform = editBdMatrix;
+    this.rotate = rotate;
+  }
+  setScale(scale) {
+    this.scale = scale;
+  }
 }
 
 // [编辑模式]边框红色虚线path
@@ -103,7 +182,7 @@ class EditBdRedPath {
   constructor(param) {
     this.type = ProdMode.edit;
     this.d = param.d2;
-    this.transform = "matrix(1,0,0,1,8.624,20.35)";
+    this.transform = "matrix(1,0,0,1,0,0)";
   }
 }
 
@@ -123,7 +202,7 @@ class PreviewBgImage {
 // 设计图-组合
 class DesignGroup {
   constructor(param) {
-    this.transform = "matrix(1,0,0,1,8.625,20.375)";
+    this.transform = "matrix(1,0,0,1,0,0)";
     this.rect = new DesignGroupRect(param);
   }
 }
@@ -157,7 +236,7 @@ class EditProdRedPath {
     this.type = ProdMode.edit;
     this.d = param.d3;
     this.style = "stroke-width: 1.8; stroke-dasharray: 5; display: none";
-    this.transform = "matrix(1,0,0,1,9.254,20.372)";
+    this.transform = "matrix(1,0,0,1,0,0)";
   }
 }
 
@@ -170,7 +249,7 @@ class EditBdBlackRect {
     this.width = 483.492;
     this.height = 461.256;
     this.style = "stroke-dasharray: 2; display: none";
-    this.transform = "matrix(1,0,0,1,8.254,19.372)";
+    this.transform = "matrix(1,0,0,1,0,0)";
   }
 }
 

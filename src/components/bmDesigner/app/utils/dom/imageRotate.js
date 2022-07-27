@@ -1,12 +1,69 @@
-import { getQuadrant, getAngle, getMouseDirection, getOffset } from "../util";
-import {
-  DEFILE_IMAGE_OSTYPE_ROTATE,
-  DEFINE_IMAGE_OSTYPE_PLUS,
-} from "../define";
+import { getAngle, getMouseDirection, getOffset, getQuadrant } from "../util";
 import { useSnap } from "../../../../designApp/useSnap";
 
 // 旋转
 export class imageRotate {
+  // 获取角度，根据传入的矩阵
+  static getRotateByMatrix(matrix) {
+    let { a, b, c, d, e, f } = matrix;
+    return Math.atan2(b, a) * (180.0 / Math.PI);
+  }
+  // 获取矩阵(imgBd、editBd)，根据指定的图片和指定的角度(真实)
+  static getMatrixByAngle(svgId, imgId, angle) {
+    let us = new useSnap(svgId, imgId);
+    let orgMatrix = us.imgBd().attr("transform").localMatrix;
+    let rotate = imageRotate.getRotateByMatrix(orgMatrix);
+    let obj = imageRotate.getMatrix(svgId, imgId, -rotate);
+    let { cx, cy } = obj;
+    let a = imageRotate.getMatrixByMatrix(obj.imgBdMatrix, angle, cx, cy);
+    let b = imageRotate.getMatrixByMatrix(obj.editBdMatrix, angle, cx, cy);
+    return {
+      imgBdMatrix: a,
+      editBdMatrix: b,
+    };
+  }
+  /*
+   * 获取矩阵(单个)，根据矩阵和传入的角度(累加)
+   * */
+  static getMatrixByMatrix(matrix, angle, cx, cy) {
+    return matrix.rotate(angle, cx, cy);
+  }
+  /*
+   * 获取矩阵(imgBd、editBd)，根据指定的图片和角度(累加)
+   * */
+  static getMatrix(svgId, imgId, angle) {
+    let us = new useSnap(svgId, imgId);
+    let img = us.img();
+    let imgBd = us.imgBd();
+    let editBd = us.editBd();
+    // 设置旋转
+    let IM = imgBd.attr("transform").localMatrix;
+    let EM = editBd.attr("transform").localMatrix;
+    let bbox = img.getBBox();
+    IM.rotate(angle, bbox.cx, bbox.cy);
+    EM.rotate(angle, bbox.cx, bbox.cy);
+    return {
+      cx: bbox.cx,
+      cy: bbox.cy,
+      imgBdMatrix: IM,
+      editBdMatrix: EM,
+    };
+  }
+  /*
+   * 根据指定图片和角度，直接操作don的矩阵
+   * */
+  static imgRotate(svgId, imgId, angle) {
+    let us = new useSnap(svgId, imgId);
+    let imgBd = us.imgBd();
+    let editBd = us.editBd();
+    let { imgBdMatrix, editBdMatrix } = imageRotate.getMatrix(
+      svgId,
+      imgId,
+      angle
+    );
+    imgBd.attr({ transform: imgBdMatrix });
+    editBd.attr({ transform: editBdMatrix });
+  }
   // 旋转角度
   text;
   //圆
@@ -18,7 +75,8 @@ export class imageRotate {
   rotate = 0;
 
   // 拖拽开始
-  start(x, y, event, imgId, svgId) {
+  start(x, y, event, imgId, svgId, rotate) {
+    this.rotate = rotate;
     let us = new useSnap(svgId, imgId);
     // 记录一次鼠标坐标
     this.x = x;
@@ -45,11 +103,9 @@ export class imageRotate {
   }
 
   // 拖拽中
-  move(dx, dy, x, y, event, imgId, svgId) {
+  move(dx, dy, x, y, event, imgId, svgId, callback) {
     let us = new useSnap(svgId, imgId);
     let img = us.img();
-    let imgBd = us.imgBd();
-    let editBd = us.editBd();
     // 获取图片在body的中心坐标
     let imgOs = getOffset(img.node);
     // 旋转角度
@@ -59,14 +115,12 @@ export class imageRotate {
       angle = getRotate(imgOs.cx, imgOs.cy, this.x, this.y, x, y);
     }
     this.rotate += angle;
+    if (this.rotate === 360) this.rotate = 0;
+    if (this.rotate > 360) this.rotate = this.rotate - 360;
+    if (this.rotate < 0) this.rotate = this.rotate + 360;
     // 设置旋转
-    let IM = imgBd.attr("transform").localMatrix;
-    let EM = editBd.attr("transform").localMatrix;
-    let bbox = img.getBBox();
-    IM.rotate(angle, bbox.cx, bbox.cy);
-    EM.rotate(angle, bbox.cx, bbox.cy);
-    imgBd.attr({ transform: IM });
-    editBd.attr({ transform: EM });
+    callback(this.rotate);
+    // imageRotate.imgRotate(svgId, imgId, angle);
     // 重置鼠标坐标(第一次记录是在start中), 使得下次拖拽的时候可以计算出移动形成的角度
     this.x = x;
     this.y = y;
@@ -74,10 +128,11 @@ export class imageRotate {
   }
 
   // 拖拽结束
-  end(event, imgId, svgId) {
+  end(event, imgId, svgId, callback) {
     // 移除圆
     this.circle.remove();
     this.text.remove();
+    // callback(this.rotate);
   }
 }
 

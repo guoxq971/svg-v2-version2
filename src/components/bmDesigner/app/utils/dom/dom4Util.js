@@ -5,25 +5,41 @@ import { Message } from "element-ui";
 import { utils } from "../../plugin/layerUtils";
 
 /*
+ * 获取移动到中心的矩阵
+ * */
+export function domUtilGetMatrixByMoveToCenter(sNode, x, y) {
+  let bbox = sNode.getBBox();
+  let M = sNode.attr("transform").localMatrix;
+  M.translate(x - bbox.x - bbox.width / 2, y - bbox.y - bbox.height / 2);
+  return {
+    matrix: M,
+  };
+}
+
+/*
  * 移动到指定位置(中心)
  * @param {SNode} snap 节点
  * @param {number} x 横坐标
  * @param {number} y 纵坐标
  * */
 export function domUtilMoveToCenter(SNode, x, y) {
+  let matrix;
   if (Snap.is(SNode, "array")) {
     SNode.forEach((item) => {
       let bbox = item.getBBox();
       let M = item.attr("transform").localMatrix;
       M.translate(x - bbox.x - bbox.width / 2, y - bbox.y - bbox.height / 2);
-      item.attr({ transform: M });
+      matrix = M;
+      // item.attr({ transform: M });
     });
   } else {
     let bbox = SNode.getBBox();
     let M = SNode.attr("transform").localMatrix;
     M.translate(x - bbox.x - bbox.width / 2, y - bbox.y - bbox.height / 2);
-    SNode.attr({ transform: M });
+    matrix = M;
+    // SNode.attr({ transform: M });
   }
+  return { matrix };
 }
 
 /*

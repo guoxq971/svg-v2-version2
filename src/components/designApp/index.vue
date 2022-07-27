@@ -1,9 +1,10 @@
 <template>
   <div style="position: relative">
-    <div style="position: absolute">
-      <el-button @click="prod.mode = 'edit'">编辑模式</el-button>
-      <el-button @click="prod.mode = 'preview'">预览模式</el-button>
-    </div>
+    <!--    <div style="position: absolute">-->
+    <!--      <el-button @click="prod.mode = 'edit'">编辑模式</el-button>-->
+    <!--      <el-button @click="prod.mode = 'preview'">预览模式</el-button>-->
+    <!--      <el-button>当前设计图id: {{ prod.activeId }}</el-button>-->
+    <!--    </div>-->
     <svg
       :id="`svg-${id}`"
       height="544"
@@ -22,6 +23,7 @@
         </clipPath>
       </defs>
       <path
+        :class="`editBdRedPath-${id}`"
         test="[编辑模式]边框红色虚线path"
         :style="{
           strokeDasharray: 5,
@@ -47,6 +49,7 @@
         :class="`designGroup-${id}`"
       >
         <rect
+          :class="`designGroupRect-${id}`"
           test="设计图组合rect"
           :x="prod.designGroup.rect.x"
           :y="prod.designGroup.rect.y"
@@ -72,6 +75,7 @@
           :mode="prod.mode"
           :image="item"
           :svg-id="id"
+          @imgClick="imgClick"
         />
       </g>
       <image
@@ -87,6 +91,7 @@
         }"
       ></image>
       <path
+        :class="`editProdRedPath-${id}`"
         test="[设计模式][产品的红色虚线]path-d3"
         :d="prod.editProdRedPath.d"
         fill="none"
@@ -99,6 +104,7 @@
         :transform="prod.editProdRedPath.transform"
       ></path>
       <rect
+        :class="`editBdBackRect-${id}`"
         test="[编辑模式]边框的黑色虚线rect"
         :x="prod.editBdBackRect.x"
         :y="prod.editBdBackRect.y"
@@ -120,7 +126,15 @@
 import { ProdInterface, ProdMode } from "./interface/prod";
 import { mock } from "../bmDesigner/mock";
 import designImage from "./componetns/designImage";
-import { uuid } from "../bmDesigner/app/utils/util";
+import { getOffset, uuid } from "../bmDesigner/app/utils/util";
+import { useSnap } from "@/components/designApp/useSnap";
+import { imageRotate } from "@/components/bmDesigner/app/utils/dom/imageRotate";
+import { ImageMove } from "@/components/bmDesigner/app/utils/dom/imageMove";
+import { imageScale } from "@/components/bmDesigner/app/utils/dom/imageScale";
+import {
+  domUtilGetMatrixByMoveToCenter,
+  domUtilMoveToCenter,
+} from "@/components/bmDesigner/app/utils/dom/dom4Util";
 
 export default {
   name: "index",
@@ -129,9 +143,12 @@ export default {
   },
   data() {
     return {
+      // svgId
       id: uuid(),
+      // 产品的工具类
       prodMode: ProdMode,
-      prod: new ProdInterface(mock.productList()[0]),
+      // 产品属性
+      prod: new ProdInterface(mock.productList()[0], this, this.id),
     };
   },
   computed: {
@@ -159,8 +176,279 @@ export default {
       };
     },
   },
+  methods: {
+    getMatrix2(matrix) {
+      let { a, b, c, d, e, f } = matrix;
+      let scale1 = Math.sqrt(a * a + b * b);
+      let scale2 = Math.sqrt(c * c + d * d);
+      let angle = Math.atan2(b, a) * (180.0 / Math.PI);
+      e = parseFloat(e);
+      f = parseFloat(f);
+      let radian = (-Math.PI / 180.0) * angle;
+      let lastX = Math.cos(radian) * e - Math.sin(radian) * f;
+      let LastY = Math.sin(radian) * e + Math.cos(radian) * f;
+      return {
+        ScaleX: scale1,
+        ScaleY: scale2,
+        Angle: angle,
+        MovX: lastX,
+        MovY: LastY,
+      };
+    },
+    getTransformPara(svgId, imgId) {
+      let us = new useSnap(svgId, imgId);
+      let imgBd = us.imgBd();
+      let img = us.img();
+      let imgMatrix = img.attr("transform").localMatrix;
+      let imgBdMatrix = imgBd.attr("transform").localMatrix;
+      let imgM = this.getMatrix2(imgMatrix);
+      let imgBdM = this.getMatrix2(imgBdMatrix);
+      return {
+        imgM,
+        imgBdM,
+      };
+    },
+    /*
+     * 解析matrix矩阵，0°-360°，返回旋转角度
+     * 当a=b||-a=b,0<=deg<=180
+     * 当-a+b=180,180<=deg<=270
+     * 当a+b=180,270<=deg<=360
+     *
+     * 当0<=deg<=180,deg=d;
+     * 当180<deg<=270,deg=180+c;
+     * 当270<deg<=360,deg=360-(c||d);
+     * */
+    getMatrix(svgId, imgId) {
+      let us = new useSnap(svgId, imgId);
+      let imgBd = us.imgBd();
+      let img = us.img();
+      let imgMatrix = img.attr("transform").localMatrix;
+      let imgBdMatrix = imgBd.attr("transform").localMatrix;
+      let { a, b, c, d, e, f } = imgBdMatrix;
+      let aa = Math.round((180 * Math.asin(a)) / Math.PI);
+      let bb = Math.round((180 * Math.acos(b)) / Math.PI);
+      let cc = Math.round((180 * Math.asin(c)) / Math.PI);
+      let dd = Math.round((180 * Math.acos(d)) / Math.PI);
+      let deg = 0;
+      if (aa == bb || -aa == bb) {
+        deg = dd;
+      } else if (-aa + bb == 180) {
+        deg = 180 + cc;
+      } else if (aa + bb == 180) {
+        deg = 360 - cc || 360 - dd;
+      }
+      let imgMatrixA = imgMatrix.a;
+      let imgMatrixB = imgMatrix.b;
+      let scale = Math.sqrt(imgMatrixA * imgMatrixA + imgMatrixB * imgMatrixB);
+      let rotate = deg >= 360 ? 0 : deg;
+      return {
+        scale,
+        rotate,
+      };
+    },
+    // 将设计图回到初始状态
+    imageFn(svgId, imgId) {
+      let image = this.prod.getImage(imgId);
+      let that = this;
+      function before() {
+        // 设置旋转-回到0度
+        imageRotate.imgRotate(svgId, imgId, -image.rotate);
+        // 设置缩放-回到1
+        imageScale.imgScale(svgId, imgId, 1 / image.scale);
+        // // 设置位置-回到初始位置
+        let { x, y } = that.getBBoxByImage(svgId, imgId);
+        ImageMove.imgMove(svgId, imgId, -x, -y);
+      }
+      function after(type) {
+        type !== "move" && ImageMove.imgMove(svgId, imgId, x, y);
+        type !== "rotate" && imageRotate.imgRotate(svgId, imgId, image.rotate);
+        type !== "scale" && imageScale.imgScale(svgId, imgId, image.scale);
+      }
+      return {
+        before: before,
+        after: after,
+      };
+    },
+    // 设计图-获取设计图的一些属性
+    getBBoxByImage(svgId, imgId) {
+      let image = this.prod.getImage(imgId);
+      // 设置缩放-回到1
+      imageScale.imgScale(svgId, imgId, 1 / image.scale);
+      // 设置旋转-回到0度
+      imageRotate.imgRotate(svgId, imgId, -image.rotate);
+      let us = new useSnap(svgId, imgId);
+      let imgBd = us.imgBd();
+      let designGroupRect = us.designGroupRect();
+      let imgBdBox = getOffset(imgBd.node);
+      let groupRectBBox = designGroupRect.getBBox();
+      let matrix = imgBd.attr("transform").localMatrix;
+      let x = matrix.e;
+      let y = matrix.f;
+      // 设置旋转-恢复
+      imageRotate.imgRotate(svgId, imgId, image.rotate);
+      // 设置缩放-恢复
+      imageScale.imgScale(svgId, imgId, image.scale);
+      return {
+        x,
+        y,
+        alignX: groupRectBBox.cy - imgBdBox.w / 2,
+        alignY: groupRectBBox.cx - imgBdBox.h / 2,
+      };
+    },
+    /*
+     * 图层-居中
+     * @param {number} type 居中类型 x-垂直 y-水平
+     * */
+    layerAlign(type) {
+      let image = this.prod.getActiveImage();
+      let box = this.getTransformPara(this.id, image.id);
+      console.log(box);
+      console.log(this.prod);
+      // let { x, y, alignX, alignY } = this.getBBoxByImage(this.id, image.id);
+      // this.imageFn(this.id, image.id).before();
+      // // 垂直居中
+      // if (type === "x") x = alignX;
+      // // 水平居中
+      // if (type === "y") y = alignY;
+      // ImageMove.imgMove(this.id, image.id, x, y);
+      // this.imageFn(this.id, image.id).after("move");
+    },
+    layerAlign2(type) {
+      let image = this.prod.getActiveImage();
+      // 设置旋转-回到0度
+      imageRotate.imgRotate(this.id, image.id, -image.rotate);
+      imageScale.imgScale(this.id, image.id, 1 / image.scale);
+      let { x, y, alignX, alignY } = this.getBBoxByImage(this.id, image.id);
+      ImageMove.imgMove(this.id, image.id, -x, -y);
+      // 垂直居中
+      if (type === "x") x = alignX;
+      // 水平居中
+      if (type === "y") y = alignY;
+      ImageMove.imgMove(this.id, image.id, x, y);
+      imageRotate.imgRotate(this.id, image.id, image.rotate);
+      imageScale.imgScale(this.id, image.id, image.scale);
+    },
+    /*
+     * 图层-旋转
+     * @param {number} rotate 旋转角度
+     * */
+    layerRotate(rotate) {
+      let image = this.prod.getActiveImage();
+      let afterRotate = image.rotate + rotate;
+      afterRotate = afterRotate - (afterRotate % 45);
+      image.setRotate(afterRotate);
+    },
+    /*
+     * 图层-显示/隐藏
+     * @param {string} imgId 设计图id
+     * */
+    layerIsShow(imgId) {
+      let image = this.prod.getImage(imgId);
+      image.setIsShow(!image.isShow);
+    },
+    /*
+     * 图层移动
+     * @param {String} type up上/down下/top置顶/bottom置底
+     * @param {string} imgId 图片id
+     * */
+    layerMove(type, imgId) {
+      if (this.prod.imageList === 1) {
+        this.$message.warning("目前只有一个图层，不能移动");
+        return;
+      }
+      let index;
+      let tempIndex;
+      function arrMove(index, tempIndex) {
+        let temp = this.prod.imageList[index];
+        this.$set(this.prod.imageList, index, this.prod.imageList[tempIndex]);
+        this.$set(this.prod.imageList, tempIndex, temp);
+      }
+      index = this.prod.imageList.findIndex((image) => image.id === imgId);
+      if (type === "up") {
+        if (index === this.prod.imageList.length - 1) {
+          this.$message.warning("已经是第一张了");
+          return;
+        }
+        tempIndex = index + 1;
+        arrMove(index, tempIndex);
+      } else if (type === "down") {
+        if (index === 0) {
+          this.$message.warning("已经是最后一张了");
+          return;
+        }
+        tempIndex = index - 1;
+        arrMove(index, tempIndex);
+      } else if (type === "top") {
+        if (index === this.prod.imageList.length - 1) {
+          this.$message.warning("已经是第一张了");
+          return;
+        }
+        tempIndex = this.prod.imageList.length - 1;
+        arrMove(index, tempIndex);
+      } else if (type === "bottom") {
+        if (index === 0) {
+          this.$message.warning("已经是最后一张了");
+          return;
+        }
+        tempIndex = 0;
+        arrMove(index, tempIndex);
+      }
+    },
+    /*
+     * 选中设计图
+     * @param {object} image 设计图的参数
+     * */
+    selImage(image) {
+      let img = this.prod.addImage({ ...image, svgId: this.id });
+      this.prod.setActiveId(img.id);
+      this.$nextTick(() => this.prod.setEditMode());
+    },
+    /*
+     * 切换产品
+     * @param {object} prod 产品的参数
+     * */
+    changeProd(prod) {
+      this.prod = new ProdInterface(prod);
+    },
+    /*
+     * 设计图的点击事件
+     * @param {string} imgId 图片id
+     * */
+    imgClick(imgId) {
+      this.prod.setActiveId(imgId);
+      this.prod.setEditMode();
+    },
+    /*
+     * 监听鼠标按下，进入预览模式
+     * */
+    addEventOverall() {
+      let that = this;
+      document.addEventListener("mousedown", function (e) {
+        // 该层级的 dom 上面出现自定义属性 bm
+        let isOk = e.path.some((item) => {
+          return item.getAttribute ? item?.getAttribute("bm") : "";
+        });
+        //当前鼠标按下的地方 = 当前是设计模式 && 不存在自定义属性 bm
+        if (that.prod.isEditMode() && !isOk) {
+          that.prod.setPreviewMode();
+        }
+      });
+    },
+  },
   mounted() {
-    console.log(this.prod);
+    this.$nextTick(() => {
+      let us = new useSnap(this.id);
+      let svg = us.svg();
+      let { cx, cy } = svg.getBBox();
+      // 移动到中心位置
+      let prod = this.prod;
+      let fn = domUtilGetMatrixByMoveToCenter;
+      prod.designGroup.transform = fn(us.designGroup(), cx, cy).matrix;
+      prod.editBdRedPath.transform = fn(us.editBdRedPath(), cx, cy).matrix;
+      prod.editBdBackRect.transform = fn(us.editBdBackRect(), cx, cy).matrix;
+      prod.editProdRedPath.transform = fn(us.editProdRedPath(), cx, cy).matrix;
+    });
+    this.addEventOverall();
   },
 };
 </script>

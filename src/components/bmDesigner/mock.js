@@ -56,7 +56,7 @@ export class mock {
           d1: getD().d_1.d1,
           d2: getD().d_1.d2,
           d3: getD().d_1.d3,
-          imageList: [this.imageList()[0]],
+          imageList: [],
         };
       } else {
         obj = {
@@ -71,6 +71,7 @@ export class mock {
           d1: getD().d_2.d1,
           d2: getD().d_2.d2,
           d3: getD().d_2.d3,
+          imageList: [],
         };
       }
       return obj;

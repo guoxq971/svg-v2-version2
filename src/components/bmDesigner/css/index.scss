@@ -105,6 +105,10 @@
           padding: 10px;
         }
       }
+      .layer-reverse {
+        display: flex;
+        flex-direction: column-reverse;
+      }
       // 图层
       .layer-group {
         width: 100%;

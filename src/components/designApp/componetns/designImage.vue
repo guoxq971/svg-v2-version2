@@ -1,6 +1,10 @@
 <!--设计图-->
 <template>
-  <g test="设计图最外层g" type="设计图">
+  <g
+    test="设计图最外层g"
+    type="设计图"
+    :style="{ display: image.isShow ? 'inline' : 'none' }"
+  >
     <g test="设计图的边框的边框-clip" :style="{ clipPath: `url(#${mode})` }">
       <g
         test="设计图的边框"
@@ -93,8 +97,9 @@
 import { DesignImage, ProdMode } from "../interface/prod";
 import { ImageMove } from "../../bmDesigner/app/utils/dom/imageMove";
 import { useSnap } from "../useSnap";
-import { imageRotate } from "@/components/bmDesigner/app/utils/dom/imageRotate";
-import { imageScale } from "@/components/bmDesigner/app/utils/dom/imageScale";
+import { imageRotate } from "../../bmDesigner/app/utils/dom/imageRotate";
+import { imageScale } from "../../bmDesigner/app/utils/dom/imageScale";
+import { useDesign } from "@/components/bmDesigner/app";
 
 export default {
   name: "designImage",
@@ -117,7 +122,7 @@ export default {
     // 设计图的属性
     image: {
       type: Object,
-      default: new DesignImage(),
+      default: {},
     },
   },
   data() {
@@ -128,15 +133,21 @@ export default {
   watch: {
     mode: {
       handler() {
-        if (ProdMode.isEdit(this.mode)) {
-          this.mountDrag();
-        } else if (ProdMode.isPreview(this.mode)) {
-          this.unmountDrag();
-        }
+        this.init();
       },
+      // immediate: true,
     },
   },
   methods: {
+    // 初始化
+    init() {
+      if (ProdMode.isEdit(this.mode)) {
+        this.mountDrag();
+      } else if (ProdMode.isPreview(this.mode)) {
+        this.unmountDrag();
+      }
+    },
+    // 卸载拖拽
     unmountDrag() {
       let us = new useSnap(this.svgId, this.image.id);
       let imgBd = us.imgBd();
@@ -146,6 +157,7 @@ export default {
       editRotate?.undrag();
       editScale?.undrag();
     },
+    // 挂载拖拽
     mountDrag() {
       let us = new useSnap(this.svgId, this.image.id);
       let imgBd = us.imgBd();
@@ -160,19 +172,33 @@ export default {
       );
       // 设计图的旋转事件
       let R = new imageRotate();
+      let callbackRotate = (rotate) => this.image.setRotate(rotate);
       editRotate?.drag(
-        (...arg) => R.move(...arg, this.image.id, this.svgId),
-        (...arg) => R.start(...arg, this.image.id, this.svgId),
-        (...arg) => R.end(...arg, this.image.id, this.svgId)
+        (...arg) => R.move(...arg, this.image.id, this.svgId, callbackRotate),
+        (...arg) =>
+          R.start(...arg, this.image.id, this.svgId, this.image.rotate),
+        (...arg) => R.end(...arg, this.image.id, this.svgId, callbackRotate)
       );
       // 设计图的缩放事件
       let S = new imageScale();
       editScale?.drag(
         (...arg) => S.move(...arg, this.image.id, this.svgId),
-        (...arg) => S.start(...arg, this.image.id, this.svgId),
-        (...arg) => S.end(...arg, this.image.id, this.svgId)
+        (...arg) =>
+          S.start(...arg, this.image.id, this.svgId, this.image.scale),
+        (...arg) =>
+          S.end(...arg, this.image.id, this.svgId, (scale) =>
+            this.image.setScale(scale)
+          )
       );
     },
+  },
+  mounted() {
+    let us = new useSnap(this.svgId, this.image.id);
+    let img = us.img();
+    img.mousedown(() => {
+      this.$emit("imgClick", this.image.id);
+    });
+    this.init();
   },
 };
 </script>

@@ -81,13 +81,18 @@
               :key="item"
             ></div>
           </div>
-          <!--          <div-->
-          <!--            id="design"-->
-          <!--            class="design-wrap"-->
-          <!--            style="width: 750px; height: 550px"-->
-          <!--            ref="designBd"-->
-          <!--          ></div>-->
-          <designApp class="design-wrap" style="width: 750px; height: 550px" />
+          <!--<div-->
+          <!--id="design"-->
+          <!--class="design-wrap"-->
+          <!--style="width: 750px; height: 550px"-->
+          <!--ref="designBd"/>-->
+          <designApp
+            ref="designApp"
+            class="design-wrap"
+            style="width: 750px; height: 550px"
+            @changeImageList="changeImageList"
+            @changeActiveId="changeActiveId"
+          />
         </div>
       </div>
       <!-- 右侧-操作 -->
@@ -109,17 +114,17 @@
           </div>
         </div>
         <!-- 图层 -->
-        <div class="layer-group">
+        <div class="layer-group layer-reverse">
           <div
-            :class="{ action: item.sNode.id === activeImgId }"
+            :class="{ action: item.id === activeImgId }"
             class="item-layer"
             v-for="item in layerList"
-            :key="item.sid"
+            :key="item.id"
           >
             <div class="img">
               <img
                 v-if="item.type === 'img'"
-                :src="item.url"
+                :src="item.imgData.url"
                 style="height: 25px"
                 alt=""
               />
@@ -130,7 +135,7 @@
               ></div>
             </div>
             <div class="name" @click="handlerLayerNameClick(item)">
-              {{ item.name }}
+              {{ item.imgData.name }}
             </div>
             <div class="btn-layer">
               <el-button class="item-btn">编辑</el-button>
@@ -235,12 +240,12 @@ export default {
     return {
       // 当前激活的设计图id
       activeImgId: "",
+      // 图层列表
+      layerList: [],
       // 产品列表
       productList: mock.productList(),
       // 图片列表
       imageList: mock.imageList(),
-      // 图层列表
-      layerList: [],
       // 类型激活
       typeActiveName: "pic",
       // 选择产品的激活
@@ -252,6 +257,67 @@ export default {
     };
   },
   methods: {
+    /*
+     * 产品的设计图激活发生改变
+     * */
+    changeActiveId(id) {
+      this.activeImgId = id;
+    },
+    /*
+     * 产品的设计图发生改变
+     * */
+    changeImageList(imgList) {
+      this.layerList = imgList;
+    },
+    // 设计图-选中
+    picClick(data) {
+      this.$refs.designApp.selImage(data);
+      // let image = vueSelectImage(data, this.layerList);
+      // return image;
+    },
+    // 产品-选中
+    prodClick(data) {
+      this.$refs.designApp.changeProd(data);
+      // DesignProxy().addProdBefore();
+      // DesignProxy().addProd(new Prod({ data: data }));
+    },
+    // 图层点击
+    handlerLayerNameClick(data) {
+      this.$refs.designApp.prod.setActiveId(data.id);
+      // useDesign().setImageActionId(data.sNode);
+    },
+    /*
+     * 图层-上/下移
+     * @param {String} type up上/down下
+     */
+    handlerLayer(type, data) {
+      this.$refs.designApp.layerMove(type, data.id);
+      // let { isOk, list } = vueLayerUpDown(type, this.layerList, data);
+      // if (isOk) this.layerList = list;
+    },
+    // 图层-置顶、置底
+    handlerStick(type) {
+      this.$refs.designApp.layerMove(type, this.$refs.designApp.prod.activeId);
+      // const data = useDesign().getActiveImage().getData();
+      // let { isOk, list } = vueLayerUpDown(type, this.layerList, data);
+      // if (isOk) this.layerList = list;
+    },
+    // 图层-显示、隐藏
+    handlerLayerShowClick(data) {
+      this.$refs.designApp.layerIsShow(data.id);
+      // data.sNode.layerTrigger();
+    },
+    // 图层-左/右旋45°
+    handlerRotate(type) {
+      let rotate = { left: -45, right: 45 }[type];
+      this.$refs.designApp.layerRotate(rotate);
+      // useDesign().getActiveImage().imageRotate(angle);
+    },
+    // 居中
+    handlerAlign(type) {
+      this.$refs.designApp.layerAlign(type);
+      // useDesign().getActiveImage().imageAlign(type);
+    },
     // 撤回、回退
     handlerQueue(type) {
       if (type === "undo") {
@@ -268,45 +334,13 @@ export default {
       vueApplyBgColor(color, this.layerList);
       useQueue().addQueue();
     },
-    // 设计图-选中
-    picClick(data) {
-      let image = vueSelectImage(data, this.layerList);
-      return image;
-    },
-    // 产品-选中
-    prodClick(data) {
-      DesignProxy().addProdBefore();
-      DesignProxy().addProd(new Prod({ data: data }));
-    },
     // 下载图片
     handlerDown() {
       downloadSvg();
     },
-    /*
-     * 图层-上/下移
-     * @param {String} type up上/down下
-     */
-    handlerLayer(type, data) {
-      let { isOk, list } = vueLayerUpDown(type, this.layerList, data);
-      if (isOk) this.layerList = list;
-    },
-    // 图层-置顶、置底
-    handlerStick(type) {
-      const data = useDesign().getActiveImage().getData();
-      let { isOk, list } = vueLayerUpDown(type, this.layerList, data);
-      if (isOk) this.layerList = list;
-    },
     // 图层-删除
     handlerLayerDelClick(data) {
       data.sNode.getProd().deleteImage(data.sid);
-    },
-    // 图层点击
-    handlerLayerNameClick(data) {
-      useDesign().setImageActionId(data.sNode);
-    },
-    // 图层-显示、隐藏
-    handlerLayerShowClick(data) {
-      data.sNode.layerTrigger();
     },
     // 图层-复制
     handlerCopy() {
@@ -324,15 +358,6 @@ export default {
     handlerActive(type) {
       this.typeActiveName = type;
       this.activeName = "1";
-    },
-    // 左/右旋
-    handlerRotate(type) {
-      let angle = { left: 360 - 45, right: 45 }[type];
-      useDesign().getActiveImage().imageRotate(angle);
-    },
-    // 居中
-    handlerAlign(type) {
-      useDesign().getActiveImage().imageAlign(type);
     },
     // 翻转
     async handlerRevere(type) {
