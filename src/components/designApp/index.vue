@@ -135,6 +135,7 @@ import {
   domUtilGetMatrixByMoveToCenter,
   domUtilMoveToCenter,
 } from "@/components/bmDesigner/app/utils/dom/dom4Util";
+import { useUtil } from "@/components/designApp/useUtil";
 
 export default {
   name: "index",
@@ -177,133 +178,36 @@ export default {
     },
   },
   methods: {
-    getMatrix2(matrix) {
-      let { a, b, c, d, e, f } = matrix;
-      let scale1 = Math.sqrt(a * a + b * b);
-      let scale2 = Math.sqrt(c * c + d * d);
-      let angle = Math.atan2(b, a) * (180.0 / Math.PI);
-      e = parseFloat(e);
-      f = parseFloat(f);
-      let radian = (-Math.PI / 180.0) * angle;
-      let lastX = Math.cos(radian) * e - Math.sin(radian) * f;
-      let LastY = Math.sin(radian) * e + Math.cos(radian) * f;
-      return {
-        ScaleX: scale1,
-        ScaleY: scale2,
-        Angle: angle,
-        MovX: lastX,
-        MovY: LastY,
-      };
-    },
-    getTransformPara(svgId, imgId) {
-      let us = new useSnap(svgId, imgId);
-      let imgBd = us.imgBd();
-      let img = us.img();
-      let imgMatrix = img.attr("transform").localMatrix;
-      let imgBdMatrix = imgBd.attr("transform").localMatrix;
-      let imgM = this.getMatrix2(imgMatrix);
-      let imgBdM = this.getMatrix2(imgBdMatrix);
-      return {
-        imgM,
-        imgBdM,
-      };
-    },
-    /*
-     * 解析matrix矩阵，0°-360°，返回旋转角度
-     * 当a=b||-a=b,0<=deg<=180
-     * 当-a+b=180,180<=deg<=270
-     * 当a+b=180,270<=deg<=360
-     *
-     * 当0<=deg<=180,deg=d;
-     * 当180<deg<=270,deg=180+c;
-     * 当270<deg<=360,deg=360-(c||d);
-     * */
-    getMatrix(svgId, imgId) {
-      let us = new useSnap(svgId, imgId);
-      let imgBd = us.imgBd();
-      let img = us.img();
-      let imgMatrix = img.attr("transform").localMatrix;
-      let imgBdMatrix = imgBd.attr("transform").localMatrix;
-      let { a, b, c, d, e, f } = imgBdMatrix;
-      let aa = Math.round((180 * Math.asin(a)) / Math.PI);
-      let bb = Math.round((180 * Math.acos(b)) / Math.PI);
-      let cc = Math.round((180 * Math.asin(c)) / Math.PI);
-      let dd = Math.round((180 * Math.acos(d)) / Math.PI);
-      let deg = 0;
-      if (aa == bb || -aa == bb) {
-        deg = dd;
-      } else if (-aa + bb == 180) {
-        deg = 180 + cc;
-      } else if (aa + bb == 180) {
-        deg = 360 - cc || 360 - dd;
-      }
-      let imgMatrixA = imgMatrix.a;
-      let imgMatrixB = imgMatrix.b;
-      let scale = Math.sqrt(imgMatrixA * imgMatrixA + imgMatrixB * imgMatrixB);
-      let rotate = deg >= 360 ? 0 : deg;
-      return {
-        scale,
-        rotate,
-      };
-    },
-    // 设计图-获取设计图的一些属性
-    getBBoxByImage(svgId, imgId) {
-      // let image = this.prod.getImage(imgId);
-      // let imageRotate = image.getRotate();
-      // // 设置缩放-回到1
-      // imageScale.imgScale(svgId, imgId, 1 / image.scale);
-      // // 设置旋转-回到0度
-      // imageRotate.imgRotate(svgId, imgId, -imageRotate);
-      // let us = new useSnap(svgId, imgId);
-      // let imgBd = us.imgBd();
-      // let designGroupRect = us.designGroupRect();
-      // let imgBdBox = getOffset(imgBd.node);
-      // let groupRectBBox = designGroupRect.getBBox();
-      // let matrix = imgBd.attr("transform").localMatrix;
-      // let x = matrix.e;
-      // let y = matrix.f;
-      // // 设置旋转-恢复
-      // imageRotate.imgRotate(svgId, imgId, imageRotate);
-      // // 设置缩放-恢复
-      // imageScale.imgScale(svgId, imgId, image.scale);
-      // return {
-      //   x,
-      //   y,
-      //   alignX: groupRectBBox.cy - imgBdBox.w / 2,
-      //   alignY: groupRectBBox.cx - imgBdBox.h / 2,
-      // };
-    },
     /*
      * 图层-居中
      * @param {number} type 居中类型 x-垂直 y-水平
      * */
     layerAlign(type) {
       let image = this.prod.getActiveImage();
-      let box = this.getTransformPara(this.id, image.id);
-      // let { x, y, alignX, alignY } = this.getBBoxByImage(this.id, image.id);
-      // this.imageFn(this.id, image.id).before();
-      // // 垂直居中
-      // if (type === "x") x = alignX;
-      // // 水平居中
-      // if (type === "y") y = alignY;
-      // ImageMove.imgMove(this.id, image.id, x, y);
-      // this.imageFn(this.id, image.id).after("move");
-    },
-    layerAlign2(type) {
-      // let image = this.prod.getActiveImage();
-      // let imageRotate = image.getRotate();
-      // // 设置旋转-回到0度
-      // imageRotate.imgRotate(this.id, image.id, -imageRotate);
-      // imageScale.imgScale(this.id, image.id, 1 / image.scale);
-      // let { x, y, alignX, alignY } = this.getBBoxByImage(this.id, image.id);
-      // ImageMove.imgMove(this.id, image.id, -x, -y);
-      // // 垂直居中
-      // if (type === "x") x = alignX;
-      // // 水平居中
-      // if (type === "y") y = alignY;
-      // ImageMove.imgMove(this.id, image.id, x, y);
-      // imageRotate.imgRotate(this.id, image.id, imageRotate);
-      // imageScale.imgScale(this.id, image.id, image.scale);
+      let bbox = useUtil.getBBoxByImage(image.svgId, image.id, image);
+      let us = new useSnap(image.svgId, image.id);
+      let promise = new Promise((resolve) => resolve());
+      promise
+        .then(() => image.setRotate(0))
+        .then(() => image.setScale(1))
+        .then(() => {
+          let imgBd = us.imgBd();
+          let matrix = imgBd.attr("transform").localMatrix;
+          let x = matrix.e;
+          let y = matrix.f;
+          let designGroupRect = us.designGroupRect();
+          let imgBdBox = getOffset(imgBd.node);
+          let groupRectBBox = designGroupRect.getBBox();
+          let alignX = groupRectBBox.cy - imgBdBox.w / 2;
+          let alignY = groupRectBBox.cx - imgBdBox.h / 2;
+          // 垂直居中
+          if (type === "x") y = alignY;
+          // 水平居中
+          if (type === "y") x = alignX;
+          image.setMove(x, y);
+        })
+        .then(() => image.setRotate(bbox.rotate))
+        .then(() => image.setScale(bbox.scale));
     },
     /*
      * 图层-旋转

@@ -1,17 +1,19 @@
 import { useSnap } from "@/components/designApp/useSnap";
+import { getOffset } from "@/components/bmDesigner/app/utils/util";
 
 export class useUtil {
   /*
    * 获取图片信息，根据传入的图片id
    * @param {String} svgId 设计器的svgId
    * @param {String} imgId 图片id
-   * @return {Object} 图片信息
+   * @return {Object} 图片信息 {rotate, scale}
    * */
   static getBBoxByImage(svgId, imgId) {
     // 获取sNode节点
     let us = new useSnap(svgId, imgId);
     let imgBd = us.imgBd();
     let img = us.img();
+    let alignX, alignY;
     // 获取原始矩阵
     let orgMatrixImgBd = imgBd.attr("transform").localMatrix;
     let orgMatrixImg = img.attr("transform").localMatrix;
@@ -71,7 +73,7 @@ export class useUtil {
    * @param {string} svgId svgId
    * @param {string} imgId imgId
    * @param {number} scale 缩放比例
-   * @return {object} {imgMatrix, bbox} {矩阵, sNode.getBBox}
+   * @return {object} {imgMatrix} {矩阵}
    * */
   static getMatrixByScaleReal(svgId, imgId, scale) {
     // 获取sNode节点
@@ -87,7 +89,6 @@ export class useUtil {
     // 返回矩阵
     return {
       imgMatrix: obj.imgMatrix,
-      bbox: img.getBBox(),
     };
   }
 
@@ -196,4 +197,22 @@ export class useUtil {
       editBdMatrix: EM,
     };
   }
+}
+
+function getAlign(svgId, imgId, image) {
+  // 记录原始旋转角度
+  let orgBBox = useUtil.getBBoxByImage(svgId, imgId);
+  image.setRotate(0);
+  // 获取sNode节点
+  let us = new useSnap(svgId, imgId);
+  let imgBd = us.imgBd();
+  let designGroupRect = us.designGroupRect();
+  let groupRectBBox = designGroupRect.getBBox();
+  let imgBdOs = getOffset(imgBd.node);
+  image.setRotate(orgBBox.rotate);
+
+  return {
+    alignX: groupRectBBox.cy - imgBdOs.w / 2,
+    alignY: groupRectBBox.cx - imgBdOs.h / 2,
+  };
 }

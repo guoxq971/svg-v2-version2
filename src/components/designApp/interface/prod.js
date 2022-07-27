@@ -95,8 +95,6 @@ export class ProdInterface {
 export class DesignImage {
   // 显示隐藏
   isShow = true;
-  // 缩放比例
-  scale = 1;
   constructor(param) {
     this.svgId = param.svgId;
     this.imgData = param;
@@ -203,19 +201,23 @@ export class DesignImage {
     let svgId = this.svgId;
     let obj = useUtil.getMatrixByScaleReal(svgId, imgId, scale);
     this.image.transform = obj.imgMatrix;
-    this.editRect.x = obj.bbox.x;
-    this.editRect.y = obj.bbox.y;
-    this.editRect.width = obj.bbox.width;
-    this.editRect.height = obj.bbox.height;
-    this.imageMove.x = -18 + obj.bbox.x;
-    this.imageMove.y = -18 + obj.bbox.y;
-    this.imageRotate.x = obj.bbox.x2;
-    this.imageRotate.y = -18 + obj.bbox.y;
-    this.imageScale.x = obj.bbox.x2;
-    this.imageScale.y = obj.bbox.y2;
-    this.imageDelete.x = -18 + obj.bbox.x;
-    this.imageDelete.y = obj.bbox.y2;
-    this.scale = scale;
+    // 获取sNode节点
+    setTimeout(() => {
+      let us = new useSnap(svgId, imgId);
+      let bbox = us.img().getBBox();
+      this.editRect.x = bbox.x;
+      this.editRect.y = bbox.y;
+      this.editRect.width = bbox.width;
+      this.editRect.height = bbox.height;
+      this.imageMove.x = -18 + bbox.x;
+      this.imageMove.y = -18 + bbox.y;
+      this.imageRotate.x = bbox.x2;
+      this.imageRotate.y = -18 + bbox.y;
+      this.imageScale.x = bbox.x2;
+      this.imageScale.y = bbox.y2;
+      this.imageDelete.x = -18 + bbox.x;
+      this.imageDelete.y = bbox.y2;
+    });
   }
 }
 

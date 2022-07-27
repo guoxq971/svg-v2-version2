@@ -1,4 +1,3 @@
-import { useSnap } from "../../../../designApp/useSnap";
 import { useUtil } from "@/components/designApp/useUtil";
 
 export class ImageMove {
