@@ -222,7 +222,7 @@ import bmSwiper from "./components/bmSwiper.vue";
 import bmInfo from "./components/bmInfo.vue";
 import bmSearchList from "./components/bmSearchList.vue";
 import { mock } from "./mock";
-import { useDesign, useQueue } from "./app/index";
+import { useDesign } from "./app/index";
 import {
   downloadSvg,
   predefineColors,
@@ -230,6 +230,7 @@ import {
   vueCopyImage,
   vueDeleteImage,
 } from "./util";
+import { useQueue } from "@/components/designApp/queue";
 
 export default {
   components: { bmSwiper, bmInfo, bmSearchList, designApp },
@@ -268,7 +269,9 @@ export default {
     },
     // 设计图-选中
     picClick(data) {
+      const that = this;
       this.$refs.designApp.selImage(data);
+      useQueue().addQueue(this.$refs.designApp.prod, "添加设计图");
     },
     // 产品-选中
     prodClick(data) {
@@ -277,6 +280,8 @@ export default {
     // 图层点击
     handlerLayerNameClick(data) {
       this.$refs.designApp.prod.setActiveId(data.id);
+      this.$refs.designApp.prod.setEditMode();
+      useQueue().addQueue(this.$refs.designApp.prod, "切换激活设计图");
     },
     /*
      * 图层-上/下移
@@ -284,39 +289,47 @@ export default {
      */
     handlerLayer(type, data) {
       this.$refs.designApp.layerMove(type, data.id);
+      useQueue().addQueue(this.$refs.designApp.prod, `图层${type}移动`);
     },
     // 图层-置顶、置底
     handlerStick(type) {
       this.$refs.designApp.layerMove(type, this.$refs.designApp.prod.activeId);
+      useQueue().addQueue(this.$refs.designApp.prod, `图层${type}移动`);
     },
     // 图层-显示、隐藏
     handlerLayerShowClick(data) {
       this.$refs.designApp.layerIsShow(data.id);
+      useQueue().addQueue(this.$refs.designApp.prod, `图层${type}显示`);
     },
     // 图层-左/右旋45°
     handlerRotate(type) {
       let rotate = { left: -45, right: 45 }[type];
       this.$refs.designApp.layerRotate(rotate);
+      useQueue().addQueue(this.$refs.designApp.prod, `图层${type}旋转`);
     },
     // 居中
     handlerAlign(type) {
       this.$refs.designApp.layerAlign(type);
+      useQueue().addQueue(this.$refs.designApp.prod, `图层${type}居中`);
     },
     // 撤回、回退
     handlerQueue(type) {
       if (type === "undo") {
-        useQueue().undo();
+        let prod = useQueue().undo();
+        Object.keys(prod).forEach((key) => {
+          this.$set(this.$refs.designApp.prod, key, prod[key]);
+        });
       } else if (type === "redo") {
-        useQueue().redo();
+        //   useQueue().redo();
       } else if (type === "clear") {
-        useQueue().clear();
+        //   useQueue().clear();
       }
     },
     // 背景色-应用
     handlerApplyColor(color) {
       color = color || this.color;
       vueApplyBgColor(color, this.layerList);
-      useQueue().addQueue();
+      // useQueue().addQueue();
     },
     // 下载图片
     handlerDown() {
@@ -350,8 +363,7 @@ export default {
     // 缩放
     handlerScale() {},
   },
-  mounted() {
-  },
+  mounted() {},
 };
 </script>
 

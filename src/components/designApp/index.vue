@@ -75,6 +75,7 @@
           :mode="prod.mode"
           :image="item"
           :svg-id="id"
+          :prod="prod"
           @imgClick="imgClick"
         />
       </g>
@@ -129,6 +130,7 @@ import designImage from "./componetns/designImage";
 import { uuid } from "../bmDesigner/app/utils/util";
 import { useSnap } from "./useSnap";
 import { useUtil } from "./useUtil";
+import { useQueue } from "@/components/designApp/queue";
 
 export default {
   name: "index",
@@ -142,7 +144,7 @@ export default {
       // 产品的工具类
       prodMode: ProdMode,
       // 产品属性
-      prod: new ProdInterface(mock.productList()[0], this, this.id),
+      prod: new ProdInterface(mock.productList()[0], this),
       queue: null,
     };
   },
@@ -169,6 +171,13 @@ export default {
         }
         return display;
       };
+    },
+  },
+  watch:{
+    "prod.imageList":{
+      handler(list){
+        this.$emit("changeImageList", list);
+      }
     },
   },
   methods: {
@@ -311,27 +320,41 @@ export default {
         }
       });
     },
+    moveCenter() {
+      this.$nextTick(() => {
+        let us = new useSnap(this.id);
+        let svg = us.svg();
+        let { cx, cy } = svg.getBBox();
+        let prod = this.prod;
+        let fn = function (sNode, x, y) {
+          let bbox = sNode.getBBox();
+          let M = sNode.attr("transform").localMatrix;
+          M.translate(
+            x - bbox.x - bbox.width / 2,
+            y - bbox.y - bbox.height / 2
+          );
+          return {
+            matrix: M,
+          };
+        };
+        prod.designGroup.transform = fn(us.designGroup(), cx, cy).matrix;
+        prod.editBdRedPath.transform = fn(us.editBdRedPath(), cx, cy).matrix;
+        prod.editBdBackRect.transform = fn(us.editBdBackRect(), cx, cy).matrix;
+        prod.editProdRedPath.transform = fn(
+          us.editProdRedPath(),
+          cx,
+          cy
+        ).matrix;
+      });
+    },
   },
   mounted() {
     this.$nextTick(() => {
-      let us = new useSnap(this.id);
-      let svg = us.svg();
-      let { cx, cy } = svg.getBBox();
-      // 移动到中心位置
-      let prod = this.prod;
-      let fn = function (sNode, x, y) {
-        let bbox = sNode.getBBox();
-        let M = sNode.attr("transform").localMatrix;
-        M.translate(x - bbox.x - bbox.width / 2, y - bbox.y - bbox.height / 2);
-        return {
-          matrix: M,
-        };
-      };
-      prod.designGroup.transform = fn(us.designGroup(), cx, cy).matrix;
-      prod.editBdRedPath.transform = fn(us.editBdRedPath(), cx, cy).matrix;
-      prod.editBdBackRect.transform = fn(us.editBdBackRect(), cx, cy).matrix;
-      prod.editProdRedPath.transform = fn(us.editProdRedPath(), cx, cy).matrix;
+      useQueue().addQueue(this.prod, "初始化添加一个产品");
     });
+    // 移动到中心位置
+    this.moveCenter();
+    // 监听鼠标按下
     this.addEventOverall();
   },
 };

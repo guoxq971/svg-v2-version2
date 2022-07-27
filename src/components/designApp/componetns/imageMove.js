@@ -19,5 +19,7 @@ export class ImageMove {
     this.y = y;
   }
 
-  end(event, id) {}
+  end(event, id, svgId, callback) {
+    callback();
+  }
 }

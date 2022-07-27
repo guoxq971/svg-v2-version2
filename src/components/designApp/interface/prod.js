@@ -18,9 +18,12 @@ export class ProdMode {
  * 产品
  * */
 export class ProdInterface {
-  constructor(param, vueThis, svgId) {
+  constructor(param, vueThis) {
+    let that = this;
+    vueThis.$nextTick(() => {
+      that.svgId = vueThis.id;
+    });
     // 设计图id
-    this.svgId = svgId;
     this.vueThis = vueThis;
     // 模式
     this.mode = ProdMode.preview;
@@ -66,7 +69,6 @@ export class ProdInterface {
   addImage(image) {
     let img = new DesignImage(image);
     this.imageList.push(img);
-    this.vueThis.$emit("changeImageList", this.imageList);
     return img;
   }
   /*

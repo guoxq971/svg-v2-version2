@@ -49,7 +49,9 @@ export class imageScale {
   }
 
   // 拖拽结束
-  end(event, imgId, svgId) {}
+  end(event, imgId, svgId, callback) {
+    callback();
+  }
 }
 
 /*

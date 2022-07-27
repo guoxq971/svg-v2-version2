@@ -100,10 +100,17 @@ import { ImageMove } from "./imageMove";
 import { useSnap } from "../useSnap";
 import { imageRotate } from "./imageRotate";
 import { imageScale } from "./imageScale";
+import { useQueue } from "@/components/designApp/queue";
 
 export default {
   name: "designImage",
   props: {
+    prod: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
     // svgId
     svgId: {
       type: String,
@@ -166,13 +173,14 @@ export default {
       let imgBd = us.imgBd();
       let editRotate = us.editRotate();
       let editScale = us.editScale();
+      let callbackEnd = (type) => useQueue().addQueue(this.prod, type);
       // 移动设计图
       let M = new ImageMove();
       let callbackRMove = (_x, _y) => image.setMove(_x, _y);
       imgBd?.drag(
         (...arg) => M.move(...arg, imgId, svgId, callbackRMove),
         (...arg) => M.start(...arg, imgId, svgId),
-        (...arg) => M.end(...arg, imgId, svgId)
+        (...arg) => M.end(...arg, imgId, svgId, () => callbackEnd("移动"))
       );
       // 设计图的旋转事件
       let R = new imageRotate();
@@ -180,7 +188,7 @@ export default {
       editRotate?.drag(
         (...arg) => R.move(...arg, imgId, svgId, callbackRotate),
         (...arg) => R.start(...arg, imgId, svgId),
-        (...arg) => R.end(...arg, imgId, svgId)
+        (...arg) => R.end(...arg, imgId, svgId, () => callbackEnd("旋转"))
       );
       // 设计图的缩放事件
       let S = new imageScale();
@@ -188,7 +196,7 @@ export default {
       editScale?.drag(
         (...arg) => S.move(...arg, imgId, svgId, callbackScale),
         (...arg) => S.start(...arg, imgId, svgId),
-        (...arg) => S.end(...arg, imgId, svgId)
+        (...arg) => S.end(...arg, imgId, svgId, () => callbackEnd("缩放"))
       );
     },
   },

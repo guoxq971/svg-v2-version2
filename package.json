@@ -15,17 +15,18 @@
     "default-passive-events": "^2.0.0",
     "element-ui": "^2.15.9",
     "hotkeys-js": "^3.9.4",
+    "imports-loader": "^0.8.0",
     "save-svg-as-png": "^1.4.17",
     "snapsvg": "^0.5.1",
     "swiper": "^3.4.2",
     "vue": "^2.6.14",
-    "vue-router": "^3.5.1",
-    "imports-loader": "^0.8.0"
+    "vue-router": "^3.5.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
+    "lodash": "^4.17.21",
     "prettier": "2.7.1",
     "sass": "^1.32.7",
     "sass-loader": "^12.0.0",

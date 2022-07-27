@@ -65,10 +65,11 @@ export class imageRotate {
   }
 
   // 拖拽结束
-  end(event, imgId, svgId) {
+  end(event, imgId, svgId, callback) {
     // 移除圆和文字
     this.circle.remove();
     this.text.remove();
+    callback();
   }
 }
 
