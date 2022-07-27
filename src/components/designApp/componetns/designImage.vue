@@ -100,6 +100,7 @@ import { useSnap } from "../useSnap";
 import { imageRotate } from "../../bmDesigner/app/utils/dom/imageRotate";
 import { imageScale } from "../../bmDesigner/app/utils/dom/imageScale";
 import { useDesign } from "@/components/bmDesigner/app";
+import { useUtil } from "@/components/designApp/useUtil";
 
 export default {
   name: "designImage",
@@ -159,36 +160,35 @@ export default {
     },
     // 挂载拖拽
     mountDrag() {
-      let us = new useSnap(this.svgId, this.image.id);
+      let svgId = this.svgId;
+      let imgId = this.image.id;
+      let us = new useSnap(svgId, imgId);
       let imgBd = us.imgBd();
       let editRotate = us.editRotate();
       let editScale = us.editScale();
       // 移动设计图
       let M = new ImageMove();
+      let callbackRMove = (_x, _y) => useUtil.imgMove(svgId, imgId, _x, _y);
       imgBd?.drag(
-        (...arg) => M.move(...arg, this.image.id, this.svgId),
-        (...arg) => M.start(...arg, this.image.id, this.svgId),
-        (...arg) => M.end(...arg, this.image.id, this.svgId)
+        (...arg) => M.move(...arg, imgId, svgId, callbackRMove),
+        (...arg) => M.start(...arg, imgId, svgId),
+        (...arg) => M.end(...arg, imgId, svgId)
       );
       // 设计图的旋转事件
       let R = new imageRotate();
       let callbackRotate = (rotate) => this.image.setRotate(rotate);
       editRotate?.drag(
-        (...arg) => R.move(...arg, this.image.id, this.svgId, callbackRotate),
-        (...arg) =>
-          R.start(...arg, this.image.id, this.svgId, this.image.rotate),
-        (...arg) => R.end(...arg, this.image.id, this.svgId)
+        (...arg) => R.move(...arg, imgId, svgId, callbackRotate),
+        (...arg) => R.start(...arg, imgId, svgId),
+        (...arg) => R.end(...arg, imgId, svgId)
       );
       // 设计图的缩放事件
       let S = new imageScale();
+      let callbackScale = (scale) => useUtil.imgScale(svgId, imgId, scale);
       editScale?.drag(
-        (...arg) => S.move(...arg, this.image.id, this.svgId),
-        (...arg) =>
-          S.start(...arg, this.image.id, this.svgId, this.image.scale),
-        (...arg) =>
-          S.end(...arg, this.image.id, this.svgId, (scale) =>
-            this.image.setScale(scale)
-          )
+        (...arg) => S.move(...arg, imgId, svgId, callbackScale),
+        (...arg) => S.start(...arg, imgId, svgId),
+        (...arg) => S.end(...arg, imgId, svgId)
       );
     },
   },

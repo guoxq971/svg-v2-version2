@@ -1,34 +1,10 @@
 import { getOffset, getDistance } from "../util";
 import { DEFILE_IMAGE_OSTYPE_SCALE, DEFINE_IMAGE_OSTYPE_PLUS } from "../define";
 import { useSnap } from "@/components/designApp/useSnap";
+import { useUtil } from "@/components/designApp/useUtil";
 
 // 缩放
 export class imageScale {
-  static imgScale(svgId, imgId, scale) {
-    let us = new useSnap(svgId, imgId);
-    let img = us.img();
-    let editMove = us.editMove();
-    let editRect = us.editRect();
-    let editRotate = us.editRotate();
-    let editScale = us.editScale();
-    let editDelete = us.editDelete();
-    let IM = img.attr("transform").localMatrix;
-    let bbox = img.getBBox();
-    IM.scale(scale, scale, bbox.cx, bbox.cy);
-    img.attr({ transform: IM });
-    bbox = img.getBBox();
-    // 同时改变其他元素
-    editRect.attr({
-      x: bbox.x,
-      y: bbox.y,
-      width: bbox.width,
-      height: bbox.height,
-    });
-    editMove.attr({ x: -18 + bbox.x, y: -18 + bbox.y });
-    editRotate.attr({ x: bbox.x2, y: -18 + bbox.y });
-    editScale.attr({ x: bbox.x2, y: bbox.y2 });
-    editDelete.attr({ x: -18 + bbox.x, y: bbox.y2 });
-  }
   // 鼠标点击在缩放图片上距离图片右下角的偏移量
   offset_x = 0;
   offset_y = 0;
@@ -39,8 +15,8 @@ export class imageScale {
   scale = 1;
 
   // 拖拽开始
-  start(x, y, event, imgId, svgId, scale) {
-    this.scale = scale;
+  start(x, y, event, imgId, svgId) {
+    this.scale = useUtil.getBBoxByImage(svgId, imgId).scale;
     let us = new useSnap(svgId, imgId);
     let img = us.img();
     // 图片在body中的右下角坐标
@@ -53,7 +29,7 @@ export class imageScale {
   }
 
   // 拖拽中
-  move(dx, dy, x, y, event, imgId, svgId) {
+  move(dx, dy, x, y, event, imgId, svgId, callback) {
     let us = new useSnap(svgId, imgId);
     let img = us.img();
     // 获取图片在body的坐标信息
@@ -64,16 +40,14 @@ export class imageScale {
     let scale = getScale(imgOs.cx, imgOs.cy, this.x, this.y, x2, y2);
     this.scale *= scale;
     // 缩放
-    imageScale.imgScale(svgId, imgId, scale);
+    callback(scale);
     // 重置鼠标坐标(第一次记录是在start中), 使得下次拖拽的时候可以计算出移动形成的缩放比例
     this.x = x2;
     this.y = y2;
   }
 
   // 拖拽结束
-  end(event, imgId, svgId, callback) {
-    callback(this.scale);
-  }
+  end(event, imgId, svgId) {}
 }
 
 /*

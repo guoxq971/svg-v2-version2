@@ -246,56 +246,32 @@ export default {
         rotate,
       };
     },
-    // 将设计图回到初始状态
-    imageFn(svgId, imgId) {
-      let image = this.prod.getImage(imgId);
-      let imageRotate = image.getRotate();
-      let that = this;
-      function before() {
-        // 设置旋转-回到0度
-        imageRotate.imgRotate(svgId, imgId, -imageRotate);
-        // 设置缩放-回到1
-        imageScale.imgScale(svgId, imgId, 1 / image.scale);
-        // // 设置位置-回到初始位置
-        let { x, y } = that.getBBoxByImage(svgId, imgId);
-        ImageMove.imgMove(svgId, imgId, -x, -y);
-      }
-      function after(type) {
-        type !== "move" && ImageMove.imgMove(svgId, imgId, x, y);
-        type !== "rotate" && imageRotate.imgRotate(svgId, imgId, imageRotate);
-        type !== "scale" && imageScale.imgScale(svgId, imgId, image.scale);
-      }
-      return {
-        before: before,
-        after: after,
-      };
-    },
     // 设计图-获取设计图的一些属性
     getBBoxByImage(svgId, imgId) {
-      let image = this.prod.getImage(imgId);
-      let imageRotate = image.getRotate();
-      // 设置缩放-回到1
-      imageScale.imgScale(svgId, imgId, 1 / image.scale);
-      // 设置旋转-回到0度
-      imageRotate.imgRotate(svgId, imgId, -imageRotate);
-      let us = new useSnap(svgId, imgId);
-      let imgBd = us.imgBd();
-      let designGroupRect = us.designGroupRect();
-      let imgBdBox = getOffset(imgBd.node);
-      let groupRectBBox = designGroupRect.getBBox();
-      let matrix = imgBd.attr("transform").localMatrix;
-      let x = matrix.e;
-      let y = matrix.f;
-      // 设置旋转-恢复
-      imageRotate.imgRotate(svgId, imgId, imageRotate);
-      // 设置缩放-恢复
-      imageScale.imgScale(svgId, imgId, image.scale);
-      return {
-        x,
-        y,
-        alignX: groupRectBBox.cy - imgBdBox.w / 2,
-        alignY: groupRectBBox.cx - imgBdBox.h / 2,
-      };
+      // let image = this.prod.getImage(imgId);
+      // let imageRotate = image.getRotate();
+      // // 设置缩放-回到1
+      // imageScale.imgScale(svgId, imgId, 1 / image.scale);
+      // // 设置旋转-回到0度
+      // imageRotate.imgRotate(svgId, imgId, -imageRotate);
+      // let us = new useSnap(svgId, imgId);
+      // let imgBd = us.imgBd();
+      // let designGroupRect = us.designGroupRect();
+      // let imgBdBox = getOffset(imgBd.node);
+      // let groupRectBBox = designGroupRect.getBBox();
+      // let matrix = imgBd.attr("transform").localMatrix;
+      // let x = matrix.e;
+      // let y = matrix.f;
+      // // 设置旋转-恢复
+      // imageRotate.imgRotate(svgId, imgId, imageRotate);
+      // // 设置缩放-恢复
+      // imageScale.imgScale(svgId, imgId, image.scale);
+      // return {
+      //   x,
+      //   y,
+      //   alignX: groupRectBBox.cy - imgBdBox.w / 2,
+      //   alignY: groupRectBBox.cx - imgBdBox.h / 2,
+      // };
     },
     /*
      * 图层-居中
@@ -314,20 +290,20 @@ export default {
       // this.imageFn(this.id, image.id).after("move");
     },
     layerAlign2(type) {
-      let image = this.prod.getActiveImage();
-      let imageRotate = image.getRotate();
-      // 设置旋转-回到0度
-      imageRotate.imgRotate(this.id, image.id, -imageRotate);
-      imageScale.imgScale(this.id, image.id, 1 / image.scale);
-      let { x, y, alignX, alignY } = this.getBBoxByImage(this.id, image.id);
-      ImageMove.imgMove(this.id, image.id, -x, -y);
-      // 垂直居中
-      if (type === "x") x = alignX;
-      // 水平居中
-      if (type === "y") y = alignY;
-      ImageMove.imgMove(this.id, image.id, x, y);
-      imageRotate.imgRotate(this.id, image.id, imageRotate);
-      imageScale.imgScale(this.id, image.id, image.scale);
+      // let image = this.prod.getActiveImage();
+      // let imageRotate = image.getRotate();
+      // // 设置旋转-回到0度
+      // imageRotate.imgRotate(this.id, image.id, -imageRotate);
+      // imageScale.imgScale(this.id, image.id, 1 / image.scale);
+      // let { x, y, alignX, alignY } = this.getBBoxByImage(this.id, image.id);
+      // ImageMove.imgMove(this.id, image.id, -x, -y);
+      // // 垂直居中
+      // if (type === "x") x = alignX;
+      // // 水平居中
+      // if (type === "y") y = alignY;
+      // ImageMove.imgMove(this.id, image.id, x, y);
+      // imageRotate.imgRotate(this.id, image.id, imageRotate);
+      // imageScale.imgScale(this.id, image.id, image.scale);
     },
     /*
      * 图层-旋转

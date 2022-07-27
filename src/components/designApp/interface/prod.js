@@ -165,7 +165,7 @@ export class DesignImage {
   getRotate() {
     let imgId = this.id;
     let svgId = this.svgId;
-    let { rotate } = useUtil.getImageBBox(svgId, imgId);
+    let { rotate } = useUtil.getBBoxByImage(svgId, imgId);
     return rotate;
   }
   /*
@@ -175,13 +175,20 @@ export class DesignImage {
   setRotate(rotate) {
     let imgId = this.id;
     let svgId = this.svgId;
-    let { imgBdMatrix, editBdMatrix } = imageRotate.getMatrixByAngle(
+    let { imgBdMatrix, editBdMatrix } = useUtil.getMatrixByAngleReal(
       svgId,
       imgId,
       rotate
     );
     this.imageBd.transform = imgBdMatrix;
     this.editBd.transform = editBdMatrix;
+  }
+  /*
+   * 根据x,y更改dom的矩阵
+   * */
+  setMove(x, y) {
+    let imgId = this.id;
+    let svgId = this.svgId;
   }
   setScale(scale) {
     this.scale = scale;
