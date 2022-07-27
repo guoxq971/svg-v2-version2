@@ -1,6 +1,6 @@
 import { getOffset, getDistance } from "../util";
-import { useSnap } from "@/components/designApp/useSnap";
-import { useUtil } from "@/components/designApp/useUtil";
+import { useSnap } from "../useSnap";
+import { useUtil } from "../useUtil";
 
 // 缩放
 export class imageScale {

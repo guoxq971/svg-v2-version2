@@ -222,16 +222,13 @@ import bmSwiper from "./components/bmSwiper.vue";
 import bmInfo from "./components/bmInfo.vue";
 import bmSearchList from "./components/bmSearchList.vue";
 import { mock } from "./mock";
-import { DesignProxy, QueueProxy, useDesign, useQueue } from "./app/index";
-import { Prod } from "./app/entity/Prod";
+import { useDesign, useQueue } from "./app/index";
 import {
   downloadSvg,
   predefineColors,
   vueApplyBgColor,
   vueCopyImage,
   vueDeleteImage,
-  vueLayerUpDown,
-  vueSelectImage,
 } from "./util";
 
 export default {
@@ -272,19 +269,14 @@ export default {
     // 设计图-选中
     picClick(data) {
       this.$refs.designApp.selImage(data);
-      // let image = vueSelectImage(data, this.layerList);
-      // return image;
     },
     // 产品-选中
     prodClick(data) {
       this.$refs.designApp.changeProd(data);
-      // DesignProxy().addProdBefore();
-      // DesignProxy().addProd(new Prod({ data: data }));
     },
     // 图层点击
     handlerLayerNameClick(data) {
       this.$refs.designApp.prod.setActiveId(data.id);
-      // useDesign().setImageActionId(data.sNode);
     },
     /*
      * 图层-上/下移
@@ -292,31 +284,23 @@ export default {
      */
     handlerLayer(type, data) {
       this.$refs.designApp.layerMove(type, data.id);
-      // let { isOk, list } = vueLayerUpDown(type, this.layerList, data);
-      // if (isOk) this.layerList = list;
     },
     // 图层-置顶、置底
     handlerStick(type) {
       this.$refs.designApp.layerMove(type, this.$refs.designApp.prod.activeId);
-      // const data = useDesign().getActiveImage().getData();
-      // let { isOk, list } = vueLayerUpDown(type, this.layerList, data);
-      // if (isOk) this.layerList = list;
     },
     // 图层-显示、隐藏
     handlerLayerShowClick(data) {
       this.$refs.designApp.layerIsShow(data.id);
-      // data.sNode.layerTrigger();
     },
     // 图层-左/右旋45°
     handlerRotate(type) {
       let rotate = { left: -45, right: 45 }[type];
       this.$refs.designApp.layerRotate(rotate);
-      // useDesign().getActiveImage().imageRotate(angle);
     },
     // 居中
     handlerAlign(type) {
       this.$refs.designApp.layerAlign(type);
-      // useDesign().getActiveImage().imageAlign(type);
     },
     // 撤回、回退
     handlerQueue(type) {
@@ -367,16 +351,6 @@ export default {
     handlerScale() {},
   },
   mounted() {
-    // QueueProxy();
-    // DesignProxy({
-    //   imgClick: (id) => this.setVueActiveImgId(id),
-    //   imgDelete: (id) => this.handlerImgDel(id),
-    //   imgCopy: () => this.handlerCopy(),
-    //   selImage: (id) => this.picClick(id),
-    //   selBgImage: (color) => this.handlerApplyColor(color),
-    //   getLayerList: () => this.layerList,
-    //   updateLayerList: (list) => (this.layerList = list),
-    // }).addProd(new Prod({ data: this.productList[1] }));
   },
 };
 </script>

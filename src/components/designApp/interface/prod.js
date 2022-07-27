@@ -1,7 +1,6 @@
-import { uuid } from "../../bmDesigner/app/utils/util";
-import { imageRotate } from "@/components/bmDesigner/app/utils/dom/imageRotate";
-import { useSnap } from "@/components/designApp/useSnap";
-import { useUtil } from "@/components/designApp/useUtil";
+import { uuid } from "../util";
+import { useSnap } from "../useSnap";
+import { useUtil } from "../useUtil";
 
 export class ProdMode {
   static preview = "preview";

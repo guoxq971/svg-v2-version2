@@ -1,6 +1,6 @@
 import { getAngle, getMouseDirection, getOffset, getQuadrant } from "../util";
-import { useSnap } from "../../../../designApp/useSnap";
-import { useUtil } from "@/components/designApp/useUtil";
+import { useSnap } from "../useSnap";
+import { useUtil } from "../useUtil";
 
 // 旋转
 export class imageRotate {

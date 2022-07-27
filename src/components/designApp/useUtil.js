@@ -1,5 +1,4 @@
-import { useSnap } from "@/components/designApp/useSnap";
-import { getOffset } from "@/components/bmDesigner/app/utils/util";
+import { useSnap } from "./useSnap";
 
 export class useUtil {
   /*
@@ -13,7 +12,6 @@ export class useUtil {
     let us = new useSnap(svgId, imgId);
     let imgBd = us.imgBd();
     let img = us.img();
-    let alignX, alignY;
     // 获取原始矩阵
     let orgMatrixImgBd = imgBd.attr("transform").localMatrix;
     let orgMatrixImg = img.attr("transform").localMatrix;
@@ -199,22 +197,4 @@ export class useUtil {
       editBdMatrix: EM,
     };
   }
-}
-
-function getAlign(svgId, imgId, image) {
-  // 记录原始旋转角度
-  let orgBBox = useUtil.getBBoxByImage(svgId, imgId);
-  image.setRotate(0);
-  // 获取sNode节点
-  let us = new useSnap(svgId, imgId);
-  let imgBd = us.imgBd();
-  let designGroupRect = us.designGroupRect();
-  let groupRectBBox = designGroupRect.getBBox();
-  let imgBdOs = getOffset(imgBd.node);
-  image.setRotate(orgBBox.rotate);
-
-  return {
-    alignX: groupRectBBox.cy - imgBdOs.w / 2,
-    alignY: groupRectBBox.cx - imgBdOs.h / 2,
-  };
 }

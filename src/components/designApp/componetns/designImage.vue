@@ -95,13 +95,11 @@
 </template>
 
 <script>
-import { DesignImage, ProdMode } from "../interface/prod";
-import { ImageMove } from "../../bmDesigner/app/utils/dom/imageMove";
+import { ProdMode } from "../interface/prod";
+import { ImageMove } from "./imageMove";
 import { useSnap } from "../useSnap";
-import { imageRotate } from "../../bmDesigner/app/utils/dom/imageRotate";
-import { imageScale } from "../../bmDesigner/app/utils/dom/imageScale";
-import { useDesign } from "@/components/bmDesigner/app";
-import { useUtil } from "@/components/designApp/useUtil";
+import { imageRotate } from "./imageRotate";
+import { imageScale } from "./imageScale";
 
 export default {
   name: "designImage",

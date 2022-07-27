@@ -11,9 +11,9 @@ import {
   cratePicImgClip,
   createPicImgG,
 } from "../dom4CreateImage";
-import { ImageMove } from "../imageMove";
-import { imageRotate } from "../imageRotate";
-import { imageScale } from "../imageScale";
+import { ImageMove } from "../../../../../designApp/componetns/imageMove";
+import { imageRotate } from "../../../../../designApp/componetns/imageRotate";
+import { imageScale } from "../../../../../designApp/componetns/imageScale";
 import { Dom4ImageEntity } from "./Dom4ImageEntity";
 
 /*

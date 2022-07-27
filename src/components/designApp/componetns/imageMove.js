@@ -1,4 +1,4 @@
-import { useUtil } from "@/components/designApp/useUtil";
+import { useUtil } from "../useUtil";
 
 export class ImageMove {
   x;

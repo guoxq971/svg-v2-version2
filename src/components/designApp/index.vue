@@ -126,16 +126,9 @@
 import { ProdInterface, ProdMode } from "./interface/prod";
 import { mock } from "../bmDesigner/mock";
 import designImage from "./componetns/designImage";
-import { getOffset, uuid } from "../bmDesigner/app/utils/util";
-import { useSnap } from "@/components/designApp/useSnap";
-import { imageRotate } from "@/components/bmDesigner/app/utils/dom/imageRotate";
-import { ImageMove } from "@/components/bmDesigner/app/utils/dom/imageMove";
-import { imageScale } from "@/components/bmDesigner/app/utils/dom/imageScale";
-import {
-  domUtilGetMatrixByMoveToCenter,
-  domUtilMoveToCenter,
-} from "@/components/bmDesigner/app/utils/dom/dom4Util";
-import { useUtil } from "@/components/designApp/useUtil";
+import { uuid } from "../bmDesigner/app/utils/util";
+import { useSnap } from "./useSnap";
+import { useUtil } from "./useUtil";
 
 export default {
   name: "index",
@@ -150,6 +143,7 @@ export default {
       prodMode: ProdMode,
       // 产品属性
       prod: new ProdInterface(mock.productList()[0], this, this.id),
+      queue: null,
     };
   },
   computed: {
@@ -191,7 +185,7 @@ export default {
       promise
         .then(() => image.setRotate(0))
         .then(() => image.setScale(1))
-        .then(() => matrix = us.imgBd().attr("transform").localMatrix)
+        .then(() => (matrix = us.imgBd().attr("transform").localMatrix))
         .then(() => image.setMove(0, 0))
         .then(() => {
           let x = matrix.e;
@@ -325,7 +319,14 @@ export default {
       let { cx, cy } = svg.getBBox();
       // 移动到中心位置
       let prod = this.prod;
-      let fn = domUtilGetMatrixByMoveToCenter;
+      let fn = function (sNode, x, y) {
+        let bbox = sNode.getBBox();
+        let M = sNode.attr("transform").localMatrix;
+        M.translate(x - bbox.x - bbox.width / 2, y - bbox.y - bbox.height / 2);
+        return {
+          matrix: M,
+        };
+      };
       prod.designGroup.transform = fn(us.designGroup(), cx, cy).matrix;
       prod.editBdRedPath.transform = fn(us.editBdRedPath(), cx, cy).matrix;
       prod.editBdBackRect.transform = fn(us.editBdBackRect(), cx, cy).matrix;
