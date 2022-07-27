@@ -1,5 +1,4 @@
 import { getOffset, getDistance } from "../util";
-import { DEFILE_IMAGE_OSTYPE_SCALE, DEFINE_IMAGE_OSTYPE_PLUS } from "../define";
 import { useSnap } from "@/components/designApp/useSnap";
 import { useUtil } from "@/components/designApp/useUtil";
 
@@ -16,16 +15,19 @@ export class imageScale {
 
   // 拖拽开始
   start(x, y, event, imgId, svgId) {
+    // 初始化已有的缩放比例
     this.scale = useUtil.getBBoxByImage(svgId, imgId).scale;
+    // 获取sNode
     let us = new useSnap(svgId, imgId);
     let img = us.img();
     // 图片在body中的右下角坐标
     let os = getOffset(img.node);
+    // 初始化鼠标坐标
+    this.x = os.x2;
+    this.y = os.y2;
     // 计算鼠标到设计图右下角的偏移量
     this.offset_x = x - os.x2;
     this.offset_y = y - os.y2;
-    this.x = os.x2;
-    this.y = os.y2;
   }
 
   // 拖拽中
@@ -40,7 +42,7 @@ export class imageScale {
     let scale = getScale(imgOs.cx, imgOs.cy, this.x, this.y, x2, y2);
     this.scale *= scale;
     // 缩放
-    callback(scale);
+    callback(this.scale);
     // 重置鼠标坐标(第一次记录是在start中), 使得下次拖拽的时候可以计算出移动形成的缩放比例
     this.x = x2;
     this.y = y2;

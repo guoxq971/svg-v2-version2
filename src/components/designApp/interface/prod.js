@@ -106,6 +106,7 @@ export class DesignImage {
       transform: "matrix(1,0,0,1,0,0)",
     };
     this.image = {
+      transform: "matrix(1,0,0,1,0,0)",
       href: param?.url,
       x: 0,
       y: 0,
@@ -175,7 +176,7 @@ export class DesignImage {
   setRotate(rotate) {
     let imgId = this.id;
     let svgId = this.svgId;
-    let { imgBdMatrix, editBdMatrix } = useUtil.getMatrixByAngleReal(
+    let { imgBdMatrix, editBdMatrix } = useUtil.getMatrixByRotateReal(
       svgId,
       imgId,
       rotate
@@ -189,8 +190,31 @@ export class DesignImage {
   setMove(x, y) {
     let imgId = this.id;
     let svgId = this.svgId;
+    let obj = useUtil.getMatrixByMoveReal(svgId, imgId, x, y);
+    this.imageBd.transform = obj.imgBdMatrix;
+    this.editBd.transform = obj.editBdMatrix;
   }
+  /*
+   * 根据所i放比例更改dom的矩阵
+   * @param {number} scale 缩放比例
+   * */
   setScale(scale) {
+    let imgId = this.id;
+    let svgId = this.svgId;
+    let obj = useUtil.getMatrixByScaleReal(svgId, imgId, scale);
+    this.image.transform = obj.imgMatrix;
+    this.editRect.x = obj.bbox.x;
+    this.editRect.y = obj.bbox.y;
+    this.editRect.width = obj.bbox.width;
+    this.editRect.height = obj.bbox.height;
+    this.imageMove.x = -18 + obj.bbox.x;
+    this.imageMove.y = -18 + obj.bbox.y;
+    this.imageRotate.x = obj.bbox.x2;
+    this.imageRotate.y = -18 + obj.bbox.y;
+    this.imageScale.x = obj.bbox.x2;
+    this.imageScale.y = obj.bbox.y2;
+    this.imageDelete.x = -18 + obj.bbox.x;
+    this.imageDelete.y = obj.bbox.y2;
     this.scale = scale;
   }
 }

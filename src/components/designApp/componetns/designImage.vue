@@ -23,6 +23,7 @@
           :width="image.image.width"
           :height="image.image.height"
           style="cursor: move; overflow: hidden"
+          :transform="image.image.transform"
         ></image>
       </g>
     </g>
@@ -162,13 +163,14 @@ export default {
     mountDrag() {
       let svgId = this.svgId;
       let imgId = this.image.id;
+      let image = this.image;
       let us = new useSnap(svgId, imgId);
       let imgBd = us.imgBd();
       let editRotate = us.editRotate();
       let editScale = us.editScale();
       // 移动设计图
       let M = new ImageMove();
-      let callbackRMove = (_x, _y) => useUtil.imgMove(svgId, imgId, _x, _y);
+      let callbackRMove = (_x, _y) => image.setMove(_x, _y);
       imgBd?.drag(
         (...arg) => M.move(...arg, imgId, svgId, callbackRMove),
         (...arg) => M.start(...arg, imgId, svgId),
@@ -176,7 +178,7 @@ export default {
       );
       // 设计图的旋转事件
       let R = new imageRotate();
-      let callbackRotate = (rotate) => this.image.setRotate(rotate);
+      let callbackRotate = (rotate) => image.setRotate(rotate);
       editRotate?.drag(
         (...arg) => R.move(...arg, imgId, svgId, callbackRotate),
         (...arg) => R.start(...arg, imgId, svgId),
@@ -184,7 +186,7 @@ export default {
       );
       // 设计图的缩放事件
       let S = new imageScale();
-      let callbackScale = (scale) => useUtil.imgScale(svgId, imgId, scale);
+      let callbackScale = (scale) => image.setScale(scale);
       editScale?.drag(
         (...arg) => S.move(...arg, imgId, svgId, callbackScale),
         (...arg) => S.start(...arg, imgId, svgId),

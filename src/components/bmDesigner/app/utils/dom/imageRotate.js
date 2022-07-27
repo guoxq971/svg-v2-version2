@@ -19,9 +19,6 @@ export class imageRotate {
     // 初始化已有的角度
     let imageBBox = useUtil.getBBoxByImage(svgId, imgId);
     this.rotate = imageBBox.rotate;
-    // 初始化鼠标坐标
-    this.x = x;
-    this.y = y;
     // 获取sNode
     let us = new useSnap(svgId, imgId);
     let svg = us.svg();
@@ -29,6 +26,9 @@ export class imageRotate {
     let designGroup = us.designGroup();
     let imgBBox = us.img().getBBox();
     let imgBdBBox = imgBd.getBBox();
+    // 初始化鼠标坐标
+    this.x = x;
+    this.y = y;
     // 画一个圆, 在图片边框中加入
     this.circle = createCircle(svg, imgBBox);
     this.text = createText(svg, imgBdBBox, this.rotate);
