@@ -1,7 +1,8 @@
 // 获取元素(el)在 body 上的信息
 import { useQueue } from "@/components/designApp/queue";
 import { useSnap } from "@/components/designApp/useSnap";
-import { useUtil } from "@/components/designApp/useUtil";
+import { useUtil, useVueProd } from "@/components/designApp/useUtil";
+import { DesignImage } from "@/components/designApp/interface/prod";
 
 export function getOffset(el) {
   var box = el.getBoundingClientRect(),
@@ -184,8 +185,35 @@ function vueSet(set, data, vueData, key) {
   if (types.includes(typeof data)) {
     set(vueData, key, data);
   } else if (Array.isArray(data)) {
-    // if (["imageList"].indexOf(key)) return;
-    console.error("处理到了数组");
+    if (key === "imageList") {
+      let ids = data.map((item) => item.id);
+      // 去掉已经删除的图片
+      vueData[key] = vueData[key].filter((item) => ids.includes(item.id));
+      // 添加新增的图片和更新的图片
+      data.forEach((dataItem, dataIndex) => {
+        // 找到了就是更新
+        let i = vueData[key].findIndex((item) => dataItem.id === item.id);
+        if (i !== -1) {
+          vueSet(set, dataItem, vueData[key], i);
+        }
+        // 没找到就是新增
+        else {
+          console.error("没找到就是新增");
+          let that = useVueProd().vurProd;
+          let img = that.prod.addImage(
+            { ...dataItem.imageData, svgId: that.id },
+            dataItem.imageData
+          );
+          img.id = dataItem.id;
+          vueSet(set, dataItem, that.prod.imageList, dataIndex);
+        }
+      });
+    } else {
+      console.error("处理到了数组，可能会出现问题");
+      data.forEach((item, index) => {
+        vueSet(set, item, vueData[key], index);
+      });
+    }
   } else if (typeof data === "object") {
     for (let dataKey in vueData[key]) {
       if (vueData[key].hasOwnProperty(dataKey)) {
@@ -198,183 +226,14 @@ function vueSet(set, data, vueData, key) {
   }
 }
 
-export function vueUndo(vueThis, $nextTick) {
+export function vueUndo() {
   let queueProd = useQueue().undo();
-  let vueProd = vueThis.prod;
-  let set = vueThis.$set;
-  // 设置产品数据
-  vueSet(set, queueProd, vueThis, "prod");
-  let map = new Map();
-  queueProd.imageList.forEach((image, index) => {
-    console.log("设置产品数据", image);
-    let imgMs = image.image.transform
-      .split("matrix(")[1]
-      .split(")")[0]
-      .split(",");
-    let imgBdMs = image.imageBd.transform
-      .split("matrix(")[1]
-      .split(")")[0]
-      .split(",");
-    let imageMatrix = new Snap.Matrix(...imgMs);
-    let imgBdMatrix = new Snap.Matrix(...imgBdMs);
-    // console.log(imageMatrix, imgBdMatrix);
-    // console.log(imageMatrix.split(), imgBdMatrix.split());
-    console.log(
-      "设计图边框:",
-      imgBdMatrix,
-      useUtil.getBBoxByMatrix(imgBdMatrix)
-    );
-
-    // let bbox = useUtil.getBBoxByImage(image.svgId, image.id);
-    // map.set(index, { bbox: bbox, imageId: image.id });
-  });
-  // 设置设计图数据
-  set(vueProd, "imageList", []);
-  queueProd.imageList.forEach((image) => {
-    vueProd.addImage(
-      { ...image.imageData, svgId: queueProd.svgId },
-      image.imageData
-    );
-  });
-  // $nextTick(() => {
-  //   vueProd.imageList.forEach((image, index) => {
-  //     let curMap = map.get(index);
-  //     if (curMap) {
-  //       let p = new Promise((resolve) => resolve());
-  //       p.then(() => {
-  //         console.log(curMap.bbox);
-  //       })
-  //         .then(() => image.setMove(curMap.bbox.x, curMap.bbox.y))
-  //         .then(() => image.setScale(curMap.bbox.scale))
-  //         .then(() => image.setRotate(curMap.bbox.rotate));
-  //     }
-  //   });
-  // });
+  let set = useVueProd().vurProd.$set;
+  vueSet(set, queueProd, useVueProd().vurProd, "prod");
 }
 
-export function vueUndo2(vueThis) {
-  let prod = useQueue().undo();
-  if (!prod) return;
-  let vueProd = vueThis.$refs.designApp.prod;
-  if (prod.imageList.length === 0) vueThis.$set(vueProd, "imageList", []);
-  else {
-    prod.imageList.forEach((item, index) => {
-      vueThis.$set(vueProd.imageList[index], "svgId", item.svgId);
-      vueThis.$set(vueProd.imageList[index], "type", item.type);
-      vueThis.$set(vueProd.imageList[index], "id", item.id);
-      vueThis.$set(vueProd.imageList[index], "isShow", item.isShow);
-      vueThis.$set(
-        vueProd.imageList[index].imageBd,
-        "transform",
-        item.imageBd.transform
-      );
-      vueThis.$set(
-        vueProd.imageList[index].image,
-        "transform",
-        item.image.transform
-      );
-      vueThis.$set(vueProd.imageList[index].image, "href", item.image.href);
-      vueThis.$set(vueProd.imageList[index].image, "x", item.image.x);
-      vueThis.$set(vueProd.imageList[index].image, "y", item.image.y);
-      vueThis.$set(vueProd.imageList[index].image, "width", item.image.width);
-      vueThis.$set(vueProd.imageList[index].image, "height", item.image.height);
-      vueThis.$set(
-        vueProd.imageList[index].editBd,
-        "transform",
-        item.editBd.transform
-      );
-      vueThis.$set(vueProd.imageList[index].editRect, "x", item.editRect.x);
-      vueThis.$set(vueProd.imageList[index].editRect, "y", item.editRect.y);
-      vueThis.$set(
-        vueProd.imageList[index].editRect,
-        "width",
-        item.editRect.width
-      );
-      vueThis.$set(
-        vueProd.imageList[index].editRect,
-        "height",
-        item.editRect.height
-      );
-      vueThis.$set(vueProd.imageList[index].imageMove, "x", item.imageMove.x);
-      vueThis.$set(vueProd.imageList[index].imageMove, "y", item.imageMove.y);
-      vueThis.$set(
-        vueProd.imageList[index].imageMove,
-        "width",
-        item.imageMove.width
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageMove,
-        "height",
-        item.imageMove.height
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageRotate,
-        "href",
-        item.imageRotate.href
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageRotate,
-        "x",
-        item.imageRotate.x
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageRotate,
-        "y",
-        item.imageRotate.y
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageRotate,
-        "width",
-        item.imageRotate.width
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageRotate,
-        "height",
-        item.imageRotate.height
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageScale,
-        "href",
-        item.imageScale.href
-      );
-      vueThis.$set(vueProd.imageList[index].imageScale, "x", item.imageScale.x);
-      vueThis.$set(vueProd.imageList[index].imageScale, "y", item.imageScale.y);
-      vueThis.$set(
-        vueProd.imageList[index].imageScale,
-        "width",
-        item.imageScale.width
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageScale,
-        "height",
-        item.imageScale.height
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageDelete,
-        "href",
-        item.imageDelete.href
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageDelete,
-        "x",
-        item.imageDelete.x
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageDelete,
-        "y",
-        item.imageDelete.y
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageDelete,
-        "width",
-        item.imageDelete.width
-      );
-      vueThis.$set(
-        vueProd.imageList[index].imageDelete,
-        "height",
-        item.imageDelete.height
-      );
-    });
-  }
-  useQueue().log();
+export function vueRedo() {
+  let queueProd = useQueue().redo();
+  let set = useVueProd().vurProd.$set;
+  vueSet(set, queueProd, useVueProd().vurProd, "prod");
 }

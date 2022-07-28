@@ -7,11 +7,11 @@
   >
     <g test="设计图的边框的边框-clip" :style="{ clipPath: `url(#${mode})` }">
       <g
+        :class="`imgBd-${image.id}`"
         test="设计图的边框"
         style="cursor: move"
         :transform="image.imageBd.transform"
         ref="imgBd"
-        :class="`imgBd-${image.id}`"
       >
         <image
           :class="`img-${image.id}`"
@@ -28,8 +28,8 @@
       </g>
     </g>
     <g
-      test="编辑的边框"
       :class="`editBd-${image.id}`"
+      test="编辑的边框"
       :style="{
         display: ProdMode.isEdit(mode)
           ? activeId === image.id
@@ -40,8 +40,8 @@
       :transform="image.editBd.transform"
     >
       <rect
-        test="编辑的矩形"
         :class="`editRect-${image.id}`"
+        test="编辑的矩形"
         :x="image.editRect.x"
         :y="image.editRect.y"
         :width="image.editRect.width"
@@ -51,9 +51,9 @@
         style=""
       ></rect>
       <image
+        :class="`editMove-${image.id}`"
         test="编辑移动"
         bm="edit"
-        :class="`editMove-${image.id}`"
         :href="image.imageMove.href"
         :x="image.imageMove.x"
         :y="image.imageMove.y"
@@ -61,9 +61,9 @@
         :height="image.imageMove.height"
       ></image>
       <image
+        :class="`editRotate-${image.id}`"
         test="编辑旋转"
         bm="edit"
-        :class="`editRotate-${image.id}`"
         :href="image.imageRotate.href"
         :x="image.imageRotate.x"
         :y="image.imageRotate.y"
@@ -71,9 +71,9 @@
         :height="image.imageRotate.height"
       ></image>
       <image
+        :class="`editScale-${image.id}`"
         test="编辑缩放"
         bm="edit"
-        :class="`editScale-${image.id}`"
         :href="image.imageScale.href"
         :x="image.imageScale.x"
         :y="image.imageScale.y"
@@ -81,9 +81,9 @@
         :height="image.imageScale.height"
       ></image>
       <image
+        :class="`editDelete-${image.id}`"
         test="编辑删除"
         bm="edit"
-        :class="`editDelete-${image.id}`"
         :href="image.imageDelete.href"
         :x="image.imageDelete.x"
         :y="image.imageDelete.y"
@@ -160,9 +160,11 @@ export default {
       let imgBd = us.imgBd();
       let editRotate = us.editRotate();
       let editScale = us.editScale();
+      let editDelete = us.editDelete();
       imgBd?.undrag();
       editRotate?.undrag();
       editScale?.undrag();
+      editDelete?.unclick();
     },
     // 挂载拖拽
     mountDrag() {
@@ -173,6 +175,7 @@ export default {
       let imgBd = us.imgBd();
       let editRotate = us.editRotate();
       let editScale = us.editScale();
+      let editDelete = us.editDelete();
       let callbackEnd = (type) => useQueue().addQueue(this.prod, type);
       // 移动设计图
       let M = new ImageMove();
@@ -198,6 +201,13 @@ export default {
         (...arg) => S.start(...arg, imgId, svgId),
         (...arg) => S.end(...arg, imgId, svgId, () => callbackEnd("缩放"))
       );
+      // 设计图的删除事件
+      editDelete.click(() => {
+        this.prod.imageList = this.prod.imageList.filter(
+          (item) => item.id !== this.image.id
+        );
+        useQueue().addQueue(this.prod, `图层删除`);
+      });
     },
   },
   mounted() {

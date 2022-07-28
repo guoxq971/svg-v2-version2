@@ -46,6 +46,16 @@ class queue {
     this.current = this.undoStack.pop();
     return this.current;
   }
+  // 回退
+  redo() {
+    if (this.redoStack.length === 0) {
+      Message.warning("没有可回退的操作");
+      return;
+    }
+    this.undoStack.push(this.current);
+    this.current = this.redoStack.pop();
+    return this.current;
+  }
 }
 
 // 单例模式导出queue

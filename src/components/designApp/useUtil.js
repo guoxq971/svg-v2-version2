@@ -208,3 +208,25 @@ export class useUtil {
     };
   }
 }
+
+// 单例模式导出产品的vue this
+export const useVueProd = (function () {
+  let instance;
+  return function (vurProd) {
+    // 代理函数只做管理单例
+    if (instance) {
+      return instance;
+    }
+    return (instance = new vueProd(vurProd));
+  };
+})();
+
+class vueProd {
+  constructor(vueProd) {
+    if (vueProd) {
+      this.vurProd = vueProd;
+      this.vueProd = vueProd;
+      this.prod = vueProd.prod;
+    }
+  }
+}

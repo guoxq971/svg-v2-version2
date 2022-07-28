@@ -231,7 +231,7 @@ import {
   vueDeleteImage,
 } from "./util";
 import { useQueue } from "@/components/designApp/queue";
-import { cloneObj, vueCloneDeep, vueUndo } from "@/components/designApp/util";
+import { cloneObj, vueCloneDeep, vueRedo, vueUndo } from "@/components/designApp/util";
 
 export default {
   components: { bmSwiper, bmInfo, bmSearchList, designApp },
@@ -321,9 +321,10 @@ export default {
         // let data = useQueue().undo();
         // let vueData = this.$refs.designApp;
         // vueCloneDeep(set, data, vueData, "prod");
-        vueUndo(this.$refs.designApp, this.$nextTick);
+        vueUndo(this.$refs.designApp);
       } else if (type === "redo") {
         //   useQueue().redo();
+        vueRedo(this.$refs.designApp);
       } else if (type === "clear") {
         //   useQueue().clear();
       }

@@ -129,7 +129,7 @@ import { mock } from "../bmDesigner/mock";
 import designImage from "./componetns/designImage";
 import { uuid } from "../bmDesigner/app/utils/util";
 import { useSnap } from "./useSnap";
-import { useUtil } from "./useUtil";
+import { useUtil, useVueProd } from "./useUtil";
 import { useQueue } from "@/components/designApp/queue";
 
 export default {
@@ -178,6 +178,7 @@ export default {
       handler(list) {
         this.$emit("changeImageList", list);
       },
+      deep: true,
     },
   },
   methods: {
@@ -357,6 +358,7 @@ export default {
     this.moveCenter();
     // 监听鼠标按下
     this.addEventOverall();
+    useVueProd(this);
   },
 };
 </script>
