@@ -66,8 +66,8 @@ export class ProdInterface {
   /*
    * 添加设计图
    * */
-  addImage(image) {
-    let img = new DesignImage(image);
+  addImage(image, imageData) {
+    let img = new DesignImage(image, imageData);
     this.imageList.push(img);
     return img;
   }
@@ -96,7 +96,9 @@ export class ProdInterface {
 export class DesignImage {
   // 显示隐藏
   isShow = true;
-  constructor(param) {
+  imageData = {};
+  constructor(param, imageData) {
+    this.imageData = imageData;
     this.svgId = param.svgId;
     this.imgData = param;
     this.type = "img";
@@ -180,8 +182,8 @@ export class DesignImage {
       imgId,
       rotate
     );
-    this.imageBd.transform = imgBdMatrix;
-    this.editBd.transform = editBdMatrix;
+    this.imageBd.transform = imgBdMatrix.toString();
+    this.editBd.transform = editBdMatrix.toString();
   }
   /*
    * 根据x,y更改dom的矩阵
@@ -190,8 +192,8 @@ export class DesignImage {
     let imgId = this.id;
     let svgId = this.svgId;
     let obj = useUtil.getMatrixByMoveReal(svgId, imgId, x, y);
-    this.imageBd.transform = obj.imgBdMatrix;
-    this.editBd.transform = obj.editBdMatrix;
+    this.imageBd.transform = obj.imgBdMatrix.toString();
+    this.editBd.transform = obj.editBdMatrix.toString();
   }
   /*
    * 根据所i放比例更改dom的矩阵
@@ -203,7 +205,7 @@ export class DesignImage {
     let obj = useUtil.getMatrixByScaleReal(svgId, imgId, scale);
     let promise = new Promise((resolve) => resolve());
     promise
-      .then(() => (this.image.transform = obj.imgMatrix))
+      .then(() => (this.image.transform = obj.imgMatrix.toString()))
       .then(() => {
         // 获取sNode节点
         let us = new useSnap(svgId, imgId);

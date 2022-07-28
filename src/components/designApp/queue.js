@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { Message } from "element-ui";
+import { cloneDeep } from "@/components/designApp/util";
 class queue {
   constructor() {
     // 撤销栈
@@ -10,21 +11,29 @@ class queue {
     this.current = null;
   }
 
+  log() {
+    console.log("====");
+    console.log("当前", useQueue().current);
+    console.log("撤回栈", useQueue().undoStack);
+  }
+
   addQueue(prod, type) {
-    let keys = Object.keys(prod);
-    let copyProd = { msgType: type };
-    keys.forEach((key) => {
-      if (key === "vueThis") return;
-      copyProd[key] = _.cloneDeep(prod[key]);
+    setTimeout(() => {
+      let keys = Object.keys(prod);
+      let copyProd = { msgType: type };
+      keys.forEach((key) => {
+        if (["vueThis", "msgType"].includes(key)) return;
+        copyProd[key] = cloneDeep(prod[key]);
+      });
+      if (this.current) {
+        this.undoStack.push(this.current);
+      }
+      if (this.redoStack.length) {
+        this.redoStack = [];
+      }
+      this.current = copyProd;
+      this.log();
     });
-    if (this.current) {
-      this.undoStack.push(this.current);
-    }
-    if (this.redoStack.length) {
-      this.redoStack = [];
-    }
-    this.current = copyProd;
-    console.log(useQueue());
   }
 
   // 撤销

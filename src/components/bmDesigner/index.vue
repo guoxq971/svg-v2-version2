@@ -231,6 +231,7 @@ import {
   vueDeleteImage,
 } from "./util";
 import { useQueue } from "@/components/designApp/queue";
+import { cloneObj, vueCloneDeep, vueUndo } from "@/components/designApp/util";
 
 export default {
   components: { bmSwiper, bmInfo, bmSearchList, designApp },
@@ -276,6 +277,7 @@ export default {
     // 产品-选中
     prodClick(data) {
       this.$refs.designApp.changeProd(data);
+      useQueue().addQueue(this.$refs.designApp.prod, "切换了产品");
     },
     // 图层点击
     handlerLayerNameClick(data) {
@@ -299,7 +301,7 @@ export default {
     // 图层-显示、隐藏
     handlerLayerShowClick(data) {
       this.$refs.designApp.layerIsShow(data.id);
-      useQueue().addQueue(this.$refs.designApp.prod, `图层${type}显示`);
+      useQueue().addQueue(this.$refs.designApp.prod, `图层显示、隐藏`);
     },
     // 图层-左/右旋45°
     handlerRotate(type) {
@@ -315,10 +317,11 @@ export default {
     // 撤回、回退
     handlerQueue(type) {
       if (type === "undo") {
-        let prod = useQueue().undo();
-        Object.keys(prod).forEach((key) => {
-          this.$set(this.$refs.designApp.prod, key, prod[key]);
-        });
+        // let set = this.$set;
+        // let data = useQueue().undo();
+        // let vueData = this.$refs.designApp;
+        // vueCloneDeep(set, data, vueData, "prod");
+        vueUndo(this.$refs.designApp, this.$nextTick);
       } else if (type === "redo") {
         //   useQueue().redo();
       } else if (type === "clear") {

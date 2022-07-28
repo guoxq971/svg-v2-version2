@@ -18,10 +18,19 @@ export class useUtil {
     // 根据原始矩阵获取
     let { rotate } = useUtil.getBBoxByMatrix(orgMatrixImgBd);
     let { scale } = useUtil.getBBoxByMatrix(orgMatrixImg);
+    let tempMatrix = orgMatrixImgBd.rotate(
+      -rotate,
+      imgBd.getBBox().cx,
+      imgBd.getBBox().cy
+    );
+    let x = tempMatrix.e;
+    let y = tempMatrix.f;
     // 返回数据
     return {
       rotate: rotate,
       scale: scale,
+      x: x,
+      y: y,
     };
   }
 
@@ -35,6 +44,7 @@ export class useUtil {
     let rotate = Math.atan2(b, a) * (180.0 / Math.PI);
     let scaleX = Math.sqrt(a * a + b * b);
     let scaleY = Math.sqrt(c * c + d * d);
+    matrix.scale(1 / scaleX, 1 / scaleY);
     return {
       scale: scaleX,
       scaleX: scaleX,

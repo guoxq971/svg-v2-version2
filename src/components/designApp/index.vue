@@ -173,11 +173,11 @@ export default {
       };
     },
   },
-  watch:{
-    "prod.imageList":{
-      handler(list){
+  watch: {
+    "prod.imageList": {
+      handler(list) {
         this.$emit("changeImageList", list);
-      }
+      },
     },
   },
   methods: {
@@ -285,7 +285,7 @@ export default {
      * @param {object} image 设计图的参数
      * */
     selImage(image) {
-      let img = this.prod.addImage({ ...image, svgId: this.id });
+      let img = this.prod.addImage({ ...image, svgId: this.id }, image);
       this.prod.setActiveId(img.id);
       this.$nextTick(() => this.prod.setEditMode());
     },
@@ -294,7 +294,7 @@ export default {
      * @param {object} prod 产品的参数
      * */
     changeProd(prod) {
-      this.prod = new ProdInterface(prod);
+      this.prod = new ProdInterface(prod, this);
     },
     /*
      * 设计图的点击事件
@@ -333,8 +333,9 @@ export default {
             x - bbox.x - bbox.width / 2,
             y - bbox.y - bbox.height / 2
           );
+          // console.log(M.toString());
           return {
-            matrix: M,
+            matrix: M.toString(),
           };
         };
         prod.designGroup.transform = fn(us.designGroup(), cx, cy).matrix;
@@ -349,9 +350,9 @@ export default {
     },
   },
   mounted() {
-    this.$nextTick(() => {
-      useQueue().addQueue(this.prod, "初始化添加一个产品");
-    });
+    // setTimeout(() => {
+    useQueue().addQueue(this.prod, "初始化添加一个产品");
+    // }, 1000);
     // 移动到中心位置
     this.moveCenter();
     // 监听鼠标按下
