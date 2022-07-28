@@ -176,7 +176,7 @@ export default {
       let editRotate = us.editRotate();
       let editScale = us.editScale();
       let editDelete = us.editDelete();
-      let callbackEnd = (type) => useQueue().addQueue(this.prod, type);
+      let callbackEnd = (type) => useQueue().addQueue(type);
       // 移动设计图
       let M = new ImageMove();
       let callbackRMove = (_x, _y) => image.setMove(_x, _y);
@@ -206,7 +206,7 @@ export default {
         this.prod.imageList = this.prod.imageList.filter(
           (item) => item.id !== this.image.id
         );
-        useQueue().addQueue(this.prod, `图层删除`);
+        useQueue().addQueue(`图层删除`);
       });
     },
   },

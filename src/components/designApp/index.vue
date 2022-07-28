@@ -245,11 +245,11 @@ export default {
       }
       let index;
       let tempIndex;
-      function arrMove(index, tempIndex) {
+      const arrMove = (index, tempIndex) => {
         let temp = this.prod.imageList[index];
         this.$set(this.prod.imageList, index, this.prod.imageList[tempIndex]);
         this.$set(this.prod.imageList, tempIndex, temp);
-      }
+      };
       index = this.prod.imageList.findIndex((image) => image.id === imgId);
       if (type === "up") {
         if (index === this.prod.imageList.length - 1) {
@@ -296,6 +296,8 @@ export default {
      * */
     changeProd(prod) {
       this.prod = new ProdInterface(prod, this);
+      // 移动到中心位置
+      this.moveCenter();
     },
     /*
      * 设计图的点击事件
@@ -350,15 +352,15 @@ export default {
       });
     },
   },
+  created() {
+    useVueProd(this);
+  },
   mounted() {
-    // setTimeout(() => {
-    useQueue().addQueue(this.prod, "初始化添加一个产品");
-    // }, 1000);
+    useQueue().addQueue("初始化添加一个产品");
     // 移动到中心位置
     this.moveCenter();
     // 监听鼠标按下
     this.addEventOverall();
-    useVueProd(this);
   },
 };
 </script>

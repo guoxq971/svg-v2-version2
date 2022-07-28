@@ -229,11 +229,15 @@ function vueSet(set, data, vueData, key) {
 export function vueUndo() {
   let queueProd = useQueue().undo();
   let set = useVueProd().vurProd.$set;
-  vueSet(set, queueProd, useVueProd().vurProd, "prod");
+  if (queueProd) {
+    vueSet(set, queueProd, useVueProd().vurProd, "prod");
+  }
 }
 
 export function vueRedo() {
   let queueProd = useQueue().redo();
   let set = useVueProd().vurProd.$set;
-  vueSet(set, queueProd, useVueProd().vurProd, "prod");
+  if (queueProd) {
+    vueSet(set, queueProd, useVueProd().vurProd, "prod");
+  }
 }

@@ -1,6 +1,6 @@
-import _ from "lodash";
 import { Message } from "element-ui";
 import { cloneDeep } from "@/components/designApp/util";
+import { useVueProd } from "@/components/designApp/useUtil";
 class queue {
   constructor() {
     // 撤销栈
@@ -15,10 +15,12 @@ class queue {
     console.log("====");
     console.log("当前", useQueue().current);
     console.log("撤回栈", useQueue().undoStack);
+    console.log("回退栈", useQueue().redoStack);
   }
 
-  addQueue(prod, type) {
+  addQueue(type) {
     setTimeout(() => {
+      let prod = useVueProd().vurProd.prod;
       let keys = Object.keys(prod);
       let copyProd = { msgType: type };
       keys.forEach((key) => {

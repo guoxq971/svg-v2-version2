@@ -225,8 +225,6 @@ class vueProd {
   constructor(vueProd) {
     if (vueProd) {
       this.vurProd = vueProd;
-      this.vueProd = vueProd;
-      this.prod = vueProd.prod;
     }
   }
 }

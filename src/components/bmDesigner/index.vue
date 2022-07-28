@@ -231,7 +231,12 @@ import {
   vueDeleteImage,
 } from "./util";
 import { useQueue } from "@/components/designApp/queue";
-import { cloneObj, vueCloneDeep, vueRedo, vueUndo } from "@/components/designApp/util";
+import {
+  cloneObj,
+  vueCloneDeep,
+  vueRedo,
+  vueUndo,
+} from "@/components/designApp/util";
 
 export default {
   components: { bmSwiper, bmInfo, bmSearchList, designApp },
@@ -270,20 +275,19 @@ export default {
     },
     // 设计图-选中
     picClick(data) {
-      const that = this;
       this.$refs.designApp.selImage(data);
-      useQueue().addQueue(this.$refs.designApp.prod, "添加设计图");
+      useQueue().addQueue("添加设计图");
     },
     // 产品-选中
     prodClick(data) {
       this.$refs.designApp.changeProd(data);
-      useQueue().addQueue(this.$refs.designApp.prod, "切换了产品");
+      useQueue().addQueue("切换了产品");
     },
     // 图层点击
     handlerLayerNameClick(data) {
       this.$refs.designApp.prod.setActiveId(data.id);
       this.$refs.designApp.prod.setEditMode();
-      useQueue().addQueue(this.$refs.designApp.prod, "切换激活设计图");
+      useQueue().addQueue("切换激活设计图");
     },
     /*
      * 图层-上/下移
@@ -291,28 +295,28 @@ export default {
      */
     handlerLayer(type, data) {
       this.$refs.designApp.layerMove(type, data.id);
-      useQueue().addQueue(this.$refs.designApp.prod, `图层${type}移动`);
+      useQueue().addQueue(`图层${type}移动`);
     },
     // 图层-置顶、置底
     handlerStick(type) {
       this.$refs.designApp.layerMove(type, this.$refs.designApp.prod.activeId);
-      useQueue().addQueue(this.$refs.designApp.prod, `图层${type}移动`);
+      useQueue().addQueue(`图层${type}移动`);
     },
     // 图层-显示、隐藏
     handlerLayerShowClick(data) {
       this.$refs.designApp.layerIsShow(data.id);
-      useQueue().addQueue(this.$refs.designApp.prod, `图层显示、隐藏`);
+      useQueue().addQueue(`图层显示、隐藏`);
     },
     // 图层-左/右旋45°
     handlerRotate(type) {
       let rotate = { left: -45, right: 45 }[type];
       this.$refs.designApp.layerRotate(rotate);
-      useQueue().addQueue(this.$refs.designApp.prod, `图层${type}旋转`);
+      useQueue().addQueue(`图层${type}旋转`);
     },
     // 居中
     handlerAlign(type) {
       this.$refs.designApp.layerAlign(type);
-      useQueue().addQueue(this.$refs.designApp.prod, `图层${type}居中`);
+      useQueue().addQueue(`图层${type}居中`);
     },
     // 撤回、回退
     handlerQueue(type) {
@@ -321,10 +325,10 @@ export default {
         // let data = useQueue().undo();
         // let vueData = this.$refs.designApp;
         // vueCloneDeep(set, data, vueData, "prod");
-        vueUndo(this.$refs.designApp);
+        vueUndo();
       } else if (type === "redo") {
         //   useQueue().redo();
-        vueRedo(this.$refs.designApp);
+        vueRedo();
       } else if (type === "clear") {
         //   useQueue().clear();
       }
