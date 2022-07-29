@@ -1,6 +1,11 @@
 import { uuid } from "../util";
 import { useSnap } from "../useSnap";
 import { useUtil } from "../useUtil";
+import {
+  convertCanvasToImage,
+  convertImageToCanvas,
+} from "@/components/bmDesigner/app/utils/util";
+import { Filter } from "@/components/bmDesigner/app/plugin/filter";
 
 export class ProdMode {
   static preview = "preview";
@@ -65,9 +70,19 @@ export class ProdInterface {
   }
   /*
    * 添加设计图
+   * @param {object} image vue数据 + svgId
+   * @param {object} imageDta vue数据
    * */
   addImage(image, imageData) {
     let img = new DesignImage(image, imageData);
+    this.imageList.push(img);
+    return img;
+  }
+  /*
+   * 添加背景图
+   * */
+  addImageBg(image) {
+    let img = new DesignImageBg(image);
     this.imageList.push(img);
     return img;
   }
@@ -92,22 +107,60 @@ export class ProdInterface {
   }
 }
 
+// 背景图
+export class DesignImageBg {
+  type = "bg";
+  id = uuid();
+  isShow = true;
+  color = "";
+  svgId = "";
+  imgData = {
+    name: "背景图",
+  };
+  x = 0;
+  y = 0;
+  width = 500;
+  height = 500;
+  constructor(param) {
+    this.color = param.color;
+    this.svgId = param.svgId;
+    let us = new useSnap(this.svgId, this.id);
+    let svg = us.svg();
+    let bbox = svg.getBBox();
+    this.width = bbox.w;
+    this.height = bbox.h;
+  }
+}
+
 // 设计图
 export class DesignImage {
+  type = "img";
+  // 自定义设计图id
+  id = uuid();
   // 显示隐藏
   isShow = true;
+  // vue数据
   imageData = {};
+  // 翻转-水平 0=不翻转 1=翻转
+  reverseX = 0;
+  reverseXImg;
+  // 翻转-垂直 0=不翻转 1=翻转
+  reverseY = 0;
+  reverseYImg;
+  reverseXYImg;
+  // 用于监听，每次翻转后，更新图片
+  reverse = 0;
+  reverseName = "";
   constructor(param, imageData) {
     this.imageData = imageData;
     this.svgId = param.svgId;
     this.imgData = param;
-    this.type = "img";
-    this.id = uuid();
     this.imageBd = {
       transform: "matrix(1,0,0,1,0,0)",
     };
     this.image = {
       transform: "matrix(1,0,0,1,0,0)",
+      orgHref: param?.url,
       href: param?.url,
       x: 0,
       y: 0,
@@ -151,6 +204,21 @@ export class DesignImage {
       width: 18,
       height: 18,
     };
+  }
+
+  /*
+   * 设置翻转
+   * @param {number} reverse x-水平翻转 y-垂直翻转
+   * */
+  setReverse(reverse) {
+    this.reverseName = reverse;
+    if (reverse === "x") {
+      this.reverseX = this.reverseX === 0 ? 1 : 0;
+    }
+    if (reverse === "y") {
+      this.reverseY = this.reverseY === 0 ? 1 : 0;
+    }
+    this.reverse = uuid();
   }
 
   /*

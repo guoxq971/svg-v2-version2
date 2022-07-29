@@ -99,7 +99,7 @@
       <div class="operator-container" bm="1">
         <div class="btn-group">
           <div class="btn-1">
-            <el-button>设计说明</el-button>
+            <el-button @click="test">设计说明</el-button>
             <el-button>快捷键</el-button>
             <el-button>记录</el-button>
             <el-button>全颜色合成</el-button>
@@ -174,7 +174,9 @@
               >下移
             </el-button>
             <el-button class="item-btn" @click="handlerCopy()">复制</el-button>
-            <el-button class="item-btn">删除</el-button>
+            <el-button class="item-btn" @click="handlerLayerDelClick()"
+              >删除</el-button
+            >
           </div>
           <div class="btn-2">
             <el-button class="item-btn" bm="1" @click="handlerAlign('y')"
@@ -183,10 +185,10 @@
             <el-button class="item-btn" @click="handlerAlign('x')"
               >垂直居中
             </el-button>
-            <el-button class="item-btn" @click="handlerRevere('y')"
+            <el-button class="item-btn" @click="handlerRevere('x')"
               >水平翻转
             </el-button>
-            <el-button class="item-btn" @click="handlerRevere('x')"
+            <el-button class="item-btn" @click="handlerRevere('y')"
               >垂直翻转
             </el-button>
             <el-button class="item-btn" @click="handlerScale('bigScale')"
@@ -231,12 +233,8 @@ import {
   vueDeleteImage,
 } from "./util";
 import { useQueue } from "@/components/designApp/queue";
-import {
-  cloneObj,
-  vueCloneDeep,
-  vueRedo,
-  vueUndo,
-} from "@/components/designApp/util";
+import { vueRedo, vueUndo } from "@/components/designApp/util";
+import { useUtil } from "@/components/designApp/useUtil";
 
 export default {
   components: { bmSwiper, bmInfo, bmSearchList, designApp },
@@ -261,6 +259,19 @@ export default {
     };
   },
   methods: {
+    test() {
+      let prod = this.$refs.designApp.prod;
+      let image = prod.getActiveImage();
+      let obj = useUtil.getBBoxByImage(image.svgId, image.id);
+      prod.imageList.forEach((item) => {
+        let p = new Promise((resolve) => resolve());
+        p.then(() => {})
+          .then(() => item.setRotate(obj.rotate))
+          .then(() => item.setScale(obj.scale))
+          .then(() => item.setMove(obj.x, obj.y))
+          .then(() => {});
+      });
+    },
     /*
      * 产品的设计图激活发生改变
      * */
@@ -285,6 +296,7 @@ export default {
     },
     // 图层点击
     handlerLayerNameClick(data) {
+      if (this.$refs.designApp.prod.activeId === data.id) return;
       this.$refs.designApp.prod.setActiveId(data.id);
       this.$refs.designApp.prod.setEditMode();
       useQueue().addQueue("切换激活设计图");
@@ -293,14 +305,25 @@ export default {
      * 图层-上/下移
      * @param {String} type up上/down下
      */
-    handlerLayer(type, data) {
-      this.$refs.designApp.layerMove(type, data.id);
-      useQueue().addQueue(`图层${type}移动`);
+    handlerLayer(type, data = null) {
+      let imgId;
+      if (data !== null) imgId = data.id;
+      else if (!this.$refs.designApp.hasActiveImage()) {
+        this.$message.warning("请先选择图层");
+        return;
+      } else imgId = this.$refs.designApp.prod.activeId;
+      let isOk = this.$refs.designApp.layerMove(type, imgId);
+      isOk && useQueue().addQueue(`图层${type}移动`);
     },
     // 图层-置顶、置底
     handlerStick(type) {
-      this.$refs.designApp.layerMove(type, this.$refs.designApp.prod.activeId);
-      useQueue().addQueue(`图层${type}移动`);
+      if (!this.$refs.designApp.hasActiveImage()) {
+        this.$message.warning("请先选择图层");
+        return;
+      }
+      let imageId = this.$refs.designApp.prod.activeId;
+      let isOk = this.$refs.designApp.layerMove(type, imageId);
+      isOk && useQueue().addQueue(`图层${type}移动`);
     },
     // 图层-显示、隐藏
     handlerLayerShowClick(data) {
@@ -309,64 +332,79 @@ export default {
     },
     // 图层-左/右旋45°
     handlerRotate(type) {
+      if (!this.$refs.designApp.hasActiveImage()) {
+        this.$message.warning("请先选择图层");
+        return;
+      }
+      let imageId = this.$refs.designApp.prod.activeId;
       let rotate = { left: -45, right: 45 }[type];
-      this.$refs.designApp.layerRotate(rotate);
+      this.$refs.designApp.layerRotate(rotate, imageId);
       useQueue().addQueue(`图层${type}旋转`);
     },
-    // 居中
+    // 图层-居中
     handlerAlign(type) {
+      if (!this.$refs.designApp.hasActiveImage()) {
+        this.$message.warning("请先选择图层");
+        return;
+      }
       this.$refs.designApp.layerAlign(type);
       useQueue().addQueue(`图层${type}居中`);
     },
-    // 撤回、回退
-    handlerQueue(type) {
-      if (type === "undo") {
-        // let set = this.$set;
-        // let data = useQueue().undo();
-        // let vueData = this.$refs.designApp;
-        // vueCloneDeep(set, data, vueData, "prod");
-        vueUndo();
-      } else if (type === "redo") {
-        //   useQueue().redo();
-        vueRedo();
-      } else if (type === "clear") {
-        //   useQueue().clear();
+    // 图层-删除
+    handlerLayerDelClick(data = null) {
+      let imageId;
+      if (data) imageId = data.id;
+      else if (!this.$refs.designApp.hasActiveImage()) {
+        this.$message.warning("请先选择图层");
+        return;
+      } else if (data === null) imageId = this.$refs.designApp.prod.activeId;
+      this.$refs.designApp.layerDelete(imageId);
+      useQueue().addQueue(`图层删除`);
+    },
+    // 图层-复制
+    handlerCopy() {
+      if (!this.$refs.designApp.hasActiveImage()) {
+        this.$message.warning("请先选择图层");
+        return;
       }
+      let imgId = this.$refs.designApp.prod.activeId;
+      this.$refs.designApp.layerCopy(imgId);
+      useQueue().addQueue(`图层复制`);
+    },
+    // 图层-翻转
+    async handlerRevere(type) {
+      if (!this.$refs.designApp.hasActiveImage()) {
+        this.$message.warning("请先选择图层");
+        return;
+      }
+      let imgId = this.$refs.designApp.prod.activeId;
+      this.$refs.designApp.layerReverse(type, imgId);
+      useQueue().addQueue(`图层翻转`);
     },
     // 背景色-应用
     handlerApplyColor(color) {
       color = color || this.color;
-      vueApplyBgColor(color, this.layerList);
-      // useQueue().addQueue();
+      this.$refs.designApp.selBgImage({ color });
+      useQueue().addQueue(`背景色`);
+    },
+    // 撤回、回退
+    handlerQueue(type) {
+      if (type === "undo") {
+        vueUndo();
+      } else if (type === "redo") {
+        vueRedo();
+      } else if (type === "clear") {
+        useQueue().clear();
+      }
     },
     // 下载图片
     handlerDown() {
       downloadSvg();
     },
-    // 图层-删除
-    handlerLayerDelClick(data) {
-      data.sNode.getProd().deleteImage(data.sid);
-    },
-    // 图层-复制
-    handlerCopy() {
-      vueCopyImage(this.picClick);
-    },
-    // 图库-删除(提供给design类使用)
-    handlerImgDel(id) {
-      vueDeleteImage(this.layerList, id);
-    },
-    // 设置VUE中的当前激活图片id(提供给design类使用)
-    setVueActiveImgId(id) {
-      this.activeImgId = id;
-    },
     // 左侧-类型切换
     handlerActive(type) {
       this.typeActiveName = type;
       this.activeName = "1";
-    },
-    // 翻转
-    async handlerRevere(type) {
-      useDesign().getActiveImage().imageReverse(type);
     },
     // 缩放
     handlerScale() {},

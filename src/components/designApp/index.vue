@@ -1,10 +1,10 @@
 <template>
   <div style="position: relative">
-    <!--    <div style="position: absolute">-->
-    <!--      <el-button @click="prod.mode = 'edit'">编辑模式</el-button>-->
-    <!--      <el-button @click="prod.mode = 'preview'">预览模式</el-button>-->
-    <!--      <el-button>当前设计图id: {{ prod.activeId }}</el-button>-->
-    <!--    </div>-->
+    <div style="position: absolute">
+      <el-button @click="prod.mode = 'edit'">编辑模式</el-button>
+      <el-button @click="prod.mode = 'preview'">预览模式</el-button>
+      <el-button>当前设计图id: {{ prod.activeId }}</el-button>
+    </div>
     <svg
       :id="`svg-${id}`"
       height="544"
@@ -68,16 +68,25 @@
           :style="{ clipPath: `url(#${prod.mode})` }"
         ></rect>
         <!--设计图组合-->
-        <designImage
-          v-for="item in prod.imageList"
-          :key="item.id"
-          :active-id="prod.activeId"
-          :mode="prod.mode"
-          :image="item"
-          :svg-id="id"
-          :prod="prod"
-          @imgClick="imgClick"
-        />
+        <g v-for="item in prod.imageList">
+          <designImage
+            v-if="item.type === 'img'"
+            :key="item.id"
+            :active-id="prod.activeId"
+            :mode="prod.mode"
+            :image="item"
+            :svg-id="id"
+            :prod="prod"
+            @imgClick="imgClick"
+            @imgDelete="layerDelete"
+          />
+          <designImageBg
+            v-if="item.type === 'bg'"
+            :key="item.id"
+            :mode="prod.mode"
+            :image="item"
+          />
+        </g>
       </g>
       <image
         test="[预览模式]产品图"
@@ -127,15 +136,23 @@
 import { ProdInterface, ProdMode } from "./interface/prod";
 import { mock } from "../bmDesigner/mock";
 import designImage from "./componetns/designImage";
-import { uuid } from "../bmDesigner/app/utils/util";
+import designImageBg from "./componetns/designImageBg";
+import {
+  convertCanvasToImage,
+  convertImageToCanvas,
+  uuid,
+} from "../bmDesigner/app/utils/util";
 import { useSnap } from "./useSnap";
 import { useUtil, useVueProd } from "./useUtil";
 import { useQueue } from "@/components/designApp/queue";
+import { vueSet } from "@/components/designApp/util";
+import { Filter } from "@/components/bmDesigner/app/plugin/filter";
 
 export default {
   name: "index",
   components: {
     designImage,
+    designImageBg,
   },
   data() {
     return {
@@ -183,20 +200,58 @@ export default {
   },
   methods: {
     /*
+     * 图层-翻转
+     * */
+    layerReverse(type, imgId) {
+      let image = this.prod.getImage(imgId);
+      image.setReverse(type);
+    },
+    /*
+     * 图层-复制
+     * */
+    layerCopy(imgId) {
+      // 获取要复制的图层
+      let copyImage = this.prod.getImage(imgId);
+      // 添加一个新的图层
+      let svgId = copyImage.svgId;
+      let param = { ...copyImage.imageData, svgId: svgId };
+      let newImage = this.prod.addImage(param, copyImage.imageData);
+      let newImageId = newImage.id;
+      let imageList = this.prod.imageList;
+      let index = imageList.findIndex((image) => image.id === newImage.id);
+      let set = this.$set;
+      vueSet(set, copyImage, imageList, index);
+      set(newImage, "id", newImageId);
+      this.$nextTick(() => {
+        // 设置新图层的位置
+        let imageBBox = useUtil.getBBoxByImage(newImage.svgId, newImage.id);
+        newImage.setMove(imageBBox.x + 30, imageBBox.y + 30);
+        // 设置新图层为选中状态
+        this.prod.setActiveId(newImageId);
+      });
+    },
+    /*
      * 图层-居中
      * @param {number} type 居中类型 x-垂直 y-水平
      * */
     layerAlign(type) {
+      // 获取当前选中图层
       let image = this.prod.getActiveImage();
+      // 使用Promise来逐步执行
       let bbox = useUtil.getBBoxByImage(image.svgId, image.id, image);
       let us = new useSnap(image.svgId, image.id);
       let promise = new Promise((resolve) => resolve());
       let matrix;
       promise
+        .then(() => {})
+        // 回正
         .then(() => image.setRotate(0))
         .then(() => image.setScale(1))
+        // 取到回正时候的矩阵
         .then(() => (matrix = us.imgBd().attr("transform").localMatrix))
+        // 移动到 0,0
         .then(() => image.setMove(0, 0))
+        // 居中逻辑
         .then(() => {
           let x = matrix.e;
           let y = matrix.f;
@@ -211,15 +266,17 @@ export default {
           if (type === "y") x = alignX;
           image.setMove(x, y);
         })
+        // 回复原来
         .then(() => image.setRotate(bbox.rotate))
-        .then(() => image.setScale(bbox.scale));
+        .then(() => image.setScale(bbox.scale))
+        .then(() => {});
     },
     /*
      * 图层-旋转
      * @param {number} rotate 旋转角度
      * */
-    layerRotate(rotate) {
-      let image = this.prod.getActiveImage();
+    layerRotate(rotate, imageId) {
+      let image = this.prod.getImage(imageId);
       let imageRotate = image.getRotate();
       let afterRotate = imageRotate + rotate;
       afterRotate = afterRotate - (afterRotate % 45);
@@ -234,7 +291,19 @@ export default {
       image.setIsShow(!image.isShow);
     },
     /*
-     * 图层移动
+     * 图层-删除
+     * */
+    layerDelete(imgId) {
+      let image = this.prod.getImage(imgId);
+      this.prod.imageList = this.prod.imageList.filter(
+        (item) => item.id !== image.id
+      );
+      if (imgId === this.prod.activeId) {
+        this.prod.setActiveId("");
+      }
+    },
+    /*
+     * 图层-移动
      * @param {String} type up上/down下/top置顶/bottom置底
      * @param {string} imgId 图片id
      * */
@@ -280,6 +349,7 @@ export default {
         tempIndex = 0;
         arrMove(index, tempIndex);
       }
+      return true;
     },
     /*
      * 选中设计图
@@ -291,6 +361,22 @@ export default {
       this.$nextTick(() => this.prod.setEditMode());
     },
     /*
+     * 选中背景图
+     * @param {object} image 背景图参数
+     * */
+    selBgImage(imageData) {
+      let image = this.prod.imageList.find((image) => image.type === "bg");
+      if (!image) {
+        let img = this.prod.addImageBg({ ...imageData, svgId: this.id });
+        this.prod.setActiveId(img.id);
+        this.$nextTick(() => this.prod.setEditMode());
+      } else {
+        image.color = imageData.color;
+        this.prod.setActiveId(image.id);
+        this.$nextTick(() => this.prod.setEditMode());
+      }
+    },
+    /*
      * 切换产品
      * @param {object} prod 产品的参数
      * */
@@ -300,7 +386,7 @@ export default {
       this.moveCenter();
     },
     /*
-     * 设计图的点击事件
+     * 设计图的点击事件(切换激活设计图)
      * @param {string} imgId 图片id
      * */
     imgClick(imgId) {
@@ -323,6 +409,7 @@ export default {
         }
       });
     },
+    // 移动到中心位置
     moveCenter() {
       this.$nextTick(() => {
         let us = new useSnap(this.id);
@@ -336,7 +423,6 @@ export default {
             x - bbox.x - bbox.width / 2,
             y - bbox.y - bbox.height / 2
           );
-          // console.log(M.toString());
           return {
             matrix: M.toString(),
           };
@@ -350,6 +436,10 @@ export default {
           cy
         ).matrix;
       });
+    },
+    // 判断是否有激活的设计图
+    hasActiveImage() {
+      return !!this.prod.activeId;
     },
   },
   created() {

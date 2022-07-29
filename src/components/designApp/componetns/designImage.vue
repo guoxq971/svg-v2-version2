@@ -101,6 +101,11 @@ import { useSnap } from "../useSnap";
 import { imageRotate } from "./imageRotate";
 import { imageScale } from "./imageScale";
 import { useQueue } from "@/components/designApp/queue";
+import {
+  convertCanvasToImage,
+  convertImageToCanvas,
+} from "@/components/bmDesigner/app/utils/util";
+import { Filter } from "@/components/bmDesigner/app/plugin/filter";
 
 export default {
   name: "designImage",
@@ -138,16 +143,79 @@ export default {
     };
   },
   watch: {
+    /*
+     * 翻转发生变化
+     * */
+    "image.reverse": {
+      handler() {
+        if (
+          this.image.reverseX === 1 &&
+          this.image.reverseY === 0 &&
+          this.image.reverseXImg
+        ) {
+          this.image.image.href = this.image.reverseXImg;
+        } else if (
+          this.image.reverseX === 0 &&
+          this.image.reverseY === 1 &&
+          this.image.reverseYImg
+        ) {
+          this.image.image.href = this.image.reverseYImg;
+        } else if (
+          this.image.reverseX === 1 &&
+          this.image.reverseY === 1 &&
+          this.image.reverseXYImg
+        ) {
+          this.image.image.href = this.image.reverseXYImg;
+        } else if (this.image.reverseX === 0 && this.image.reverseY === 0) {
+          this.image.image.href = this.image.image.orgHref;
+        } else {
+          let image = new Image();
+          image.src = this.image.image.href;
+          if (!image.src) {
+            this.$message.warning("翻转图片出现错误!");
+            return;
+          }
+          image.onload = () => {
+            let cvs = convertImageToCanvas(image);
+            if (cvs.getContext && cvs.getContext("2d")) {
+              let ctx = cvs.getContext("2d");
+              const filter = new Filter(ctx); // 实例滤镜
+              // 水平翻转
+              if (this.image.reverseName === "x") {
+                filter.flipHorizontal(0, 0, image.width, image.height);
+              }
+              // 垂直翻转
+              if (this.image.reverseName === "y") {
+                filter.flipVertical(0, 0, image.width, image.height);
+              }
+              let img = convertCanvasToImage(cvs);
+              this.image.image.href = img.src;
+              if (this.image.reverseX === 1 && this.image.reverseY === 0) {
+                this.image.reverseXImg = img.src;
+              }
+              if (this.reverseX === 0 && this.reverseY === 1) {
+                this.image.reverseYImg = img.src;
+              }
+              if (this.image.reverseX === 1 && this.image.reverseY === 1) {
+                this.image.reverseXYImg = img.src;
+              }
+            }
+          };
+        }
+      },
+    },
+    /*
+     * 模式发生变化
+     * */
     mode: {
       handler() {
-        this.init();
+        this.changeMode();
       },
-      // immediate: true,
     },
   },
   methods: {
     // 初始化
-    init() {
+    changeMode() {
       if (ProdMode.isEdit(this.mode)) {
         this.mountDrag();
       } else if (ProdMode.isPreview(this.mode)) {
@@ -171,6 +239,7 @@ export default {
       let svgId = this.svgId;
       let imgId = this.image.id;
       let image = this.image;
+      // 获取节点
       let us = new useSnap(svgId, imgId);
       let imgBd = us.imgBd();
       let editRotate = us.editRotate();
@@ -203,20 +272,17 @@ export default {
       );
       // 设计图的删除事件
       editDelete.click(() => {
-        this.prod.imageList = this.prod.imageList.filter(
-          (item) => item.id !== this.image.id
-        );
+        this.$emit("imgDelete", imgId);
         useQueue().addQueue(`图层删除`);
       });
     },
   },
   mounted() {
     let us = new useSnap(this.svgId, this.image.id);
-    let img = us.img();
-    img.mousedown(() => {
+    us.img().mousedown(() => {
       this.$emit("imgClick", this.image.id);
     });
-    this.init();
+    this.changeMode();
   },
 };
 </script>

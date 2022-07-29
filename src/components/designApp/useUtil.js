@@ -16,15 +16,10 @@ export class useUtil {
     let orgMatrixImgBd = imgBd.attr("transform").localMatrix;
     let orgMatrixImg = img.attr("transform").localMatrix;
     // 根据原始矩阵获取
-    let { rotate } = useUtil.getBBoxByMatrix(orgMatrixImgBd);
-    let { scale } = useUtil.getBBoxByMatrix(orgMatrixImg);
-    let tempMatrix = orgMatrixImgBd.rotate(
-      -rotate,
-      imgBd.getBBox().cx,
-      imgBd.getBBox().cy
+    let { rotate, scale, x, y } = useUtil.getBBoxByMatrix(
+      orgMatrixImg,
+      orgMatrixImgBd
     );
-    let x = tempMatrix.e;
-    let y = tempMatrix.f;
     // 返回数据
     return {
       rotate: rotate,
@@ -35,21 +30,33 @@ export class useUtil {
   }
 
   /*
-   * 获取矩阵对应的信息，根据传入的矩阵
-   * @param {object} matrix 矩阵
-   * @return {number} 角度
+   * 获取矩阵对应信息，根据传入的矩阵和图片大小
+   * @param {object} imgMatrix 设计图矩阵
+   * @param {object} imgBdMatrix 设计图边框矩阵
    * */
-  static getBBoxByMatrix(matrix) {
-    let { a, b, c, d, e, f } = matrix;
-    let rotate = Math.atan2(b, a) * (180.0 / Math.PI);
-    let scaleX = Math.sqrt(a * a + b * b);
-    let scaleY = Math.sqrt(c * c + d * d);
-    matrix.scale(1 / scaleX, 1 / scaleY);
+  static getBBoxByMatrix(imgMatrix, imgBdMatrix) {
+    let imgMatrixBbox, imgBdMatrixBbox;
+    if (typeof imgMatrix === "string") {
+      let arr = imgMatrix.split("matrix(")[1].split(")")[0].split(",");
+      imgMatrix = Snap.matrix(...arr);
+    }
+    if (typeof imgBdMatrix === "string") {
+      let arr = imgBdMatrix.split("matrix(")[1].split(")")[0].split(",");
+      imgBdMatrix = Snap.matrix(...arr);
+    }
+    imgMatrixBbox = imgMatrix.split();
+    imgMatrixBbox = { ...imgMatrixBbox, scale: imgMatrixBbox.scalex };
+    imgBdMatrixBbox = imgBdMatrix.split();
+    imgBdMatrixBbox = { ...imgBdMatrixBbox, scale: imgBdMatrixBbox.scalex };
     return {
-      scale: scaleX,
-      scaleX: scaleX,
-      scaleY: scaleY,
-      rotate: rotate,
+      imgMatrix,
+      imgBdMatrix,
+      imgMatrixBbox,
+      imgBdMatrixBbox,
+      rotate: imgBdMatrixBbox.rotate,
+      scale: imgMatrixBbox.scale,
+      x: imgBdMatrixBbox.dx,
+      y: imgBdMatrixBbox.dy,
     };
   }
 
@@ -88,10 +95,8 @@ export class useUtil {
     let us = new useSnap(svgId, imgId);
     let img = us.img();
     let bbox = img.getBBox();
-    // 获取矩阵
-    let orgMatrix = img.attr("transform").localMatrix;
     // 根据矩阵获取缩放比例
-    let orgScale = useUtil.getBBoxByMatrix(orgMatrix).scale;
+    let orgScale = useUtil.getBBoxByImage(svgId, imgId).scale;
     // 获取缩放比例为1时候的矩阵
     let obj = useUtil.getMatrixByScalePlus(svgId, imgId, 1 / orgScale);
     obj.imgMatrix.scale(scale, scale, obj.bbox.cx, obj.bbox.cy);
@@ -163,10 +168,8 @@ export class useUtil {
   static getMatrixByRotateReal(svgId, imgId, rotate) {
     // 获取sNode节点
     let us = new useSnap(svgId, imgId);
-    // 获取矩阵
-    let orgMatrix = us.imgBd().attr("transform").localMatrix;
     // 根据矩阵获取角度
-    let orgRotate = useUtil.getBBoxByMatrix(orgMatrix).rotate;
+    let orgRotate = useUtil.getBBoxByImage(svgId, imgId).rotate;
     // 获取0°时候的矩阵
     let obj = useUtil.getMatrixByRotatePlus(svgId, imgId, -orgRotate);
     let { cx, cy } = obj;

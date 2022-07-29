@@ -58,6 +58,11 @@ class queue {
     this.current = this.redoStack.pop();
     return this.current;
   }
+  // 清空
+  clear() {
+    this.undoStack = [];
+    this.redoStack = [];
+  }
 }
 
 // 单例模式导出queue

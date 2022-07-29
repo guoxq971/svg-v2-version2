@@ -180,34 +180,51 @@ export function cloneDeep(data) {
   }
 }
 
-function vueSet(set, data, vueData, key) {
+/*
+ * vue数据深拷贝(撤回、恢复中使用)
+ * */
+export function vueSet(set, data, vueData, key) {
   let types = ["string", "number", "boolean", "undefined", "null"];
   if (types.includes(typeof data)) {
     set(vueData, key, data);
   } else if (Array.isArray(data)) {
     if (key === "imageList") {
       let ids = data.map((item) => item.id);
-      // 去掉已经删除的图片
+      // 1. [删除]去掉已经删除的图片
       vueData[key] = vueData[key].filter((item) => ids.includes(item.id));
-      // 添加新增的图片和更新的图片
       data.forEach((dataItem, dataIndex) => {
-        // 找到了就是更新
+        // 2. [更新]添加新增的图片和更新的图片
         let i = vueData[key].findIndex((item) => dataItem.id === item.id);
         if (i !== -1) {
           vueSet(set, dataItem, vueData[key], i);
         }
-        // 没找到就是新增
+        // 3. [新增]没找到就是新增
         else {
-          console.error("没找到就是新增");
+          // console.error("没找到就是新增");
           let that = useVueProd().vurProd;
-          let img = that.prod.addImage(
-            { ...dataItem.imageData, svgId: that.id },
-            dataItem.imageData
-          );
+          let img;
+          if (dataItem.type === "img") {
+            img = that.prod.addImage(
+              { ...dataItem.imageData, svgId: that.id },
+              dataItem.imageData
+            );
+          } else if (dataItem.type === "bg") {
+            img = that.prod.addImageBg({
+              ...dataItem.imageData,
+              svgId: that.id,
+            });
+          }
           img.id = dataItem.id;
           vueSet(set, dataItem, that.prod.imageList, dataIndex);
         }
       });
+      // 4. [排序] 对图片进行排序
+      let list = [];
+      data.forEach((dataItem) => {
+        let i = vueData[key].findIndex((item) => dataItem.id === item.id);
+        if (i !== -1) list.push(vueData[key][i]);
+      });
+      vueData[key] = list;
     } else {
       console.error("处理到了数组，可能会出现问题");
       data.forEach((item, index) => {
@@ -226,6 +243,9 @@ function vueSet(set, data, vueData, key) {
   }
 }
 
+/*
+ * 撤回
+ * */
 export function vueUndo() {
   let queueProd = useQueue().undo();
   let set = useVueProd().vurProd.$set;
@@ -234,6 +254,9 @@ export function vueUndo() {
   }
 }
 
+/*
+ * 回退
+ * */
 export function vueRedo() {
   let queueProd = useQueue().redo();
   let set = useVueProd().vurProd.$set;
